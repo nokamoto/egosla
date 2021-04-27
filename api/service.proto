@@ -11,6 +11,6 @@ message Watcher {
   repeated string keywords = 2;
 }
 
-message CreateWatcherRequest { 
-    Watcher watcher = 1; 
-    }
+message CreateWatcherRequest {
+  Watcher watcher = 1;
+}
