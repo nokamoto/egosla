@@ -1,0 +1,20 @@
+name: api-test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install prototool
+        run: |
+          curl -sSL \
+            https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(uname -s)-$(uname -m) \
+            -o /usr/local/bin/prototool && \
+            chmod +x /usr/local/bin/prototool
