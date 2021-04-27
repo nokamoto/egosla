@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run:
-          sudo curl -sSL
-            https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(uname -s)-$(uname -m)
-            -o /usr/local/bin/prototool
-      - run: chmod +x /usr/local/bin/prototool
+      - run: sudo curl -sSL
+          https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(uname -s)-$(uname -m)
+          -o /usr/local/bin/prototool
+      - run: sudo chmod +x /usr/local/bin/prototool
+      - run: prototool format -d api
