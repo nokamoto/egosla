@@ -1,0 +1,10 @@
+image:
+  file: .gitpod.Dockerfile
+
+vscode:
+  extensions:
+    - zxh404.vscode-proto3
+
+github:
+  prebuilds:
+    addBadge: true

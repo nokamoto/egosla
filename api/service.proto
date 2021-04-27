@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package nokamoto.github.com.egosla.api;
+
+service WatcherService {
+  rpc CreateWatcher(CreateWatcherRequest) returns (Watcher);
+}
+
+message Watcher {
+  string name = 1;
+  repeated string keywords = 2;
+}
+
+message CreateWatcherRequest {
+  Watcher watcher = 1;
+}
