@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run:
-          curl -sSL
+          sudo curl -sSL
             https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(uname -s)-$(uname -m)
-            # git -o /usr/local/bin/prototool
+            -o /usr/local/bin/prototool
       - run: chmod +x /usr/local/bin/prototool
