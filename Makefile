@@ -1,9 +1,9 @@
-all: proto format
+all: protoc format
 
 format:
 	clang-format --style=Google -i api/*.proto
 
-proto:
+protoc:
 	go get google.golang.org/protobuf/cmd/protoc-gen-go
 	go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	protoc \
