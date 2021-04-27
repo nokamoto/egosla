@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install prototool
         run:
-          curl -sSL \
-            https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(uname -s)-$(uname -m) \
-            -o /usr/local/bin/prototool && \
+          curl -sSL
+            https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(uname -s)-$(uname -m)
+            -o /usr/local/bin/prototool &&
             chmod +x /usr/local/bin/prototool
