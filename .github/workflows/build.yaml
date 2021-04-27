@@ -14,4 +14,4 @@ jobs:
       - uses: actions/checkout@v2
       - run: sudo apt install -y clang-format
       - run: clang-format -i api/*
-      - run: git diff
+      - run: git diff --exit-code
