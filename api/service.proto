@@ -2,8 +2,11 @@ syntax = "proto3";
 
 package nokamoto.github.com.egosla.api;
 
+import "google/protobuf/empty.proto";
+
 service WatcherService {
   rpc CreateWatcher(CreateWatcherRequest) returns (Watcher);
+  rpc DeleteWatcher(DeleteWatcherRequest) returns (google.protobuf.Empty);
 }
 
 message Watcher {
