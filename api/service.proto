@@ -10,3 +10,7 @@ message Watcher {
   string name = 1;
   repeated string keywords = 2;
 }
+
+message CreateWatcherRequest { 
+    Watcher watcher = 1; 
+    }
