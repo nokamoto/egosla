@@ -13,6 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
+      - run: echo /home/runner/go/bin >> ${GITHUB_PATH}
       - run: sudo apt install -y clang-format protobuf-compiler
       - run: make format
       - run: make protoc
