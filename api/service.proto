@@ -3,10 +3,16 @@ syntax = "proto3";
 package nokamoto.github.com.egosla.api;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+option go_package = "github.com/nokamoto/egosla/api";
 
 service WatcherService {
   rpc CreateWatcher(CreateWatcherRequest) returns (Watcher);
   rpc DeleteWatcher(DeleteWatcherRequest) returns (google.protobuf.Empty);
+  rpc GetWatcher(GetWatcherRequest) returns (Watcher);
+  rpc ListWatcher(ListWatcherRequest) returns (ListWatcherResponse);
+  rpc UpdateWatcher(UpdateWatcherRequest) returns (Watcher);
 }
 
 message Watcher {
@@ -16,4 +22,28 @@ message Watcher {
 
 message CreateWatcherRequest {
   Watcher watcher = 1;
+}
+
+message DeleteWatcherRequest {
+  string name = 1;
+}
+
+message GetWatcherRequest {
+  string name = 1;
+}
+
+message ListWatcherRequest {
+  string page_token = 1;
+  int32 page_size = 2;
+}
+
+message ListWatcherResponse {
+  string next_page_token = 1;
+  repeated Watcher watchers = 2;
+}
+
+message UpdateWatcherRequest {
+  string name = 1;
+  Watcher watcher = 2;
+  google.protobuf.FieldMask update_mask = 3;
 }
