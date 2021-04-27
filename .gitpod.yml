@@ -4,6 +4,7 @@ image:
 vscode:
   extensions:
     - zxh404.vscode-proto3
+    - golang.go
 
 github:
   prebuilds:
