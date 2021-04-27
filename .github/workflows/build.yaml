@@ -15,5 +15,5 @@ jobs:
       - run:
           curl -sSL
             https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(uname -s)-$(uname -m)
-            -o /usr/local/bin/prototool
+            # git -o /usr/local/bin/prototool
       - run: chmod +x /usr/local/bin/prototool
