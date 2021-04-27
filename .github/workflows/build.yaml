@@ -1,4 +1,4 @@
-name: api-test
+name: ci
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install prototool
-        run: |
+        run:
           curl -sSL \
             https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(uname -s)-$(uname -m) \
             -o /usr/local/bin/prototool && \
