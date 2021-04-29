@@ -15,5 +15,7 @@ protoc:
 	go mod tidy
 
 go:
+	go get github.com/golang/mock/mockgen
+	go generate ./...
 	go test ./...
 	go mod tidy

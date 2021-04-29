@@ -5,18 +5,15 @@ import (
 	"log"
 
 	"github.com/nokamoto/egosla/api"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
-
-type persistent interface {
-	Create(*api.Watcher) error
-}
 
 // Watcher implements api.WatcherServiceServer.
 type Watcher struct {
 	api.UnimplementedWatcherServiceServer
 	p persistent
+	n nameGenerator
 }
 
 func (w *Watcher) CreateWatcher(ctx context.Context, req *api.CreateWatcherRequest) (*api.Watcher, error) {
@@ -26,15 +23,16 @@ func (w *Watcher) CreateWatcher(ctx context.Context, req *api.CreateWatcherReque
 	
 	err := validate(req)
 	if err != nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
+		return nil, status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
 	}
 
 	created := req.GetWatcher()
+	created.Name = w.n.newName()
 
 	err = w.p.Create(created)
 	if err != nil {
 		log.Printf("unavailable: %s", err)
-		return nil, grpc.Errorf(codes.Unavailable, "unavailable")
+		return nil, status.Errorf(codes.Unavailable, "unavailable")
 	}
 
 	return created, nil
