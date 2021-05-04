@@ -19,3 +19,6 @@ go:
 	go generate ./...
 	go test ./...
 	go mod tidy
+
+watcher:
+	MYSQL_TCP=127.0.0.1:3306 MYSQL_USER=root go run ./cmd/watcher

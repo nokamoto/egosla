@@ -6,32 +6,15 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
-	"google.golang.org/protobuf/testing/protocmp"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-func TestNewWatcher(t *testing.T) {
-	expected := &api.Watcher{
-		Name: "foo",
-		Keywords: []string{"bar", "baz"},
-	}
-
-	w := NewWatcher(expected)
-
-	actual := w.Value()
-
-	if diff := cmp.Diff(expected, actual, protocmp.Transform()); len(diff) != 0 {
-		t.Error(diff)
-	}
-}
-
 func TestPersistentWatcher_Create(t *testing.T) {
 	query := func(mock sqlmock.Sqlmock) *sqlmock.ExpectedExec {
 		return mock.
-			ExpectExec(regexp.QuoteMeta("INSERT INTO `watchers` (`name`,`keywords`) VALUES (?,?)")).
+			ExpectExec(regexp.QuoteMeta("INSERT INTO `watcher` (`name`,`keywords`) VALUES (?,?)")).
 			WithArgs("foo", "bar,baz")
 	}
 

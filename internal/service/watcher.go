@@ -16,6 +16,14 @@ type Watcher struct {
 	n nameGenerator
 }
 
+// NewWatcher creates a new Watcher.
+func NewWatcher(p persistent) *Watcher {
+	return &Watcher{
+		n: watcherNameGenerator{},
+		p: p,
+	}
+}
+
 func (w *Watcher) CreateWatcher(ctx context.Context, req *api.CreateWatcherRequest) (*api.Watcher, error) {
 	validate := func(req *api.CreateWatcherRequest) error {
 		return nil
