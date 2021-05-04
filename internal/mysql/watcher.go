@@ -37,6 +37,10 @@ func (w watcher) Value() *api.Watcher {
 	}
 }
 
+func (watcher) TableName() string {
+	return "watcher"
+}
+
 // PersistentWatcher provides mysql operations for api.Watcher.
 type PersistentWatcher struct {
 	db *gorm.DB

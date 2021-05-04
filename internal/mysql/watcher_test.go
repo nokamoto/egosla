@@ -14,7 +14,7 @@ import (
 func TestPersistentWatcher_Create(t *testing.T) {
 	query := func(mock sqlmock.Sqlmock) *sqlmock.ExpectedExec {
 		return mock.
-			ExpectExec(regexp.QuoteMeta("INSERT INTO `watchers` (`name`,`keywords`) VALUES (?,?)")).
+			ExpectExec(regexp.QuoteMeta("INSERT INTO `watcher` (`name`,`keywords`) VALUES (?,?)")).
 			WithArgs("foo", "bar,baz")
 	}
 
