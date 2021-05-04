@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/mysql"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -14,6 +15,14 @@ type Watcher struct {
 	api.UnimplementedWatcherServiceServer
 	p persistent
 	n nameGenerator
+}
+
+// NewWatcher creates a new Watcher.
+func NewWatcher(p persistent) *Watcher {
+	return &Watcher{
+		n: watcherNameGenerator{},
+		p: p,
+	}
 }
 
 func (w *Watcher) CreateWatcher(ctx context.Context, req *api.CreateWatcherRequest) (*api.Watcher, error) {

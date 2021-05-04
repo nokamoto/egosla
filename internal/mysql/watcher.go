@@ -18,22 +18,19 @@ var (
 	ErrUnknown = errors.New("unknown")
 )
 
-// Watcher represents a mysql record for api.Watcher.
-type Watcher struct {
+type watcher struct {
 	Name string
 	Keywords string
 }
 
-// NewWatcher creates a new Watcher from the api.Watcher.
-func NewWatcher(v *api.Watcher) Watcher {
-	return Watcher {
+func newWatcher(v *api.Watcher) watcher {
+	return watcher {
 		Name: v.GetName(),
 		Keywords: strings.Join(v.GetKeywords(), sep),
 	}
 }
 
-// Value creates a new api.Watcher from the Watcher.
-func (w Watcher) Value() *api.Watcher {
+func (w watcher) Value() *api.Watcher {
 	return &api.Watcher{
 		Name: w.Name,
 		Keywords: strings.Split(w.Keywords, sep),
@@ -45,9 +42,16 @@ type PersistentWatcher struct {
 	db *gorm.DB
 }
 
+// NewPersistentWatcher creates a new PersistentWatcher.
+func NewPersistentWatcher(db *gorm.DB) *PersistentWatcher {
+	return &PersistentWatcher{
+		db: db,
+	}
+}
+
 // Create inserts the api.Watcher.
 func (p *PersistentWatcher)Create(v *api.Watcher) error {
-	model := NewWatcher(v)
+	model := newWatcher(v)
 
 	err := p.db.Transaction(func(tx *gorm.DB) error {
 		return tx.Create(model).Error		
