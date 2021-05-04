@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/nokamoto/egosla/api"
-	"github.com/nokamoto/egosla/internal/mysql"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
