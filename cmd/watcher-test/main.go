@@ -1,12 +1,10 @@
 package main
 
 import (
-	"context"
 	"log"
-	"os"
-	"time"
 
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/os"
 	"google.golang.org/grpc"
 )
 
@@ -15,7 +13,9 @@ const (
 )
 
 func main() {
-	conn, err := grpc.Dial(os.Getenv(watcherAddress), grpc.WithInsecure(), grpc.WithBlock())
+	address := os.GetenvOr(watcherAddress, "127.0.0.1:9000")
+
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -23,17 +23,7 @@ func main() {
 
 	c := api.NewWatcherServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	res, err := c.CreateWatcher(ctx, &api.CreateWatcherRequest{
-		Watcher: &api.Watcher{
-			Keywords: []string{"foo", "bar"},
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("got %v", res)
+	scenarios{
+		testCreate(c),
+	}.run()
 }

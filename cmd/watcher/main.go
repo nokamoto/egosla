@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 	"strings"
 
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/mysql"
+	"github.com/nokamoto/egosla/internal/os"
 	"github.com/nokamoto/egosla/internal/service"
 	"google.golang.org/grpc"
 	driver "gorm.io/driver/mysql"
@@ -22,14 +22,6 @@ const (
 	mysqlDB   = "MYSQL_DB"
 )
 
-func getenvOr(key string, or string) string {
-	s := os.Getenv(key)
-	if len(s) == 0 {
-		return or
-	}
-	return s
-}
-
 func main() {
 	port := ":9000"
 	lis, err := net.Listen("tcp", port)
@@ -37,14 +29,14 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	secret := getenvOr(mysqlPass, "")
+	secret := os.GetenvOr(mysqlPass, "")
 
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s)/%s",
-		getenvOr(mysqlUser, "root"),
+		os.GetenvOr(mysqlUser, "root"),
 		secret,
-		getenvOr(mysqlTCP, "127.0.0.1:3306"),
-		getenvOr(mysqlDB, "egosla"),
+		os.GetenvOr(mysqlTCP, "127.0.0.1:3306"),
+		os.GetenvOr(mysqlDB, "egosla"),
 	)
 	db, err := gorm.Open(driver.Open(dsn), &gorm.Config{})
 	if err != nil {
