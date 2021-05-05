@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/mysql"
+	"go.uber.org/zap/zaptest"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -66,6 +67,7 @@ func TestWatcher_Create(t *testing.T) {
 			svc := &Watcher{
 				p: p,
 				n: n,
+				logger: zaptest.NewLogger(t),
 			}
 
 			if x.mock != nil {

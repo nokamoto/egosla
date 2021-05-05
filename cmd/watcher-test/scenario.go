@@ -1,25 +1,28 @@
 package main
 
-import "log"
+import (
+	"go.uber.org/zap"
+)
 
 type state map[string]string
 
 type scenario struct {
 	name string
-	run  func(state state) (state, error)
+	run  func(state state, logger *zap.Logger) (state, error)
 }
 
 type scenarios []scenario
 
-func (xs scenarios) run() {
+func (xs scenarios) run(logger *zap.Logger) {
 	st := make(state)
 	for _, x := range xs {
-		log.Printf("%s:", x.name)
-		s, err := x.run(st)
+		sl := logger.With(zap.String("scenario", x.name), zap.Any("state", st))
+		sl.Info("run")
+		s, err := x.run(st, sl)
 		if err != nil {
-			log.Fatalf("%s: state=%v: %v", x.name, st, err)
+			sl.Fatal("fatal", zap.Error(err))
 		}
 		st = s
-		log.Printf("%s: ok", x.name)
+		sl.Info("ok")
 	}
 }

@@ -1,10 +1,9 @@
 package main
 
 import (
-	"log"
-
 	"github.com/nokamoto/egosla/api"
-	"github.com/nokamoto/egosla/internal/os"
+	"github.com/nokamoto/egosla/internal/cmd"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
@@ -13,17 +12,22 @@ const (
 )
 
 func main() {
-	address := os.GetenvOr(watcherAddress, "127.0.0.1:9000")
+	logger := cmd.NewLogger(true)
+	defer logger.Sync()
+
+	address := cmd.GetenvOr(watcherAddress, "127.0.0.1:9000")
 
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		logger.Fatal("did not connect", zap.Error(err), zap.String("address", address))
 	}
 	defer conn.Close()
+
+	logger.Info("connect", zap.String("address", address))
 
 	c := api.NewWatcherServiceClient(conn)
 
 	scenarios{
 		testCreate(c),
-	}.run()
+	}.run(logger)
 }
