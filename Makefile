@@ -22,6 +22,4 @@ go:
 
 watcher:
 	go get github.com/cespare/reflex
-	export MYSQL_TCP=127.0.0.1:3306
-	export MYSQL_USER=root
 	reflex -r '(\.go|go\.mod|go\.sum)' -s go run ./cmd/watcher
