@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
+	"strings"
 
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/mysql"
+	"github.com/nokamoto/egosla/internal/os"
 	"github.com/nokamoto/egosla/internal/service"
 	"google.golang.org/grpc"
 	driver "gorm.io/driver/mysql"
@@ -28,17 +29,21 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
+	secret := os.GetenvOr(mysqlPass, "")
+
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s)/%s",
-		os.Getenv(mysqlUser),
-		os.Getenv(mysqlPass),
-		os.Getenv(mysqlTCP),
-		os.Getenv(mysqlDB),
+		os.GetenvOr(mysqlUser, "root"),
+		secret,
+		os.GetenvOr(mysqlTCP, "127.0.0.1:3306"),
+		os.GetenvOr(mysqlDB, "egosla"),
 	)
 	db, err := gorm.Open(driver.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("failed to mysql.Open: %v", err)
 	}
+
+	log.Printf("mysql.Open: %v", strings.ReplaceAll(dsn, secret, strings.Repeat("*", len(secret))))
 
 	s := grpc.NewServer()
 	api.RegisterWatcherServiceServer(s, service.NewWatcher(mysql.NewPersistentWatcher(db)))
