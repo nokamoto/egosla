@@ -3,6 +3,7 @@ image:
 
 tasks:
 - init: mysql < deployments/init.sql
+  command: make watcher
 
 vscode:
   extensions:
