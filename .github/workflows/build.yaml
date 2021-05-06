@@ -15,5 +15,8 @@ jobs:
       - uses: actions/setup-go@v2
       - run: echo /home/runner/go/bin >> ${GITHUB_PATH}
       - run: sudo apt install -y clang-format protobuf-compiler
+      - run: curl -sSL https://github.com/grpc/grpc-web/releases/download/1.2.1/protoc-gen-grpc-web-1.2.1-linux-x86_64 > protoc-gen-grpc-web
+      - run: chmod +x protoc-gen-grpc-web
+      - run: sudo mv protoc-gen-grpc-web /usr/local/bin
       - run: make
       - run: git diff --exit-code -- . ':(exclude)go.sum'

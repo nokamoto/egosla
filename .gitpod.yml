@@ -4,6 +4,7 @@ image:
 tasks:
 - init: mysql < deployments/init.sql
   command: make watcher
+- init: cd web && yarn
 
 vscode:
   extensions:

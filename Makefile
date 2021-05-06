@@ -14,6 +14,11 @@ protoc:
     	api/*.proto
 	go mod tidy
 
+	protoc \
+		--js_out=import_style=commonjs:web/src \
+		--grpc-web_out=import_style=typescript,mode=grpcwebtext:web/src \
+		api/*.proto
+
 go:
 	go get github.com/golang/mock/mockgen
 	go generate ./...
