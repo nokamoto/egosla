@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/mysql"
+	"github.com/nokamoto/egosla/internal/protogomock"
 	"go.uber.org/zap/zaptest"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,11 +16,9 @@ import (
 )
 
 func TestWatcher_Create(t *testing.T) {
-	expected := func() *api.Watcher {
-		return &api.Watcher{
-			Name: "watchers/foo",
-			Keywords: []string{"bar", "baz"},
-		}
+	expected := &api.Watcher{
+		Name: "watchers/foo",
+		Keywords: []string{"bar", "baz"},
 	}
 
 	testcases := []struct{
@@ -33,25 +32,25 @@ func TestWatcher_Create(t *testing.T) {
 			name: "ok",
 			req: &api.CreateWatcherRequest{
 				Watcher: &api.Watcher{
-					Keywords: expected().GetKeywords(),
+					Keywords: expected.GetKeywords(),
 				},
 			},
 			mock: func(p *Mockpersistent, n *MocknameGenerator) {
-				n.EXPECT().newName().Return(expected().GetName())
-				p.EXPECT().Create(expected()).Return(nil)
+				n.EXPECT().newName().Return(expected.GetName())
+				p.EXPECT().Create(protogomock.Equal(expected)).Return(nil)
 			},
-			expected: expected(),
+			expected: expected,
 		},
 		{
 			name: "unexpected error",
 			req: &api.CreateWatcherRequest{
 				Watcher: &api.Watcher{
-					Keywords: expected().GetKeywords(),
+					Keywords: expected.GetKeywords(),
 				},
 			},
 			mock: func(p *Mockpersistent, n *MocknameGenerator) {
-				n.EXPECT().newName().Return(expected().GetName())
-				p.EXPECT().Create(expected()).Return(mysql.ErrUnknown)
+				n.EXPECT().newName().Return(expected.GetName())
+				p.EXPECT().Create(protogomock.Equal(expected)).Return(mysql.ErrUnknown)
 			},
 			code: codes.Unavailable,
 		},
