@@ -2,16 +2,16 @@ package main
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/nokamoto/egosla/api"
+	"go.uber.org/zap"
 )
 
 func testCreate(c api.WatcherServiceClient) scenario {
 	return scenario{
 		name: "CreateWatcher",
-		run: func(s state) (state, error) {
+		run: func(s state, logger *zap.Logger) (state, error) {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 
@@ -24,7 +24,7 @@ func testCreate(c api.WatcherServiceClient) scenario {
 				return nil, err
 			}
 
-			log.Printf("got %v", res)
+			logger.Info("got", zap.Any("res", res))
 
 			return s, nil
 		},

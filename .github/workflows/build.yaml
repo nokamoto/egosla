@@ -16,4 +16,4 @@ jobs:
       - run: echo /home/runner/go/bin >> ${GITHUB_PATH}
       - run: sudo apt install -y clang-format protobuf-compiler
       - run: make
-      - run: git diff --exit-code
+      - run: git diff --exit-code -- . ':(exclude)go.sum'

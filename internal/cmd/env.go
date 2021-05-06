@@ -1,4 +1,4 @@
-package os
+package cmd
 
 import "os"
 
@@ -10,4 +10,9 @@ func GetenvOr(key string, or string) string {
 		return or
 	}
 	return s
+}
+
+// GetenvDebug returns true if "DEBUG" is set.
+func GetenvDebug() bool {
+	return len(os.Getenv("DEBUG")) != 0
 }
