@@ -6,6 +6,7 @@ tasks:
   command: make watcher
 - command: getenvoy run standard:1.18.2 -- --config-path deployments/envoy.yaml 
 - init: cd web && yarn
+  command: cd web && yarn start
 
 vscode:
   extensions:
