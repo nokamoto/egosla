@@ -1,9 +1,13 @@
-import React, { useEffect } from 'react';
-import { WatcherServiceClient } from './api/ServiceServiceClientPb';
-import { CreateWatcherRequest, Watcher } from './api/service_pb';
+import React, { useEffect } from "react";
+import { WatcherServiceClient } from "./api/ServiceServiceClientPb";
+import { CreateWatcherRequest, Watcher } from "./api/service_pb";
 
 function gitpodExposedURL(): string {
-  return window.location.protocol + "//" + window.location.hostname.replace("3000", "8080");
+  return (
+    window.location.protocol +
+    "//" +
+    window.location.hostname.replace("3000", "8080")
+  );
 }
 
 function App() {
@@ -16,10 +20,8 @@ function App() {
       console.log("err", err);
       console.log("res", res);
     });
-  })
-  return (
-    <div></div>
-  );
+  });
+  return <div></div>;
 }
 
 export default App;
