@@ -4,6 +4,7 @@ format:
 	clang-format --style=Google -i api/*.proto
 	go fmt ./cmd/...
 	go mod tidy
+	cd web && yarn && yarn format
 
 protoc:
 	go get google.golang.org/protobuf/cmd/protoc-gen-go
