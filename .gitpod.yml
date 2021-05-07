@@ -2,7 +2,7 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-- init: mysql < deployments/init.sql
+- init: mysqladmin --wait --count 3 ping && mysql < deployments/init.sql
   command: make watcher
 - command: getenvoy run standard:1.18.2 -- --config-path deployments/envoy.yaml 
 - init: cd web && yarn
