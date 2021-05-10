@@ -1,4 +1,4 @@
-all: protoc format go
+all: protoc format go yarn
 
 format:
 	clang-format --style=Google -i api/*.proto
@@ -25,6 +25,9 @@ go:
 	go generate ./...
 	go test ./...
 	go mod tidy
+
+yarn:
+	cd web && yarn test --watchAll=false
 
 watcher:
 	go get github.com/cespare/reflex
