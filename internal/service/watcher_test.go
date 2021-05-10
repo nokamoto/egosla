@@ -15,6 +15,21 @@ import (
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
+func mockWatcher(t *testing.T, f func(*Watcher, *Mockpersistent, *MocknameGenerator)) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	p := NewMockpersistent(ctrl)
+	n := NewMocknameGenerator(ctrl)
+	svc := &Watcher{
+		p: p,
+		n: n,
+		logger: zaptest.NewLogger(t),
+	}
+
+	f(svc, p, n)
+}
+
 func TestWatcher_Create(t *testing.T) {
 	expected := &api.Watcher{
 		Name: "watchers/foo",
@@ -58,29 +73,129 @@ func TestWatcher_Create(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
+			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator){
+				if x.mock != nil {
+					x.mock(p, n)
+				}
+	
+				actual, err := svc.CreateWatcher(context.TODO(), x.req)
+				if code := status.Code(err); code != x.code {
+					t.Errorf("expected %v but actual %v", x.code, code)
+				}
+	
+				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
+					t.Error(diff)
+				}
+			})
+		})
+	}
+}
 
-			p := NewMockpersistent(ctrl)
-			n := NewMocknameGenerator(ctrl)
-			svc := &Watcher{
-				p: p,
-				n: n,
-				logger: zaptest.NewLogger(t),
-			}
+func TestWatcher_List(t *testing.T) {
+	elm1 := &api.Watcher{
+		Name: "foo",
+	}
 
-			if x.mock != nil {
-				x.mock(p, n)
-			}
+	elm2 := &api.Watcher{
+		Name: "bar",
+	}
 
-			actual, err := svc.CreateWatcher(context.TODO(), x.req)
-			if code := status.Code(err); code != x.code {
-				t.Errorf("expected %v but actual %v", x.code, code)
-			}
+	elm3 := &api.Watcher{
+		Name: "baz",
+	}
 
-			if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
-				t.Error(diff)
-			}
+	testcases := []struct{
+		name string
+		req *api.ListWatcherRequest
+		mock func(p *Mockpersistent)
+		expected *api.ListWatcherResponse
+		code codes.Code
+	}{
+		{
+			name: "ok: empty token, empty watchers",
+			req: &api.ListWatcherRequest{
+				PageSize: 2,
+			},
+			mock: func(p *Mockpersistent) {
+				p.EXPECT().List(0, 3).Return(nil, nil)
+			},
+			expected: &api.ListWatcherResponse{},
+		},
+		{
+			name: "ok: len(watchers) < page size",
+			req: &api.ListWatcherRequest{
+				PageToken: "10",
+				PageSize: 2,
+			},
+			mock: func(p *Mockpersistent) {
+				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1}, nil)
+			},
+			expected: &api.ListWatcherResponse{
+				Watchers: []*api.Watcher{elm1},
+			},
+		},
+		{
+			name: "ok: len(watchers) == page size",
+			req: &api.ListWatcherRequest{
+				PageToken: "10",
+				PageSize: 2,
+			},
+			mock: func(p *Mockpersistent) {
+				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2}, nil)
+			},
+			expected: &api.ListWatcherResponse{
+				Watchers: []*api.Watcher{elm1, elm2},
+			},
+		},
+		{
+			name: "ok: len(watchers) >= page size + 1",
+			req: &api.ListWatcherRequest{
+				PageToken: "10",
+				PageSize: 2,
+			},
+			mock: func(p *Mockpersistent) {
+				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2, elm3}, nil)
+			},
+			expected: &api.ListWatcherResponse{
+				NextPageToken: "12",
+				Watchers: []*api.Watcher{elm1, elm2},
+			},
+		},
+		{
+			name: "unexpected error",
+			req: &api.ListWatcherRequest{
+				PageSize: 2,
+			},
+			mock: func(p *Mockpersistent) {
+				p.EXPECT().List(0, 3).Return(nil, mysql.ErrUnknown)
+			},
+			code: codes.Unavailable,
+		},
+		{
+			name: "invalid token",
+			req: &api.ListWatcherRequest{
+				PageToken: "abc",
+			},
+			code: codes.InvalidArgument,
+		},
+	}
+
+	for _, x := range testcases {
+		t.Run(x.name, func(t *testing.T) {
+			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator){
+				if x.mock != nil {
+					x.mock(p)
+				}
+	
+				actual, err := svc.ListWatcher(context.TODO(), x.req)
+				if code := status.Code(err); code != x.code {
+					t.Errorf("expected %v but actual %v", x.code, code)
+				}
+	
+				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
+					t.Error(diff)
+				}
+			})
 		})
 	}
 }
