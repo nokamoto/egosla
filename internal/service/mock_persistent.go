@@ -47,3 +47,18 @@ func (mr *MockpersistentMockRecorder) Create(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*Mockpersistent)(nil).Create), arg0)
 }
+
+// List mocks base method.
+func (m *Mockpersistent) List(offset, limit int) ([]*api.Watcher, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "List", offset, limit)
+	ret0, _ := ret[0].([]*api.Watcher)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// List indicates an expected call of List.
+func (mr *MockpersistentMockRecorder) List(offset, limit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*Mockpersistent)(nil).List), offset, limit)
+}
