@@ -179,7 +179,7 @@ function Paperbase(props: PaperbaseProps) {
         </nav>
         <div className={classes.app}>
           <main className={classes.main}>
-            <Content />
+            <Content newChipKeys={[]} />
           </main>
           <footer className={classes.footer}></footer>
         </div>
