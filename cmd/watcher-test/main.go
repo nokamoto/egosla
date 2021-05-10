@@ -29,5 +29,6 @@ func main() {
 
 	scenarios{
 		testCreate(c),
+		testList(c),
 	}.run(logger)
 }
