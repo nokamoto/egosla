@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -18,7 +18,17 @@ import SearchIcon from "@material-ui/icons/Search";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import AddWatcherDialog from "./AddWatcherDialog";
 import { watcherService } from "./Rpc";
-import { CreateWatcherRequest, Watcher } from "./api/service_pb";
+import {
+  CreateWatcherRequest,
+  ListWatcherRequest,
+  Watcher,
+} from "./api/service_pb";
+import Table from "@material-ui/core/Table";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import TableCell from "@material-ui/core/TableCell";
+import TableBody from "@material-ui/core/TableBody";
+import Chip from "@material-ui/core/Chip";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -42,6 +52,9 @@ const styles = (theme: Theme) =>
     contentWrapper: {
       margin: "40px 16px",
     },
+    keyword: {
+      marginRight: theme.spacing(1),
+    },
   });
 
 export interface ContentProps extends WithStyles<typeof styles> {
@@ -52,8 +65,9 @@ export interface ContentProps extends WithStyles<typeof styles> {
 function Content(props: ContentProps) {
   const { classes } = props;
 
-  const [open, setOpen] = React.useState(false);
-  const [keywords, setKeywords] = React.useState<string[]>([]);
+  const [open, setOpen] = useState(false);
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [watchers, setWatchers] = useState<Watcher[]>([]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -76,6 +90,17 @@ function Content(props: ContentProps) {
       console.log("res", res);
     });
   };
+
+  useEffect(() => {
+    const req = new ListWatcherRequest();
+    req.setPageSize(100);
+    watcherService.listWatcher(req, {}, (err, res) => {
+      console.log("err", err);
+      console.log("res", res);
+      setWatchers(res.getWatchersList());
+      console.log(watchers);
+    });
+  }, []);
 
   return (
     <Paper className={classes.paper}>
@@ -126,11 +151,41 @@ function Content(props: ContentProps) {
           </Grid>
         </Toolbar>
       </AppBar>
-      <div className={classes.contentWrapper}>
-        <Typography color="textSecondary" align="center">
-          No watchers for this workspace yet
-        </Typography>
-      </div>
+      {watchers.length == 0 && (
+        <div className={classes.contentWrapper}>
+          <Typography color="textSecondary" align="center">
+            No watchers for this workspace yet
+          </Typography>
+        </div>
+      )}
+      {watchers.length > 0 && (
+        <Table aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell align="right">Keywords</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {watchers.map((watcher) => (
+              <TableRow key="key">
+                <TableCell component="th" scope="row">
+                  {watcher.getName()}
+                </TableCell>
+                <TableCell align="right">
+                  {watcher.getKeywordsList().map((keyword) => (
+                    <Chip
+                      label={keyword}
+                      variant="outlined"
+                      className={classes.keyword}
+                    />
+                  ))}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </Paper>
   );
 }
