@@ -17,7 +17,8 @@ import {
 import SearchIcon from "@material-ui/icons/Search";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import AddWatcherDialog from "./AddWatcherDialog";
-import { createWatch } from "./Rpc";
+import { watcherService } from "./Rpc";
+import { CreateWatcherRequest, Watcher } from "./api/service_pb";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -64,7 +65,16 @@ function Content(props: ContentProps) {
 
   const handleWatch = () => {
     setOpen(false);
-    createWatch(keywords);
+
+    const watcher = new Watcher();
+    watcher.setKeywordsList(keywords);
+    const req = new CreateWatcherRequest();
+    req.setWatcher(watcher);
+
+    watcherService.createWatcher(req, {}, (err, res) => {
+      console.log("err", err);
+      console.log("res", res);
+    });
   };
 
   return (

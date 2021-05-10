@@ -1,11 +1,12 @@
 import React from "react";
 import { fireEvent, render } from "@testing-library/react";
 import Content from "./Content";
-import * as Rpc from "./Rpc";
+import { watcherService } from "./Rpc";
+import { CreateWatcherRequest, Watcher } from "./api/service_pb";
 
 test("adds a new watcher", () => {
-  const createWatch = jest.fn();
-  jest.spyOn(Rpc, "createWatch").mockImplementation(createWatch);
+  const createWatcher = jest.fn();
+  jest.spyOn(watcherService, "createWatcher").mockImplementation(createWatcher);
 
   const { getByTestId } = render(<Content newChipKeys={["Enter"]} />);
 
@@ -20,18 +21,23 @@ test("adds a new watcher", () => {
 
   fireEvent.click(getByTestId("watch"));
 
-  expect(createWatch).toHaveBeenCalledTimes(1);
-  expect(createWatch.mock.calls[0][0]).toEqual(["foo", "bar"]);
+  const watcher = new Watcher();
+  watcher.setKeywordsList(["foo", "bar"]);
+  const expected = new CreateWatcherRequest();
+  expected.setWatcher(watcher);
+
+  expect(createWatcher).toHaveBeenCalledTimes(1);
+  expect(createWatcher.mock.calls[0][0]).toEqual(expected);
 });
 
 test("cancel to add a watcher", () => {
-  const createWatch = jest.fn();
-  jest.spyOn(Rpc, "createWatch").mockImplementation(createWatch);
+  const createWatcher = jest.fn();
+  jest.spyOn(watcherService, "createWatcher").mockImplementation(createWatcher);
 
   const { getByTestId } = render(<Content newChipKeys={[""]} />);
 
   fireEvent.click(getByTestId("open-addwatch"));
   fireEvent.click(getByTestId("cancel"));
 
-  expect(createWatch).toHaveBeenCalledTimes(0);
+  expect(createWatcher).toHaveBeenCalledTimes(0);
 });
