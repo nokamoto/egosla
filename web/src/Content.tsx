@@ -17,6 +17,7 @@ import {
 import SearchIcon from "@material-ui/icons/Search";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import AddWatcherDialog from "./AddWatcherDialog";
+import { createWatch } from "./Rpc";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -42,13 +43,16 @@ const styles = (theme: Theme) =>
     },
   });
 
-export interface ContentProps extends WithStyles<typeof styles> {}
+export interface ContentProps extends WithStyles<typeof styles> {
+  // Keycodes for ChipInput.
+  newChipKeys: string[];
+}
 
 function Content(props: ContentProps) {
   const { classes } = props;
 
   const [open, setOpen] = React.useState(false);
-  const [keywords, setKeywords] = React.useState<Array<string>>([]);
+  const [keywords, setKeywords] = React.useState<string[]>([]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -59,8 +63,8 @@ function Content(props: ContentProps) {
   };
 
   const handleWatch = () => {
-    console.log("todo", keywords);
     setOpen(false);
+    createWatch(keywords);
   };
 
   return (
@@ -92,6 +96,7 @@ function Content(props: ContentProps) {
                 color="primary"
                 className={classes.addUser}
                 onClick={handleClickOpen}
+                data-testid="open-addwatch"
               >
                 Add Watcher
               </Button>
@@ -100,6 +105,7 @@ function Content(props: ContentProps) {
                 handleCancel={handleClose}
                 handleWatch={handleWatch}
                 setKeywords={setKeywords}
+                newChipKeys={props.newChipKeys}
               />
               <Tooltip title="Reload">
                 <IconButton>
