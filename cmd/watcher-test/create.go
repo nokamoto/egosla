@@ -4,9 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/nokamoto/egosla/api"
 	"go.uber.org/zap"
 )
+
+const createdRecord = "created-record"
 
 func testCreate(c api.WatcherServiceClient) scenario {
 	return scenario{
@@ -25,6 +28,8 @@ func testCreate(c api.WatcherServiceClient) scenario {
 			}
 
 			logger.Info("got", zap.Any("res", res))
+
+			s[createdRecord] = proto.MarshalTextString(res)
 
 			return s, nil
 		},

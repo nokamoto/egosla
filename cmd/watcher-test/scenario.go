@@ -14,6 +14,7 @@ type scenario struct {
 type scenarios []scenario
 
 func (xs scenarios) run(logger *zap.Logger) {
+	logger.Info("begin")
 	st := make(state)
 	for _, x := range xs {
 		sl := logger.With(zap.String("scenario", x.name), zap.Any("state", st))
@@ -25,4 +26,5 @@ func (xs scenarios) run(logger *zap.Logger) {
 		st = s
 		sl.Info("ok")
 	}
+	logger.Info("done")
 }
