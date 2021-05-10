@@ -68,4 +68,26 @@ func (p *PersistentWatcher)Create(v *api.Watcher) error {
 	return nil
 }
 
+func (p *PersistentWatcher)List(offset, limit int) ([]*api.Watcher, error) {
+	var watchers []*api.Watcher
+	err := p.db.Transaction(func(tx *gorm.DB) error {
+		var ms []watcher
+		res := tx.Offset(offset).Limit(limit).Find(&ms)
+		if res.Error != nil {
+			return res.Error
+		}
+
+		for _, m := range ms {
+			watchers = append(watchers, m.Value())
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrUnknown, err)
+	}
+
+	return watchers, nil
+}
 
