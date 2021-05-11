@@ -88,6 +88,7 @@ function Content(props: ContentProps) {
     watcherService.createWatcher(req, {}, (err, res) => {
       console.log("err", err);
       console.log("res", res);
+      setWatchers(watchers.concat(res));
     });
   };
 
