@@ -8,4 +8,5 @@ import (
 type persistent interface {
 	Create(*api.Watcher) error
 	List(offset, limit int) ([]*api.Watcher, error)
+	Delete(name string) error
 }

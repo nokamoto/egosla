@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
@@ -20,7 +20,7 @@ func testList(c api.WatcherServiceClient) scenario {
 			defer cancel()
 
 			var expected api.Watcher
-			err := proto.UnmarshalText(s[createdRecord], &expected)
+			err := prototext.Unmarshal([]byte(s[createdRecord]), &expected)
 			if err != nil {
 				return nil, err
 			}
