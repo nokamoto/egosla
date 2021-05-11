@@ -86,8 +86,6 @@ function Content(props: ContentProps) {
     req.setWatcher(watcher);
 
     watcherService.createWatcher(req, {}, (err, res) => {
-      console.log("err", err);
-      console.log("res", res);
       setWatchers(watchers.concat(res));
     });
   };
@@ -96,10 +94,7 @@ function Content(props: ContentProps) {
     const req = new ListWatcherRequest();
     req.setPageSize(100);
     watcherService.listWatcher(req, {}, (err, res) => {
-      console.log("err", err);
-      console.log("res", res);
       setWatchers(res.getWatchersList());
-      console.log(watchers);
     });
   }, []);
 
@@ -168,14 +163,15 @@ function Content(props: ContentProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {watchers.map((watcher) => (
-              <TableRow key="key">
+            {watchers.map((watcher, index) => (
+              <TableRow key={index.toString()}>
                 <TableCell component="th" scope="row">
                   {watcher.getName()}
                 </TableCell>
                 <TableCell align="right">
-                  {watcher.getKeywordsList().map((keyword) => (
+                  {watcher.getKeywordsList().map((keyword, index) => (
                     <Chip
+                      key={index.toString()}
                       label={keyword}
                       variant="outlined"
                       className={classes.keyword}
