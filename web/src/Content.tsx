@@ -105,12 +105,9 @@ function Content(props: ContentProps) {
     setAnchorEl([]);
   };
 
-  const deleteWatcher = (
-    watcherName: string,
-    _: MouseEvent<HTMLElement>
-  ) => {
+  const deleteWatcher = (watcherName: string, _: MouseEvent<HTMLElement>) => {
     setAnchorEl([]);
-    console.log(watcherName);
+    console.log("todo", watcherName);
   };
 
   useEffect(() => {

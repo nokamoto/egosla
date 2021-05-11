@@ -8,25 +8,32 @@ import Menu from "@material-ui/core/Menu";
 import ListItemText from "@material-ui/core/ListItemText";
 
 export interface DeleteWatcherMenuProps {
+  // Index for anchorEl.
   index: number;
-  handleClick: (index: number, event: MouseEvent<HTMLElement>) => void;
+  // HTML element passing to Menu.
   anchorEl: HTMLElement[];
-  handleClose: (event: MouseEvent<HTMLElement>) => void;
+  // Watcher name handled by Menu.
   watcherName: string;
+  // Callback fired when Menu opened.
+  handleClick: (index: number, event: MouseEvent<HTMLElement>) => void;
+  // Callback fired when Menu closed.
+  handleClose: (event: MouseEvent<HTMLElement>) => void;
+  // Callback fired when Menu closed and requested to delete the watcher.
   handleDelete: (watcherName: string, event: MouseEvent<HTMLElement>) => void;
 }
 
 function DeleteWatcherMenu({
   index,
-  handleClick,
   anchorEl,
-  handleClose,
   watcherName,
+  handleClick,
+  handleClose,
   handleDelete,
 }: DeleteWatcherMenuProps) {
   return (
     <div>
       <IconButton
+        data-testid="open-menu"
         aria-label="more"
         aria-controls="long-menu"
         aria-haspopup="true"
@@ -35,7 +42,6 @@ function DeleteWatcherMenu({
         <MoreVertIcon />
       </IconButton>
       <Menu
-        id="long-menu"
         anchorEl={anchorEl[index]}
         keepMounted
         open={Boolean(anchorEl[index])}
@@ -46,7 +52,10 @@ function DeleteWatcherMenu({
           },
         }}
       >
-        <MenuItem onClick={(e) => handleDelete(watcherName, e)}>
+        <MenuItem
+          data-testid="delete"
+          onClick={(e) => handleDelete(watcherName, e)}
+        >
           <ListItemIcon>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>
