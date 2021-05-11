@@ -29,12 +29,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import Chip from "@material-ui/core/Chip";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import DeleteIcon from "@material-ui/icons/Delete";
-import MenuItem from "@material-ui/core/MenuItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import Menu from "@material-ui/core/Menu";
-import ListItemText from "@material-ui/core/ListItemText";
+import DeleteWatcherMenu from "./DeleteWatcherMenu";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -112,12 +107,10 @@ function Content(props: ContentProps) {
 
   const deleteWatcher = (
     watcherName: string,
-    event: MouseEvent<HTMLElement>
+    _: MouseEvent<HTMLElement>
   ) => {
     setAnchorEl([]);
     console.log(watcherName);
-    const { watcher } = event.currentTarget.dataset;
-    console.log(watcher);
   };
 
   useEffect(() => {
@@ -210,36 +203,14 @@ function Content(props: ContentProps) {
                   ))}
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton
-                    aria-label="more"
-                    aria-controls="long-menu"
-                    aria-haspopup="true"
-                    onClick={(e) => handleClickDeleteMenu(index, e)}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                  <Menu
-                    id="long-menu"
-                    anchorEl={anchorEl[index]}
-                    keepMounted
-                    open={Boolean(anchorEl[index])}
-                    onClose={handleCloseDeleteMenu}
-                    PaperProps={{
-                      style: {
-                        width: "20ch",
-                      },
-                    }}
-                  >
-                    <MenuItem
-                      data-watcher={watcher.getName()}
-                      onClick={(e) => deleteWatcher(watcher.getName(), e)}
-                    >
-                      <ListItemIcon>
-                        <DeleteIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Delete" />
-                    </MenuItem>
-                  </Menu>
+                  <DeleteWatcherMenu
+                    index={index}
+                    anchorEl={anchorEl}
+                    watcherName={watcher.getName()}
+                    handleClick={handleClickDeleteMenu}
+                    handleClose={handleCloseDeleteMenu}
+                    handleDelete={deleteWatcher}
+                  />
                 </TableCell>
               </TableRow>
             ))}
