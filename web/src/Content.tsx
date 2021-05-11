@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, MouseEvent } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -29,6 +29,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import Chip from "@material-ui/core/Chip";
+import DeleteWatcherMenu from "./DeleteWatcherMenu";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -68,6 +69,7 @@ function Content(props: ContentProps) {
   const [open, setOpen] = useState(false);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [watchers, setWatchers] = useState<Watcher[]>([]);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement[]>([]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -88,6 +90,24 @@ function Content(props: ContentProps) {
     watcherService.createWatcher(req, {}, (err, res) => {
       setWatchers(watchers.concat(res));
     });
+  };
+
+  const handleClickDeleteMenu = (
+    index: number,
+    event: MouseEvent<HTMLElement>
+  ) => {
+    var els: HTMLElement[] = [];
+    els[index] = event.currentTarget;
+    setAnchorEl(els);
+  };
+
+  const handleCloseDeleteMenu = () => {
+    setAnchorEl([]);
+  };
+
+  const deleteWatcher = (watcherName: string, _: MouseEvent<HTMLElement>) => {
+    setAnchorEl([]);
+    console.log("todo", watcherName);
   };
 
   useEffect(() => {
@@ -147,7 +167,7 @@ function Content(props: ContentProps) {
           </Grid>
         </Toolbar>
       </AppBar>
-      {watchers.length == 0 && (
+      {watchers.length === 0 && (
         <div className={classes.contentWrapper}>
           <Typography color="textSecondary" align="center">
             No watchers for this workspace yet
@@ -160,6 +180,7 @@ function Content(props: ContentProps) {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell align="right">Keywords</TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -177,6 +198,16 @@ function Content(props: ContentProps) {
                       className={classes.keyword}
                     />
                   ))}
+                </TableCell>
+                <TableCell align="right">
+                  <DeleteWatcherMenu
+                    index={index}
+                    anchorEl={anchorEl}
+                    watcherName={watcher.getName()}
+                    handleClick={handleClickDeleteMenu}
+                    handleClose={handleCloseDeleteMenu}
+                    handleDelete={deleteWatcher}
+                  />
                 </TableCell>
               </TableRow>
             ))}
