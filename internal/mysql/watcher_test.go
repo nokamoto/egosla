@@ -174,6 +174,12 @@ func TestPersistentWatcher_List(t *testing.T){
 func TestPersistentWatcher_Delete(t *testing.T) {
 	name := "foo"
 
+	query := func(mock sqlmock.Sqlmock) *sqlmock.ExpectedExec {
+		return mock.
+			ExpectExec(regexp.QuoteMeta("DELETE FROM `watcher` WHERE name = ?")).
+			WithArgs(name)
+	}
+
 	testcases := []struct {
 		name string
 		mock func(mock sqlmock.Sqlmock)
@@ -182,8 +188,27 @@ func TestPersistentWatcher_Delete(t *testing.T) {
 		{
 			name: "ok",
 			mock: func(mock sqlmock.Sqlmock) {
-
+				mock.ExpectBegin()
+				query(mock).WillReturnResult(sqlmock.NewResult(0, 1))
+				mock.ExpectCommit()
 			},
+		},
+		{
+			name: "ok: undeleted",
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				query(mock).WillReturnResult(sqlmock.NewResult(0, 0))
+				mock.ExpectCommit()
+			},
+		},
+		{
+			name: "unexpected error",
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				query(mock).WillReturnError(errors.New("unexpected"))
+				mock.ExpectRollback()
+			},
+			expected: ErrUnknown,
 		},
 	}
 
