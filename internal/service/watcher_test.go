@@ -199,3 +199,44 @@ func TestWatcher_List(t *testing.T) {
 		})
 	}
 }
+
+func TestWatcher_Delete(t *testing.T) {
+	name := "foo"
+
+	testcases := []struct{
+		name string
+		mock func(p *Mockpersistent, n *MocknameGenerator)
+		code codes.Code
+	}{
+		{
+			name: "ok",
+			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+				p.EXPECT().Delete(name).Return(nil)
+			},
+		},
+		{
+			name: "unexpected error",
+			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+				p.EXPECT().Delete(name).Return(mysql.ErrUnknown)
+			},
+			code: codes.Unavailable,
+		},
+	}
+
+	for _, x := range testcases {
+		t.Run(x.name, func(t *testing.T) {
+			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator){
+				if x.mock != nil {
+					x.mock(p, n)
+				}
+	
+				_, err := svc.DeleteWatcher(context.TODO(), &api.DeleteWatcherRequest{
+					Name: name,
+				})
+				if code := status.Code(err); code != x.code {
+					t.Errorf("expected %v but actual %v", x.code, code)
+				}
+			})
+		})
+	}
+}
