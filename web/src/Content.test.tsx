@@ -2,13 +2,46 @@ import React from "react";
 import { fireEvent, render } from "@testing-library/react";
 import Content from "./Content";
 import { watcherService } from "./Rpc";
-import { CreateWatcherRequest, Watcher } from "./api/service_pb";
+import {
+  CreateWatcherRequest,
+  ListWatcherRequest,
+  ListWatcherResponse,
+  Watcher,
+} from "./api/service_pb";
+
+test("gets watchers", () => {
+  const listWatcher = jest.fn().mockImplementation((x, y, callback) => {
+    const watcher = new Watcher();
+    watcher.setKeywordsList(["foo", "bar"]);
+    const res = new ListWatcherResponse();
+    res.addWatchers(watcher);
+
+    callback(null, res);
+  });
+
+  jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
+
+  const { getByText } = render(<Content newChipKeys={[]} />);
+
+  const list = new ListWatcherRequest();
+  list.setPageSize(100);
+
+  expect(listWatcher).toHaveBeenCalledTimes(1);
+  expect(listWatcher.mock.calls[0][0]).toEqual(list);
+
+  expect(getByText("foo")).toBeInTheDocument();
+  expect(getByText("bar")).toBeInTheDocument();
+});
 
 test("adds a new watcher", () => {
   const createWatcher = jest.fn();
+  const listWatcher = jest.fn();
   jest.spyOn(watcherService, "createWatcher").mockImplementation(createWatcher);
+  jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
 
-  const { getByTestId } = render(<Content newChipKeys={["Enter"]} />);
+  const { getByTestId, getByText } = render(
+    <Content newChipKeys={["Enter"]} />
+  );
 
   fireEvent.click(getByTestId("open-addwatch"));
 
@@ -28,6 +61,15 @@ test("adds a new watcher", () => {
 
   expect(createWatcher).toHaveBeenCalledTimes(1);
   expect(createWatcher.mock.calls[0][0]).toEqual(expected);
+
+  expect(getByText("foo")).toBeInTheDocument();
+  expect(getByText("bar")).toBeInTheDocument();
+
+  const list = new ListWatcherRequest();
+  list.setPageSize(100);
+
+  expect(listWatcher).toHaveBeenCalledTimes(1);
+  expect(listWatcher.mock.calls[0][0]).toEqual(list);
 });
 
 test("cancel to add a watcher", () => {
