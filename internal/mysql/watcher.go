@@ -68,6 +68,7 @@ func (p *PersistentWatcher)Create(v *api.Watcher) error {
 	return nil
 }
 
+// List selects a list of watchers from offset to limit.
 func (p *PersistentWatcher)List(offset, limit int) ([]*api.Watcher, error) {
 	var watchers []*api.Watcher
 	err := p.db.Transaction(func(tx *gorm.DB) error {
@@ -91,3 +92,16 @@ func (p *PersistentWatcher)List(offset, limit int) ([]*api.Watcher, error) {
 	return watchers, nil
 }
 
+// Delete deletes a watcher by the name.
+func (p *PersistentWatcher)Delete(name string) error {
+	err := p.db.Transaction(func(tx *gorm.DB) error {
+		res := tx.Where("name = ?", name).Delete(&watcher{})
+		return res.Error
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %s", ErrUnknown, err)
+	}
+
+	return nil
+}

@@ -170,3 +170,36 @@ func TestPersistentWatcher_List(t *testing.T){
 		})
 	}
 }
+
+func TestPersistentWatcher_Delete(t *testing.T) {
+	name := "foo"
+
+	testcases := []struct {
+		name string
+		mock func(mock sqlmock.Sqlmock)
+		expected error
+	}{
+		{
+			name: "ok",
+			mock: func(mock sqlmock.Sqlmock) {
+
+			},
+		},
+	}
+
+	for _, x := range testcases {
+		t.Run(x.name, func(t *testing.T) {
+			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock){
+				if x.mock != nil {
+					x.mock(mock)
+				}
+
+				actual := p.Delete(name)
+
+				if !errors.Is(actual, x.expected) {
+					t.Errorf("expected %v but actual %v", x.expected, actual)
+				}
+			})
+		})
+	}
+}
