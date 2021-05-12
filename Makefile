@@ -28,6 +28,7 @@ go:
 
 yarn:
 	cd web && yarn test --watchAll=false
+	cd web && yarn lint
 
 watcher:
 	go get github.com/cespare/reflex
