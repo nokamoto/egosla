@@ -9,9 +9,9 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/fieldmasktest"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -236,15 +236,6 @@ func TestPersistentWatcher_Update(t *testing.T) {
 		Keywords: []string{"bar"},
 	}
 
-	updateMask := func(t *testing.T, v *api.Watcher, paths ...string) *field_mask.FieldMask {
-		t.Helper()
-		mask, err := fieldmaskpb.New(v, paths...)
-		if err != nil {
-			t.Fatal(err)
-		}
-		return mask
-	}
-
 	updateQuery := func(mock sqlmock.Sqlmock) *sqlmock.ExpectedExec {
 		return mock.ExpectExec(regexp.QuoteMeta("UPDATE `watcher` SET `keywords`=? WHERE name = ?"))
 	}
@@ -264,7 +255,7 @@ func TestPersistentWatcher_Update(t *testing.T) {
 		{
 			name:       "ok",
 			update:     update,
-			updateMask: updateMask(t, update, "keywords"),
+			updateMask: fieldmasktest.NewValidFieldMask(t, update, "keywords"),
 			mock: func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 
@@ -284,7 +275,7 @@ func TestPersistentWatcher_Update(t *testing.T) {
 		{
 			name:       "err: name field mask",
 			update:     update,
-			updateMask: updateMask(t, update, "name"),
+			updateMask: fieldmasktest.NewValidFieldMask(t, update, "name"),
 			err:        ErrInvalidArgument,
 		},
 		{
@@ -304,7 +295,7 @@ func TestPersistentWatcher_Update(t *testing.T) {
 		{
 			name:       "err: update unaffected",
 			update:     update,
-			updateMask: updateMask(t, update, "keywords"),
+			updateMask: fieldmasktest.NewValidFieldMask(t, update, "keywords"),
 			mock: func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 
@@ -319,7 +310,7 @@ func TestPersistentWatcher_Update(t *testing.T) {
 		{
 			name:       "err: update failed",
 			update:     update,
-			updateMask: updateMask(t, update, "keywords"),
+			updateMask: fieldmasktest.NewValidFieldMask(t, update, "keywords"),
 			mock: func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 
@@ -334,7 +325,7 @@ func TestPersistentWatcher_Update(t *testing.T) {
 		{
 			name:       "err: select failed",
 			update:     update,
-			updateMask: updateMask(t, update, "keywords"),
+			updateMask: fieldmasktest.NewValidFieldMask(t, update, "keywords"),
 			mock: func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 

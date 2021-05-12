@@ -9,6 +9,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	api "github.com/nokamoto/egosla/api"
+	field_mask "google.golang.org/genproto/protobuf/field_mask"
 )
 
 // Mockpersistent is a mock of persistent interface.
@@ -75,4 +76,19 @@ func (m *Mockpersistent) List(offset, limit int) ([]*api.Watcher, error) {
 func (mr *MockpersistentMockRecorder) List(offset, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*Mockpersistent)(nil).List), offset, limit)
+}
+
+// Update mocks base method.
+func (m *Mockpersistent) Update(arg0 *api.Watcher, arg1 *field_mask.FieldMask) (*api.Watcher, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(*api.Watcher)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockpersistentMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*Mockpersistent)(nil).Update), arg0, arg1)
 }

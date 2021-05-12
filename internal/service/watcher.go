@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/mysql"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -117,4 +120,44 @@ func (w *Watcher) DeleteWatcher(ctx context.Context, req *api.DeleteWatcherReque
 	}
 
 	return &empty.Empty{}, nil
+}
+
+func (w *Watcher) UpdateWatcher(ctx context.Context, req *api.UpdateWatcherRequest) (*api.Watcher, error) {
+	validate := func(req *api.UpdateWatcherRequest) error {
+		if !req.GetUpdateMask().IsValid(req.GetWatcher()) {
+			return fmt.Errorf("invalid update mask: %v", req.GetUpdateMask())
+		}
+		for _, p := range req.GetUpdateMask().GetPaths() {
+			if p == "name" {
+				return errors.New("update name unsupported")
+			}
+		}
+		return nil
+	}
+
+	logger := w.logger.With(zap.Any("req", req), zap.String("method", "UpdateWatcher"))
+	logger.Debug("receive")
+
+	err := validate(req)
+	if err != nil {
+		logger.Debug("invalid argument", zap.Error(err))
+		return nil, status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
+	}
+
+	set := &api.Watcher{
+		Name:     req.GetName(),
+		Keywords: req.GetWatcher().GetKeywords(),
+	}
+
+	updated, err := w.p.Update(set, req.GetUpdateMask())
+	if errors.Is(err, mysql.ErrInvalidArgument) {
+		logger.Debug("invalid argument", zap.Error(err))
+		return nil, status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
+	}
+	if err != nil {
+		logger.Error("unavailable", zap.Error(err))
+		return nil, status.Errorf(codes.Unavailable, "unavailable")
+	}
+
+	return updated, nil
 }
