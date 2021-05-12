@@ -26,7 +26,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier --write ./src/**/*.{ts,tsx}"
+    "format": "prettier --write ./src/**/*.{ts,tsx}",
+    "lint": "eslint src"
   },
   "eslintConfig": {
     "extends": [
@@ -34,7 +35,8 @@
       "react-app/jest"
     ],
     "ignorePatterns": [
-      "**/*_pb.js"
+      "**/*_pb.js",
+      "**/*_pb.d.ts"
     ]
   },
   "browserslist": {
