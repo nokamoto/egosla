@@ -4,7 +4,7 @@ package service
 import (
 	"fmt"
 
-	"github.com/google/uuid"
+	"github.com/moby/moby/pkg/namesgenerator"
 )
 
 type nameGenerator interface{
@@ -14,5 +14,5 @@ type nameGenerator interface{
 type watcherNameGenerator struct{}
 
 func (watcherNameGenerator) newName() string{
-	return fmt.Sprintf("watchers/%s", uuid.NewString())
+	return fmt.Sprintf("watchers/%s", namesgenerator.GetRandomName(1))
 }
