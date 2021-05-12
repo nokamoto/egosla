@@ -2,14 +2,17 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/fieldmasktest"
 	"github.com/nokamoto/egosla/internal/mysql"
 	"github.com/nokamoto/egosla/internal/protogomock"
 	"go.uber.org/zap/zaptest"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -235,6 +238,91 @@ func TestWatcher_Delete(t *testing.T) {
 				})
 				if code := status.Code(err); code != x.code {
 					t.Errorf("expected %v but actual %v", x.code, code)
+				}
+			})
+		})
+	}
+}
+
+func TestWatcher_Update(t *testing.T) {
+	watcher := &api.Watcher{
+		Keywords: []string{"bar"},
+	}
+
+	result := &api.Watcher{
+		Name:     "foo",
+		Keywords: watcher.GetKeywords(),
+	}
+
+	updateMask := fieldmasktest.NewValidFieldMask(t, watcher, "keywords")
+
+	testcases := []struct {
+		name     string
+		req      *api.UpdateWatcherRequest
+		mock     func(p *Mockpersistent, n *MocknameGenerator)
+		expected *api.Watcher
+		code     codes.Code
+	}{
+		{
+			name: "ok",
+			req: &api.UpdateWatcherRequest{
+				Name:       result.GetName(),
+				Watcher:    watcher,
+				UpdateMask: updateMask,
+			},
+			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+				p.EXPECT().Update(protogomock.Equal(result), protogomock.Equal(updateMask)).Return(result, nil)
+			},
+			expected: result,
+		},
+		{
+			name: "err: name contains",
+			req: &api.UpdateWatcherRequest{
+				Name:       result.GetName(),
+				Watcher:    watcher,
+				UpdateMask: fieldmasktest.NewValidFieldMask(t, watcher, "name", "keywords"),
+			},
+			code: codes.InvalidArgument,
+		},
+		{
+			name: "err: unknown fields",
+			req: &api.UpdateWatcherRequest{
+				Name:    result.GetName(),
+				Watcher: watcher,
+				UpdateMask: &field_mask.FieldMask{
+					Paths: []string{"foo"},
+				},
+			},
+			code: codes.InvalidArgument,
+		},
+		{
+			name: "unexpected error",
+			req: &api.UpdateWatcherRequest{
+				Name:       result.GetName(),
+				Watcher:    watcher,
+				UpdateMask: updateMask,
+			},
+			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+				p.EXPECT().Update(protogomock.Equal(result), protogomock.Equal(updateMask)).Return(nil, errors.New("unexpected"))
+			},
+			code: codes.Unavailable,
+		},
+	}
+
+	for _, x := range testcases {
+		t.Run(x.name, func(t *testing.T) {
+			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator) {
+				if x.mock != nil {
+					x.mock(p, n)
+				}
+
+				actual, err := svc.UpdateWatcher(context.TODO(), x.req)
+				if code := status.Code(err); code != x.code {
+					t.Errorf("expected %v but actual %v", x.code, code)
+				}
+
+				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
+					t.Error(diff)
 				}
 			})
 		})
