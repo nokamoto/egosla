@@ -4,6 +4,7 @@ import Content from "./Content";
 import { watcherService } from "./Rpc";
 import {
   CreateWatcherRequest,
+  DeleteWatcherRequest,
   ListWatcherRequest,
   ListWatcherResponse,
   Watcher,
@@ -72,7 +73,7 @@ test("adds a new watcher", () => {
   expect(listWatcher.mock.calls[0][0]).toEqual(list);
 });
 
-test("cancel to add a watcher", () => {
+test("cancels to add a watcher", () => {
   const createWatcher = jest.fn();
   jest.spyOn(watcherService, "createWatcher").mockImplementation(createWatcher);
 
@@ -82,4 +83,53 @@ test("cancel to add a watcher", () => {
   fireEvent.click(getByTestId("cancel"));
 
   expect(createWatcher).toHaveBeenCalledTimes(0);
+});
+
+test("deletes a watcher", () => {
+  const listWatcher = jest.fn().mockImplementation((x, y, callback) => {
+    const foo = new Watcher();
+    foo.setName("foo");
+    foo.setKeywordsList(["bar"]);
+    const baz = new Watcher();
+    baz.setName("baz");
+    baz.setKeywordsList(["qux"]);
+    const res = new ListWatcherResponse();
+    res.addWatchers(foo);
+    res.addWatchers(baz);
+
+    callback(null, res);
+  });
+
+  const deleteWatcher = jest.fn().mockImplementation((x, y, callback) => {
+    callback(null, null);
+  });
+
+  jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
+  jest.spyOn(watcherService, "deleteWatcher").mockImplementation(deleteWatcher);
+
+  const { queryByText, getByText, getAllByTestId } = render(
+    <Content newChipKeys={[]} />
+  );
+
+  expect(getByText("foo")).toBeInTheDocument();
+  expect(getByText("baz")).toBeInTheDocument();
+
+  const menus = getAllByTestId("open-menu");
+  const del = getAllByTestId("delete");
+
+  expect(menus.length).toEqual(2);
+  expect(del.length).toEqual(2);
+
+  fireEvent.click(menus[0]);
+  fireEvent.click(del[0]);
+
+  expect(deleteWatcher).toHaveBeenCalledTimes(1);
+
+  const expected = new DeleteWatcherRequest();
+  expected.setName("foo");
+
+  expect(deleteWatcher.mock.calls[0][0]).toEqual(expected);
+
+  expect(queryByText("foo")).not.toBeInTheDocument();
+  expect(getByText("baz")).toBeInTheDocument();
 });
