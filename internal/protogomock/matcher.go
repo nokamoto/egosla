@@ -6,11 +6,11 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type matcher struct{
+type matcher struct {
 	x proto.Message
 }
 
-func (m matcher)Matches(x interface{}) bool {
+func (m matcher) Matches(x interface{}) bool {
 	y, ok := x.(proto.Message)
 	if !ok {
 		return false
@@ -18,7 +18,7 @@ func (m matcher)Matches(x interface{}) bool {
 	return proto.Equal(m.x, y)
 }
 
-func (m matcher)String() string {
+func (m matcher) String() string {
 	return fmt.Sprintf("equal(%v)", m.x)
 }
 

@@ -13,16 +13,16 @@ import (
 // Watcher implements api.WatcherServiceServer.
 type Watcher struct {
 	api.UnimplementedWatcherServiceServer
-	p persistent
-	n nameGenerator
+	p      persistent
+	n      nameGenerator
 	logger *zap.Logger
 }
 
 // NewWatcher creates a new Watcher.
 func NewWatcher(p persistent, logger *zap.Logger) *Watcher {
 	return &Watcher{
-		n: watcherNameGenerator{},
-		p: p,
+		n:      watcherNameGenerator{},
+		p:      p,
 		logger: logger.With(zap.String("service", "WatcherService")),
 	}
 }
@@ -34,7 +34,7 @@ func (w *Watcher) CreateWatcher(ctx context.Context, req *api.CreateWatcherReque
 
 	logger := w.logger.With(zap.Any("req", req), zap.String("method", "CreateWatcher"))
 	logger.Debug("receive")
-	
+
 	err := validate(req)
 	if err != nil {
 		logger.Debug("invalid argument", zap.Error(err))
@@ -42,7 +42,7 @@ func (w *Watcher) CreateWatcher(ctx context.Context, req *api.CreateWatcherReque
 	}
 
 	created := &api.Watcher{
-		Name: w.n.newName(),
+		Name:     w.n.newName(),
 		Keywords: req.GetWatcher().GetKeywords(),
 	}
 
@@ -65,7 +65,7 @@ func (w *Watcher) ListWatcher(ctx context.Context, req *api.ListWatcherRequest) 
 
 	logger := w.logger.With(zap.Any("req", req), zap.String("method", "ListWatcher"))
 	logger.Debug("receive")
-	
+
 	err := validate(req)
 	if err != nil {
 		logger.Debug("invalid argument", zap.Error(err))
@@ -92,7 +92,7 @@ func (w *Watcher) ListWatcher(ctx context.Context, req *api.ListWatcherRequest) 
 
 	return &api.ListWatcherResponse{
 		NextPageToken: nextPageToken,
-		Watchers: watchers,
+		Watchers:      watchers,
 	}, nil
 }
 
@@ -103,7 +103,7 @@ func (w *Watcher) DeleteWatcher(ctx context.Context, req *api.DeleteWatcherReque
 
 	logger := w.logger.With(zap.Any("req", req), zap.String("method", "DeleteWatcher"))
 	logger.Debug("receive")
-	
+
 	err := validate(req)
 	if err != nil {
 		logger.Debug("invalid argument", zap.Error(err))

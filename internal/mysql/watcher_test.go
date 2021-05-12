@@ -9,7 +9,9 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/testing/protocmp"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -24,11 +26,11 @@ func mockPersistentWatcher(t *testing.T, f func(*PersistentWatcher, sqlmock.Sqlm
 	db, err := gorm.Open(
 		mysql.Dialector{
 			Config: &mysql.Config{
-				DriverName: "mysql", 
-				Conn: gdb, 
+				DriverName:                "mysql",
+				Conn:                      gdb,
 				SkipInitializeWithVersion: true,
 			},
-		}, 
+		},
 		&gorm.Config{},
 	)
 	if err != nil {
@@ -53,14 +55,14 @@ func TestPersistentWatcher_Create(t *testing.T) {
 			WithArgs("foo", "bar,baz")
 	}
 
-	input := &api.Watcher {
-		Name: "foo",
+	input := &api.Watcher{
+		Name:     "foo",
 		Keywords: []string{"bar", "baz"},
 	}
 
 	testcases := []struct {
-		name string
-		mock func(mock sqlmock.Sqlmock)
+		name     string
+		mock     func(mock sqlmock.Sqlmock)
 		expected error
 	}{
 		{
@@ -85,7 +87,7 @@ func TestPersistentWatcher_Create(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock){
+			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
 				if x.mock != nil {
 					x.mock(mock)
 				}
@@ -100,8 +102,7 @@ func TestPersistentWatcher_Create(t *testing.T) {
 	}
 }
 
-
-func TestPersistentWatcher_List(t *testing.T){
+func TestPersistentWatcher_List(t *testing.T) {
 	offset := 1
 	limit := 10
 
@@ -111,20 +112,20 @@ func TestPersistentWatcher_List(t *testing.T){
 
 	expected := []*api.Watcher{
 		{
-			Name: "foo",
+			Name:     "foo",
 			Keywords: []string{"bar", "baz"},
 		},
 		{
-			Name: "qux",
+			Name:     "qux",
 			Keywords: []string{"quux"},
 		},
 	}
 
 	testcases := []struct {
-		name string
-		mock func(mock sqlmock.Sqlmock)
+		name     string
+		mock     func(mock sqlmock.Sqlmock)
 		expected []*api.Watcher
-		err error
+		err      error
 	}{
 		{
 			name: "ok",
@@ -132,8 +133,8 @@ func TestPersistentWatcher_List(t *testing.T){
 				mock.ExpectBegin()
 				query(mock).WillReturnRows(
 					sqlmock.NewRows([]string{"name", "keywords"}).
-					AddRow(expected[0].GetName(), strings.Join(expected[0].GetKeywords(), ",")).
-					AddRow(expected[1].GetName(), strings.Join(expected[1].GetKeywords(), ",")),
+						AddRow(expected[0].GetName(), strings.Join(expected[0].GetKeywords(), ",")).
+						AddRow(expected[1].GetName(), strings.Join(expected[1].GetKeywords(), ",")),
 				)
 				mock.ExpectCommit()
 			},
@@ -152,7 +153,7 @@ func TestPersistentWatcher_List(t *testing.T){
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock){
+			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
 				if x.mock != nil {
 					x.mock(mock)
 				}
@@ -181,8 +182,8 @@ func TestPersistentWatcher_Delete(t *testing.T) {
 	}
 
 	testcases := []struct {
-		name string
-		mock func(mock sqlmock.Sqlmock)
+		name     string
+		mock     func(mock sqlmock.Sqlmock)
 		expected error
 	}{
 		{
@@ -214,7 +215,7 @@ func TestPersistentWatcher_Delete(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock){
+			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
 				if x.mock != nil {
 					x.mock(mock)
 				}
@@ -223,6 +224,146 @@ func TestPersistentWatcher_Delete(t *testing.T) {
 
 				if !errors.Is(actual, x.expected) {
 					t.Errorf("expected %v but actual %v", x.expected, actual)
+				}
+			})
+		})
+	}
+}
+
+func TestPersistentWatcher_Update(t *testing.T) {
+	update := &api.Watcher{
+		Name:     "foo",
+		Keywords: []string{"bar"},
+	}
+
+	updateMask := func(t *testing.T, v *api.Watcher, paths ...string) *field_mask.FieldMask {
+		t.Helper()
+		mask, err := fieldmaskpb.New(v, paths...)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return mask
+	}
+
+	updateQuery := func(mock sqlmock.Sqlmock) *sqlmock.ExpectedExec {
+		return mock.ExpectExec(regexp.QuoteMeta("UPDATE `watcher` SET `keywords`=? WHERE name = ?"))
+	}
+
+	getQuery := func(mock sqlmock.Sqlmock) *sqlmock.ExpectedQuery {
+		return mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `watcher` WHERE name = ? ORDER BY `watcher`.`name` LIMIT 1"))
+	}
+
+	testcases := []struct {
+		name       string
+		update     *api.Watcher
+		updateMask *field_mask.FieldMask
+		mock       func(mock sqlmock.Sqlmock)
+		expected   *api.Watcher
+		err        error
+	}{
+		{
+			name:       "ok",
+			update:     update,
+			updateMask: updateMask(t, update, "keywords"),
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+
+				updateQuery(mock).
+					WithArgs(strings.Join(update.GetKeywords(), ","), update.GetName()).
+					WillReturnResult(sqlmock.NewResult(0, 1))
+
+				getQuery(mock).WithArgs(update.GetName()).WillReturnRows(
+					sqlmock.NewRows([]string{"name", "keywords"}).
+						AddRow(update.GetName(), strings.Join(update.GetKeywords(), ",")),
+				)
+
+				mock.ExpectCommit()
+			},
+			expected: update,
+		},
+		{
+			name:       "err: name field mask",
+			update:     update,
+			updateMask: updateMask(t, update, "name"),
+			err:        ErrInvalidArgument,
+		},
+		{
+			name:       "err: empty field mask",
+			update:     update,
+			updateMask: &field_mask.FieldMask{},
+			err:        ErrInvalidArgument,
+		},
+		{
+			name:   "err: unknown field mask",
+			update: update,
+			updateMask: &field_mask.FieldMask{
+				Paths: []string{"foo"},
+			},
+			err: ErrInvalidArgument,
+		},
+		{
+			name:       "err: update unaffected",
+			update:     update,
+			updateMask: updateMask(t, update, "keywords"),
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+
+				updateQuery(mock).
+					WithArgs(strings.Join(update.GetKeywords(), ","), update.GetName()).
+					WillReturnResult(sqlmock.NewResult(0, 0))
+
+				mock.ExpectRollback()
+			},
+			err: ErrUnknown,
+		},
+		{
+			name:       "err: update failed",
+			update:     update,
+			updateMask: updateMask(t, update, "keywords"),
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+
+				updateQuery(mock).
+					WithArgs(strings.Join(update.GetKeywords(), ","), update.GetName()).
+					WillReturnError(errors.New("unexpected"))
+
+				mock.ExpectRollback()
+			},
+			err: ErrUnknown,
+		},
+		{
+			name:       "err: select failed",
+			update:     update,
+			updateMask: updateMask(t, update, "keywords"),
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+
+				updateQuery(mock).
+					WithArgs(strings.Join(update.GetKeywords(), ","), update.GetName()).
+					WillReturnResult(sqlmock.NewResult(0, 1))
+
+				getQuery(mock).WithArgs(update.GetName()).WillReturnError(errors.New("unexpected"))
+
+				mock.ExpectRollback()
+			},
+			err: ErrUnknown,
+		},
+	}
+
+	for _, x := range testcases {
+		t.Run(x.name, func(t *testing.T) {
+			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
+				if x.mock != nil {
+					x.mock(mock)
+				}
+
+				actual, err := p.Update(x.update, x.updateMask)
+
+				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
+					t.Error(diff)
+				}
+				if !errors.Is(err, x.err) {
+					t.Errorf("expected %v but actual %v", x.err, err)
 				}
 			})
 		})

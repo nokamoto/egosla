@@ -22,8 +22,8 @@ func mockWatcher(t *testing.T, f func(*Watcher, *Mockpersistent, *MocknameGenera
 	p := NewMockpersistent(ctrl)
 	n := NewMocknameGenerator(ctrl)
 	svc := &Watcher{
-		p: p,
-		n: n,
+		p:      p,
+		n:      n,
 		logger: zaptest.NewLogger(t),
 	}
 
@@ -32,16 +32,16 @@ func mockWatcher(t *testing.T, f func(*Watcher, *Mockpersistent, *MocknameGenera
 
 func TestWatcher_Create(t *testing.T) {
 	expected := &api.Watcher{
-		Name: "watchers/foo",
+		Name:     "watchers/foo",
 		Keywords: []string{"bar", "baz"},
 	}
 
-	testcases := []struct{
-		name string
-		req *api.CreateWatcherRequest
-		mock func(p *Mockpersistent, n *MocknameGenerator)
+	testcases := []struct {
+		name     string
+		req      *api.CreateWatcherRequest
+		mock     func(p *Mockpersistent, n *MocknameGenerator)
 		expected *api.Watcher
-		code codes.Code
+		code     codes.Code
 	}{
 		{
 			name: "ok",
@@ -73,16 +73,16 @@ func TestWatcher_Create(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator){
+			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator) {
 				if x.mock != nil {
 					x.mock(p, n)
 				}
-	
+
 				actual, err := svc.CreateWatcher(context.TODO(), x.req)
 				if code := status.Code(err); code != x.code {
 					t.Errorf("expected %v but actual %v", x.code, code)
 				}
-	
+
 				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
 					t.Error(diff)
 				}
@@ -104,12 +104,12 @@ func TestWatcher_List(t *testing.T) {
 		Name: "baz",
 	}
 
-	testcases := []struct{
-		name string
-		req *api.ListWatcherRequest
-		mock func(p *Mockpersistent)
+	testcases := []struct {
+		name     string
+		req      *api.ListWatcherRequest
+		mock     func(p *Mockpersistent)
 		expected *api.ListWatcherResponse
-		code codes.Code
+		code     codes.Code
 	}{
 		{
 			name: "ok: empty token, empty watchers",
@@ -125,7 +125,7 @@ func TestWatcher_List(t *testing.T) {
 			name: "ok: len(watchers) < page size",
 			req: &api.ListWatcherRequest{
 				PageToken: "10",
-				PageSize: 2,
+				PageSize:  2,
 			},
 			mock: func(p *Mockpersistent) {
 				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1}, nil)
@@ -138,7 +138,7 @@ func TestWatcher_List(t *testing.T) {
 			name: "ok: len(watchers) == page size",
 			req: &api.ListWatcherRequest{
 				PageToken: "10",
-				PageSize: 2,
+				PageSize:  2,
 			},
 			mock: func(p *Mockpersistent) {
 				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2}, nil)
@@ -151,14 +151,14 @@ func TestWatcher_List(t *testing.T) {
 			name: "ok: len(watchers) >= page size + 1",
 			req: &api.ListWatcherRequest{
 				PageToken: "10",
-				PageSize: 2,
+				PageSize:  2,
 			},
 			mock: func(p *Mockpersistent) {
 				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2, elm3}, nil)
 			},
 			expected: &api.ListWatcherResponse{
 				NextPageToken: "12",
-				Watchers: []*api.Watcher{elm1, elm2},
+				Watchers:      []*api.Watcher{elm1, elm2},
 			},
 		},
 		{
@@ -182,16 +182,16 @@ func TestWatcher_List(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator){
+			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator) {
 				if x.mock != nil {
 					x.mock(p)
 				}
-	
+
 				actual, err := svc.ListWatcher(context.TODO(), x.req)
 				if code := status.Code(err); code != x.code {
 					t.Errorf("expected %v but actual %v", x.code, code)
 				}
-	
+
 				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
 					t.Error(diff)
 				}
@@ -203,7 +203,7 @@ func TestWatcher_List(t *testing.T) {
 func TestWatcher_Delete(t *testing.T) {
 	name := "foo"
 
-	testcases := []struct{
+	testcases := []struct {
 		name string
 		mock func(p *Mockpersistent, n *MocknameGenerator)
 		code codes.Code
@@ -225,11 +225,11 @@ func TestWatcher_Delete(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator){
+			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator) {
 				if x.mock != nil {
 					x.mock(p, n)
 				}
-	
+
 				_, err := svc.DeleteWatcher(context.TODO(), &api.DeleteWatcherRequest{
 					Name: name,
 				})
