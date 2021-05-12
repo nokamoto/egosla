@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/nokamoto/egosla/api"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"gorm.io/gorm"
 )
 
@@ -14,25 +15,27 @@ const (
 )
 
 var (
+	// ErrInvalidArgument represents an error which arguments is invalid.
+	ErrInvalidArgument = errors.New("invalid argument")
 	// ErrUnknown represents an error which is unneccessary to distinguish the cause or just unexpected.
 	ErrUnknown = errors.New("unknown")
 )
 
 type watcher struct {
-	Name string
+	Name     string
 	Keywords string
 }
 
 func newWatcher(v *api.Watcher) watcher {
-	return watcher {
-		Name: v.GetName(),
+	return watcher{
+		Name:     v.GetName(),
 		Keywords: strings.Join(v.GetKeywords(), sep),
 	}
 }
 
 func (w watcher) Value() *api.Watcher {
 	return &api.Watcher{
-		Name: w.Name,
+		Name:     w.Name,
 		Keywords: strings.Split(w.Keywords, sep),
 	}
 }
@@ -54,11 +57,11 @@ func NewPersistentWatcher(db *gorm.DB) *PersistentWatcher {
 }
 
 // Create inserts the api.Watcher.
-func (p *PersistentWatcher)Create(v *api.Watcher) error {
+func (p *PersistentWatcher) Create(v *api.Watcher) error {
 	model := newWatcher(v)
 
 	err := p.db.Transaction(func(tx *gorm.DB) error {
-		return tx.Create(model).Error		
+		return tx.Create(model).Error
 	})
 
 	if err != nil {
@@ -69,7 +72,7 @@ func (p *PersistentWatcher)Create(v *api.Watcher) error {
 }
 
 // List selects a list of watchers from offset to limit.
-func (p *PersistentWatcher)List(offset, limit int) ([]*api.Watcher, error) {
+func (p *PersistentWatcher) List(offset, limit int) ([]*api.Watcher, error) {
 	var watchers []*api.Watcher
 	err := p.db.Transaction(func(tx *gorm.DB) error {
 		var ms []watcher
@@ -93,7 +96,7 @@ func (p *PersistentWatcher)List(offset, limit int) ([]*api.Watcher, error) {
 }
 
 // Delete deletes a watcher by the name.
-func (p *PersistentWatcher)Delete(name string) error {
+func (p *PersistentWatcher) Delete(name string) error {
 	err := p.db.Transaction(func(tx *gorm.DB) error {
 		res := tx.Where("name = ?", name).Delete(&watcher{})
 		return res.Error
@@ -104,4 +107,53 @@ func (p *PersistentWatcher)Delete(name string) error {
 	}
 
 	return nil
+}
+
+// Update updates the watcher by the name with the update mask.
+func (p *PersistentWatcher) Update(v *api.Watcher, updateMask *field_mask.FieldMask) (*api.Watcher, error) {
+	var updated watcher
+
+	updateMask.Normalize()
+	var fields []string
+	for _, path := range updateMask.GetPaths() {
+		switch path {
+		case "name":
+			return nil, fmt.Errorf("%w: name field not allowed", ErrInvalidArgument)
+		case "keywords":
+			fields = append(fields, "keywords")
+		}
+	}
+
+	if len(fields) == 0 {
+		return nil, fmt.Errorf("%w: no update", ErrInvalidArgument)
+	}
+
+	err := p.db.Transaction(func(tx *gorm.DB) error {
+		res := tx.Model(&watcher{}).Where("name = ?", v.GetName()).Select(fields).Updates(newWatcher(v))
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected != 1 {
+			return fmt.Errorf("expected 1 but actual %v", res.RowsAffected)
+		}
+
+		res = tx.First(&updated, "name = ?", v.GetName())
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected != 1 {
+			return fmt.Errorf("expected 1 but actual %v", res.RowsAffected)
+		}
+		return nil
+	})
+
+	if errors.Is(err, ErrInvalidArgument) {
+		return nil, err
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrUnknown, err)
+	}
+
+	return updated.Value(), nil
 }

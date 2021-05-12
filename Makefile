@@ -3,6 +3,7 @@ all: protoc format go yarn
 format:
 	clang-format --style=Google -i api/*.proto
 	go fmt ./cmd/...
+	go fmt ./internal/...
 	go mod tidy
 	cd web && yarn && yarn format
 
