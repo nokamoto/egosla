@@ -20,6 +20,7 @@ import AddWatcherDialog from "./AddWatcherDialog";
 import { watcherService } from "./Rpc";
 import {
   CreateWatcherRequest,
+  DeleteWatcherRequest,
   ListWatcherRequest,
   Watcher,
 } from "./api/service_pb";
@@ -107,7 +108,12 @@ function Content(props: ContentProps) {
 
   const deleteWatcher = (watcherName: string, _: MouseEvent<HTMLElement>) => {
     setAnchorEl([]);
-    console.log("todo", watcherName);
+
+    const req = new DeleteWatcherRequest();
+    req.setName(watcherName);
+    watcherService.deleteWatcher(req, {}, (err, res) => {
+      setWatchers(watchers.filter((w) => w.getName() !== watcherName));
+    });
   };
 
   useEffect(() => {
