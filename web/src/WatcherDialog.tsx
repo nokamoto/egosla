@@ -6,26 +6,32 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import ChipInput from "material-ui-chip-input";
 
-interface AddWatcherDialogProps {
+interface WatcherDialogProps {
   // Dialog open prop.
   open: boolean;
   // Callback fired when Dialog closed.
   handleCancel: () => void;
-  // Callback fired when Dialog closed and requested to add watcher.
+  // Callback fired when Dialog closed and requested a rpc call.
   handleWatch: () => void;
   // Callback when input keywords changed.
   setKeywords: (keywords: string[]) => void;
   // Keycodes for ChipInput.
   newChipKeys: string[];
+  // A button text.
+  buttonText: string;
+  // Default keywords for ChipInput.
+  defaultKeywords: string[];
 }
 
-function AddWatcherDialog({
+function WatcherDialog({
   open,
   handleCancel,
   handleWatch,
   setKeywords,
   newChipKeys,
-}: AddWatcherDialogProps) {
+  buttonText,
+  defaultKeywords,
+}: WatcherDialogProps) {
   return (
     <Dialog
       open={open}
@@ -36,7 +42,7 @@ function AddWatcherDialog({
       <DialogContent>
         <ChipInput
           label="Keywords"
-          defaultValue={[]}
+          defaultValue={defaultKeywords}
           onChange={setKeywords}
           newChipKeys={newChipKeys}
           fullWidth={true}
@@ -52,11 +58,11 @@ function AddWatcherDialog({
           Cancel
         </Button>
         <Button onClick={handleWatch} color="primary" data-testid="watch">
-          Watch :eyes:
+          {buttonText}
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-export default AddWatcherDialog;
+export default WatcherDialog;

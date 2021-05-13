@@ -16,7 +16,7 @@ import {
 } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/Search";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import AddWatcherDialog from "./AddWatcherDialog";
+import WatcherDialog from "./WatcherDialog";
 import { watcherService } from "./Rpc";
 import {
   CreateWatcherRequest,
@@ -68,6 +68,9 @@ function Content(props: ContentProps) {
   const { classes } = props;
 
   const [open, setOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [updateKeywords, setUpdateKeywords] = useState<string[]>([]);
+  const [updateWatcherName, setUpdateWatcherName] = useState<string>("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [watchers, setWatchers] = useState<Watcher[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLElement[]>([]);
@@ -78,6 +81,15 @@ function Content(props: ContentProps) {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleUpdateClose = () => {
+    setUpdateOpen(false);
+  };
+
+  const handleUpdate = () => {
+    setUpdateOpen(false);
+    console.log(updateWatcherName);
   };
 
   const handleWatch = () => {
@@ -111,7 +123,14 @@ function Content(props: ContentProps) {
     event: MouseEvent<HTMLElement>
   ) => {
     setAnchorEl([]);
-    console.log("todo");
+    setUpdateOpen(true);
+    setUpdateWatcherName(watcherName);
+
+    const found = watchers.filter((w) => w.getName() === watcherName);
+    if (found.length !== 1) {
+      return;
+    }
+    setUpdateKeywords(found[0].getKeywordsList());
   };
 
   const deleteWatcher = (watcherName: string, _: MouseEvent<HTMLElement>) => {
@@ -165,13 +184,6 @@ function Content(props: ContentProps) {
               >
                 Add Watcher
               </Button>
-              <AddWatcherDialog
-                open={open}
-                handleCancel={handleClose}
-                handleWatch={handleWatch}
-                setKeywords={setKeywords}
-                newChipKeys={props.newChipKeys}
-              />
               <Tooltip title="Reload">
                 <IconButton>
                   <RefreshIcon className={classes.block} color="inherit" />
@@ -229,6 +241,24 @@ function Content(props: ContentProps) {
           </TableBody>
         </Table>
       )}
+      <WatcherDialog
+        open={open}
+        handleCancel={handleClose}
+        handleWatch={handleWatch}
+        setKeywords={setKeywords}
+        newChipKeys={props.newChipKeys}
+        buttonText="Watch :eye:"
+        defaultKeywords={[]}
+      />
+      <WatcherDialog
+        open={updateOpen}
+        handleCancel={handleUpdateClose}
+        handleWatch={handleUpdate}
+        setKeywords={setKeywords}
+        newChipKeys={props.newChipKeys}
+        buttonText="Update :pen:"
+        defaultKeywords={updateKeywords}
+      />
     </Paper>
   );
 }
