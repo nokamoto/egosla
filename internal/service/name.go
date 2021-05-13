@@ -3,6 +3,8 @@ package service
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/moby/moby/pkg/namesgenerator"
 )
@@ -15,4 +17,8 @@ type watcherNameGenerator struct{}
 
 func (watcherNameGenerator) newName() string {
 	return fmt.Sprintf("watchers/%s", namesgenerator.GetRandomName(1))
+}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
 }
