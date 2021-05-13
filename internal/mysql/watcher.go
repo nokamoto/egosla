@@ -129,7 +129,7 @@ func (p *PersistentWatcher) Update(v *api.Watcher, updateMask *field_mask.FieldM
 	}
 
 	err := p.db.Transaction(func(tx *gorm.DB) error {
-		res := tx.Debug().Model(&watcher{}).Where("name = ?", v.GetName()).Select(fields).Updates(newWatcher(v))
+		res := tx.Model(&watcher{}).Where("name = ?", v.GetName()).Select(fields).Updates(newWatcher(v))
 		if res.Error != nil {
 			return res.Error
 		}
@@ -137,7 +137,7 @@ func (p *PersistentWatcher) Update(v *api.Watcher, updateMask *field_mask.FieldM
 			return fmt.Errorf("expected 1 but actual %v", res.RowsAffected)
 		}
 
-		res = tx.Debug().First(&updated, "name = ?", v.GetName())
+		res = tx.First(&updated, "name = ?", v.GetName())
 		if res.Error != nil {
 			return res.Error
 		}
