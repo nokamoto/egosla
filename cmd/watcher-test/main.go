@@ -30,6 +30,7 @@ func main() {
 	scenarios{
 		testCreate(c),
 		testList(c),
+		testUpdate(c),
 		testDelete(c),
 	}.run(logger)
 }
