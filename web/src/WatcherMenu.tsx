@@ -2,12 +2,13 @@ import React, { MouseEvent } from "react";
 import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@material-ui/icons/Edit";
 import MenuItem from "@material-ui/core/MenuItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Menu from "@material-ui/core/Menu";
 import ListItemText from "@material-ui/core/ListItemText";
 
-export interface DeleteWatcherMenuProps {
+export interface WatcherMenuProps {
   // Index for anchorEl.
   index: number;
   // HTML element passing to Menu.
@@ -20,16 +21,19 @@ export interface DeleteWatcherMenuProps {
   handleClose: (event: MouseEvent<HTMLElement>) => void;
   // Callback fired when Menu closed and requested to delete the watcher.
   handleDelete: (watcherName: string, event: MouseEvent<HTMLElement>) => void;
+  // Callback fired when Menu closed and requested to open an update Dialog.
+  handleUpdate: (watcherName: string, event: MouseEvent<HTMLElement>) => void;
 }
 
-function DeleteWatcherMenu({
+function WatcherMenu({
   index,
   anchorEl,
   watcherName,
   handleClick,
   handleClose,
   handleDelete,
-}: DeleteWatcherMenuProps) {
+  handleUpdate,
+}: WatcherMenuProps) {
   return (
     <div>
       <IconButton
@@ -61,9 +65,18 @@ function DeleteWatcherMenu({
           </ListItemIcon>
           <ListItemText primary="Delete" />
         </MenuItem>
+        <MenuItem
+          data-testid="update"
+          onClick={(e) => handleUpdate(watcherName, e)}
+        >
+          <ListItemIcon>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Update" />
+        </MenuItem>
       </Menu>
     </div>
   );
 }
 
-export default DeleteWatcherMenu;
+export default WatcherMenu;
