@@ -30,7 +30,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import Chip from "@material-ui/core/Chip";
-import DeleteWatcherMenu from "./DeleteWatcherMenu";
+import WatcherMenu from "./WatcherMenu";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -104,6 +104,14 @@ function Content(props: ContentProps) {
 
   const handleCloseDeleteMenu = () => {
     setAnchorEl([]);
+  };
+
+  const handleClickUpdateMenu = (
+    watcherName: string,
+    event: MouseEvent<HTMLElement>
+  ) => {
+    setAnchorEl([]);
+    console.log("todo");
   };
 
   const deleteWatcher = (watcherName: string, _: MouseEvent<HTMLElement>) => {
@@ -206,13 +214,14 @@ function Content(props: ContentProps) {
                   ))}
                 </TableCell>
                 <TableCell align="right">
-                  <DeleteWatcherMenu
+                  <WatcherMenu
                     index={index}
                     anchorEl={anchorEl}
                     watcherName={watcher.getName()}
                     handleClick={handleClickDeleteMenu}
                     handleClose={handleCloseDeleteMenu}
                     handleDelete={deleteWatcher}
+                    handleUpdate={handleClickUpdateMenu}
                   />
                 </TableCell>
               </TableRow>
