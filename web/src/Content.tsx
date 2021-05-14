@@ -22,6 +22,7 @@ import {
   CreateWatcherRequest,
   DeleteWatcherRequest,
   ListWatcherRequest,
+  UpdateWatcherRequest,
   Watcher,
 } from "./api/service_pb";
 import Table from "@material-ui/core/Table";
@@ -31,6 +32,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import Chip from "@material-ui/core/Chip";
 import WatcherMenu from "./WatcherMenu";
+import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -89,7 +91,28 @@ function Content(props: ContentProps) {
 
   const handleUpdate = () => {
     setUpdateOpen(false);
-    console.log(updateWatcherName);
+
+    const watcher = new Watcher();
+    watcher.setKeywordsList(updateKeywords);
+
+    const updateMask = new FieldMask();
+    updateMask.addPaths("keywords");
+
+    const req = new UpdateWatcherRequest();
+    req.setName(updateWatcherName);
+    req.setWatcher(watcher);
+    req.setUpdateMask(updateMask);
+
+    watcherService.updateWatcher(req, {}, (err, res) => {
+      setWatchers(
+        watchers.map((v) => {
+          if (v.getName() === res.getName()) {
+            return res;
+          }
+          return v;
+        })
+      );
+    });
   };
 
   const handleWatch = () => {
@@ -254,7 +277,7 @@ function Content(props: ContentProps) {
         open={updateOpen}
         handleCancel={handleUpdateClose}
         handleWatch={handleUpdate}
-        setKeywords={setKeywords}
+        setKeywords={setUpdateKeywords}
         newChipKeys={props.newChipKeys}
         buttonText="Update :pen:"
         defaultKeywords={updateKeywords}
