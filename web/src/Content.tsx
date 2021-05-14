@@ -224,7 +224,7 @@ function Content(props: ContentProps) {
         </div>
       )}
       {watchers.length > 0 && (
-        <Table aria-label="simple table">
+        <Table aria-label="simple table" data-testid="watchers-table">
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
