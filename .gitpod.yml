@@ -19,7 +19,7 @@ github:
 
 ports:
 - port: 3000
-  onOpen: open-browser
+  onOpen: ignore
 - port: 3306
   onOpen: ignore
 - port: 8080
