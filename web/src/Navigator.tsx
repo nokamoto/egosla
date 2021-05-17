@@ -17,6 +17,7 @@ import { Omit } from "@material-ui/types";
 
 const categories = [
   {
+    categoryId: "primary",
     children: [{ id: "Watcher", icon: <PeopleIcon />, active: true }],
   },
 ];
@@ -72,15 +73,19 @@ function Navigator(props: NavigatorProps) {
       <List disablePadding>
         <ListItem
           className={clsx(classes.firebase, classes.item, classes.itemCategory)}
+          key="title"
         >
           egosla
         </ListItem>
-        {categories.map(({ children }) => (
-          <React.Fragment>
-            <ListItem className={classes.categoryHeader}></ListItem>
-            {children.map(({ id: childId, icon, active }) => (
+        {categories.map(({ categoryId, children }) => (
+          <React.Fragment key={categoryId + "fragment"}>
+            <ListItem
+              className={classes.categoryHeader}
+              key={categoryId}
+            ></ListItem>
+            {children.map(({ id, icon, active }) => (
               <ListItem
-                key={childId}
+                key={id}
                 button
                 className={clsx(classes.item, active && classes.itemActiveItem)}
               >
@@ -90,7 +95,7 @@ function Navigator(props: NavigatorProps) {
                     primary: classes.itemPrimary,
                   }}
                 >
-                  {childId}
+                  {id}
                 </ListItemText>
               </ListItem>
             ))}
