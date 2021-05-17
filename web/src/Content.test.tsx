@@ -200,3 +200,17 @@ test("updates a watcher", () => {
   const table = getByTestId("watchers-table");
   expect(within(table).getByText("quux")).toBeInTheDocument();
 });
+
+test("reloads a list of watchers", () => {
+  const listWatcher = jest.fn();
+
+  jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
+
+  const { getByTestId } = render(<Content newChipKeys={[]} />);
+
+  expect(listWatcher).toHaveBeenCalledTimes(1);
+
+  fireEvent.click(getByTestId("reload"));
+
+  expect(listWatcher).toHaveBeenCalledTimes(2);
+});

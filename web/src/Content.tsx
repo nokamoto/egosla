@@ -169,7 +169,7 @@ function Content(props: ContentProps) {
 
   const handleReload = () => {
     setRefresh(!refresh);
-  }
+  };
 
   useEffect(() => {
     const req = new ListWatcherRequest();
@@ -213,7 +213,7 @@ function Content(props: ContentProps) {
                 Add Watcher
               </Button>
               <Tooltip title="Reload">
-                <IconButton onClick={handleReload}>
+                <IconButton onClick={handleReload} data-testid="reload">
                   <RefreshIcon className={classes.block} color="inherit" />
                 </IconButton>
               </Tooltip>
