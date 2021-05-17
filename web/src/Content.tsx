@@ -69,6 +69,7 @@ export interface ContentProps extends WithStyles<typeof styles> {
 function Content(props: ContentProps) {
   const { classes } = props;
 
+  const [refresh, setRefresh] = useState(false);
   const [open, setOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [updateKeywords, setUpdateKeywords] = useState<string[]>([]);
@@ -166,13 +167,17 @@ function Content(props: ContentProps) {
     });
   };
 
+  const handleReload = () => {
+    setRefresh(!refresh);
+  }
+
   useEffect(() => {
     const req = new ListWatcherRequest();
     req.setPageSize(100);
     watcherService.listWatcher(req, {}, (err, res) => {
       setWatchers(res.getWatchersList());
     });
-  }, []);
+  }, [refresh]);
 
   return (
     <Paper className={classes.paper}>
@@ -208,7 +213,7 @@ function Content(props: ContentProps) {
                 Add Watcher
               </Button>
               <Tooltip title="Reload">
-                <IconButton>
+                <IconButton onClick={handleReload}>
                   <RefreshIcon className={classes.block} color="inherit" />
                 </IconButton>
               </Tooltip>
