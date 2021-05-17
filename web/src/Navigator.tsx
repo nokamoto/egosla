@@ -79,7 +79,10 @@ function Navigator(props: NavigatorProps) {
         </ListItem>
         {categories.map(({ categoryId, children }) => (
           <React.Fragment key={categoryId + "fragment"}>
-            <ListItem className={classes.categoryHeader} key={categoryId}></ListItem>
+            <ListItem
+              className={classes.categoryHeader}
+              key={categoryId}
+            ></ListItem>
             {children.map(({ id, icon, active }) => (
               <ListItem
                 key={id}
