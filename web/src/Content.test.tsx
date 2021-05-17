@@ -37,14 +37,18 @@ test("gets watchers", () => {
 });
 
 test("adds a new watcher", () => {
-  const createWatcher = jest.fn();
+  const watcher = new Watcher();
+  watcher.setKeywordsList(["foo", "bar"]);
+
+  const createWatcher = jest.fn().mockImplementation((x, y, callback) => {
+    callback(null, watcher);
+  });
+
   const listWatcher = jest.fn();
   jest.spyOn(watcherService, "createWatcher").mockImplementation(createWatcher);
   jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
 
-  const { getByTestId, getByText } = render(
-    <Content newChipKeys={["Enter"]} />
-  );
+  const { getByTestId } = render(<Content newChipKeys={["Enter"]} />);
 
   fireEvent.click(getByTestId("open-addwatch"));
 
@@ -57,16 +61,15 @@ test("adds a new watcher", () => {
 
   fireEvent.click(getByTestId("watch"));
 
-  const watcher = new Watcher();
-  watcher.setKeywordsList(["foo", "bar"]);
   const expected = new CreateWatcherRequest();
   expected.setWatcher(watcher);
 
   expect(createWatcher).toHaveBeenCalledTimes(1);
   expect(createWatcher.mock.calls[0][0]).toEqual(expected);
 
-  expect(getByText("foo")).toBeInTheDocument();
-  expect(getByText("bar")).toBeInTheDocument();
+  const table = getByTestId("watchers-table");
+  expect(within(table).getByText("foo")).toBeInTheDocument();
+  expect(within(table).getByText("bar")).toBeInTheDocument();
 
   const list = new ListWatcherRequest();
   list.setPageSize(100);
