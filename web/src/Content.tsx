@@ -16,12 +16,13 @@ import {
 } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/Search";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import AddWatcherDialog from "./AddWatcherDialog";
+import WatcherDialog from "./WatcherDialog";
 import { watcherService } from "./Rpc";
 import {
   CreateWatcherRequest,
   DeleteWatcherRequest,
   ListWatcherRequest,
+  UpdateWatcherRequest,
   Watcher,
 } from "./api/service_pb";
 import Table from "@material-ui/core/Table";
@@ -31,6 +32,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import Chip from "@material-ui/core/Chip";
 import WatcherMenu from "./WatcherMenu";
+import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -68,6 +70,9 @@ function Content(props: ContentProps) {
   const { classes } = props;
 
   const [open, setOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [updateKeywords, setUpdateKeywords] = useState<string[]>([]);
+  const [updateWatcherName, setUpdateWatcherName] = useState<string>("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [watchers, setWatchers] = useState<Watcher[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLElement[]>([]);
@@ -78,6 +83,36 @@ function Content(props: ContentProps) {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleUpdateClose = () => {
+    setUpdateOpen(false);
+  };
+
+  const handleUpdate = () => {
+    setUpdateOpen(false);
+
+    const watcher = new Watcher();
+    watcher.setKeywordsList(updateKeywords);
+
+    const updateMask = new FieldMask();
+    updateMask.addPaths("keywords");
+
+    const req = new UpdateWatcherRequest();
+    req.setName(updateWatcherName);
+    req.setWatcher(watcher);
+    req.setUpdateMask(updateMask);
+
+    watcherService.updateWatcher(req, {}, (err, res) => {
+      setWatchers(
+        watchers.map((v) => {
+          if (v.getName() === res.getName()) {
+            return res;
+          }
+          return v;
+        })
+      );
+    });
   };
 
   const handleWatch = () => {
@@ -111,7 +146,14 @@ function Content(props: ContentProps) {
     event: MouseEvent<HTMLElement>
   ) => {
     setAnchorEl([]);
-    console.log("todo");
+    setUpdateOpen(true);
+    setUpdateWatcherName(watcherName);
+
+    const found = watchers.filter((w) => w.getName() === watcherName);
+    if (found.length !== 1) {
+      return;
+    }
+    setUpdateKeywords(found[0].getKeywordsList());
   };
 
   const deleteWatcher = (watcherName: string, _: MouseEvent<HTMLElement>) => {
@@ -165,13 +207,6 @@ function Content(props: ContentProps) {
               >
                 Add Watcher
               </Button>
-              <AddWatcherDialog
-                open={open}
-                handleCancel={handleClose}
-                handleWatch={handleWatch}
-                setKeywords={setKeywords}
-                newChipKeys={props.newChipKeys}
-              />
               <Tooltip title="Reload">
                 <IconButton>
                   <RefreshIcon className={classes.block} color="inherit" />
@@ -189,7 +224,7 @@ function Content(props: ContentProps) {
         </div>
       )}
       {watchers.length > 0 && (
-        <Table aria-label="simple table">
+        <Table aria-label="simple table" data-testid="watchers-table">
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
@@ -229,6 +264,24 @@ function Content(props: ContentProps) {
           </TableBody>
         </Table>
       )}
+      <WatcherDialog
+        open={open}
+        handleCancel={handleClose}
+        handleWatch={handleWatch}
+        setKeywords={setKeywords}
+        newChipKeys={props.newChipKeys}
+        buttonText="Watch :eye:"
+        defaultKeywords={[]}
+      />
+      <WatcherDialog
+        open={updateOpen}
+        handleCancel={handleUpdateClose}
+        handleWatch={handleUpdate}
+        setKeywords={setUpdateKeywords}
+        newChipKeys={props.newChipKeys}
+        buttonText="Update :pen:"
+        defaultKeywords={updateKeywords}
+      />
     </Paper>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, within } from "@testing-library/react";
 import Content from "./Content";
 import { watcherService } from "./Rpc";
 import {
@@ -7,8 +7,10 @@ import {
   DeleteWatcherRequest,
   ListWatcherRequest,
   ListWatcherResponse,
+  UpdateWatcherRequest,
   Watcher,
 } from "./api/service_pb";
+import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 
 test("gets watchers", () => {
   const listWatcher = jest.fn().mockImplementation((x, y, callback) => {
@@ -132,4 +134,66 @@ test("deletes a watcher", () => {
 
   expect(queryByText("foo")).not.toBeInTheDocument();
   expect(getByText("baz")).toBeInTheDocument();
+});
+
+test("updates a watcher", () => {
+  const listWatcher = jest.fn().mockImplementation((x, y, callback) => {
+    const foo = new Watcher();
+    foo.setName("foo");
+    foo.setKeywordsList(["bar"]);
+    const baz = new Watcher();
+    baz.setName("baz");
+    baz.setKeywordsList(["qux"]);
+    const res = new ListWatcherResponse();
+    res.addWatchers(foo);
+    res.addWatchers(baz);
+
+    callback(null, res);
+  });
+
+  const watcher = new Watcher();
+  watcher.setKeywordsList(["bar", "quux"]);
+  const updateMask = new FieldMask();
+  updateMask.addPaths("keywords");
+  const expected = new UpdateWatcherRequest();
+  expected.setName("foo");
+  expected.setWatcher(watcher);
+  expected.setUpdateMask(updateMask);
+
+  const updateWatcher = jest.fn().mockImplementation((x, y, callback) => {
+    const res = new Watcher();
+    res.setName(expected.getName());
+    res.setKeywordsList(expected.getWatcher()!.getKeywordsList());
+    callback(null, res);
+  });
+
+  jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
+  jest.spyOn(watcherService, "updateWatcher").mockImplementation(updateWatcher);
+
+  const { queryByText, getAllByTestId, getByTestId } = render(
+    <Content newChipKeys={["Enter"]} />
+  );
+
+  expect(queryByText("quux")).not.toBeInTheDocument();
+
+  const menus = getAllByTestId("open-menu");
+  const update = getAllByTestId("update");
+
+  expect(menus.length).toEqual(2);
+  expect(update.length).toEqual(2);
+
+  fireEvent.click(menus[0]);
+  fireEvent.click(update[0]);
+
+  const keywords = getByTestId("keywords");
+  fireEvent.input(keywords, { target: { value: "quux" } });
+  fireEvent.keyDown(keywords, { key: "Enter", code: "Enter" });
+
+  fireEvent.click(getByTestId("watch"));
+
+  expect(updateWatcher).toHaveBeenCalledTimes(1);
+  expect(updateWatcher.mock.calls[0][0]).toEqual(expected);
+
+  const table = getByTestId("watchers-table");
+  expect(within(table).getByText("quux")).toBeInTheDocument();
 });

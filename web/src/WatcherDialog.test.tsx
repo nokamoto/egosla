@@ -1,6 +1,6 @@
 import React from "react";
 import { fireEvent, render } from "@testing-library/react";
-import AddWatcherDialog from "./AddWatcherDialog";
+import AddWatcherDialog from "./WatcherDialog";
 
 test("inputs keywords and watches those", () => {
   const handleCancel = jest.fn();
