@@ -214,3 +214,24 @@ test("reloads a list of watchers", () => {
 
   expect(listWatcher).toHaveBeenCalledTimes(2);
 });
+
+test("search watchers", () => {
+  const listWatcher = jest.fn().mockImplementation((x, y, callback) => {
+    const watcher = new Watcher();
+    watcher.setName("foo")
+    watcher.setKeywordsList(["bar"]);
+    const res = new ListWatcherResponse();
+    res.addWatchers(watcher);
+
+    callback(null, res);
+  });
+
+  jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
+
+  const { getByText } = render(<Content newChipKeys={[]} />);
+
+  expect(listWatcher).toHaveBeenCalledTimes(1);
+
+  expect(getByText("foo")).toBeInTheDocument();
+  expect(getByText("bar")).toBeInTheDocument();
+});

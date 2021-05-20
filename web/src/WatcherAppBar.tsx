@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Grid from "@material-ui/core/Grid";
@@ -41,10 +41,12 @@ export interface WatcherAppBarProps extends WithStyles<typeof styles> {
   handleClickOpen: () => void;
   // Callback fired when the reload button clicked.
   handleReload: () => void;
+  // Callback fired when the search text changed.
+  handleSearch: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 function WatcherAppBar(props: WatcherAppBarProps) {
-  const { classes, handleClickOpen, handleReload } = props;
+  const { classes, handleClickOpen, handleReload, handleSearch } = props;
 
   return (
     <AppBar
@@ -66,6 +68,7 @@ function WatcherAppBar(props: WatcherAppBarProps) {
                 disableUnderline: true,
                 className: classes.searchInput,
               }}
+              onChange={handleSearch}
             />
           </Grid>
           <Grid item>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, MouseEvent } from "react";
+import React, { useEffect, useState, MouseEvent, ChangeEvent } from "react";
 import Paper from "@material-ui/core/Paper";
 import {
   createStyles,
@@ -44,6 +44,7 @@ function Content(props: ContentProps) {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [watchers, setWatchers] = useState<Watcher[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLElement[]>([]);
+  const [search, setSearch] = useState<string>("");
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -138,6 +139,10 @@ function Content(props: ContentProps) {
     setRefresh(!refresh);
   };
 
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
+  };
+
   useEffect(() => {
     const req = new ListWatcherRequest();
     req.setPageSize(100);
@@ -151,6 +156,7 @@ function Content(props: ContentProps) {
       <WatcherAppBar
         handleClickOpen={handleClickOpen}
         handleReload={handleReload}
+        handleSearch={handleSearch}
       />
       <WatcherTable
         handleClick={handleClickDeleteMenu}
@@ -159,6 +165,7 @@ function Content(props: ContentProps) {
         handleUpdate={handleClickUpdateMenu}
         anchorEl={anchorEl}
         watchers={watchers}
+        search={search}
       />
       <WatcherDialog
         open={open}
