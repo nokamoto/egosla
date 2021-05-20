@@ -1,7 +1,6 @@
 import React, { useEffect, useState, MouseEvent } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
@@ -25,14 +24,8 @@ import {
   UpdateWatcherRequest,
   Watcher,
 } from "./api/service_pb";
-import Table from "@material-ui/core/Table";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import TableCell from "@material-ui/core/TableCell";
-import TableBody from "@material-ui/core/TableBody";
-import Chip from "@material-ui/core/Chip";
-import WatcherMenu from "./WatcherMenu";
 import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
+import WatcherTable from "./WatcherTable";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -221,54 +214,14 @@ function Content(props: ContentProps) {
           </Grid>
         </Toolbar>
       </AppBar>
-      {watchers.length === 0 && (
-        <div className={classes.contentWrapper}>
-          <Typography color="textSecondary" align="center">
-            No watchers for this workspace yet
-          </Typography>
-        </div>
-      )}
-      {watchers.length > 0 && (
-        <Table aria-label="simple table" data-testid="watchers-table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell align="right">Keywords</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {watchers.map((watcher, index) => (
-              <TableRow key={index.toString()}>
-                <TableCell component="th" scope="row">
-                  {watcher.getName()}
-                </TableCell>
-                <TableCell align="right">
-                  {watcher.getKeywordsList().map((keyword, index) => (
-                    <Chip
-                      key={index.toString()}
-                      label={keyword}
-                      variant="outlined"
-                      className={classes.keyword}
-                    />
-                  ))}
-                </TableCell>
-                <TableCell align="right">
-                  <WatcherMenu
-                    index={index}
-                    anchorEl={anchorEl}
-                    watcherName={watcher.getName()}
-                    handleClick={handleClickDeleteMenu}
-                    handleClose={handleCloseDeleteMenu}
-                    handleDelete={deleteWatcher}
-                    handleUpdate={handleClickUpdateMenu}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+      <WatcherTable
+        handleClick={handleClickDeleteMenu}
+        handleClose={handleCloseDeleteMenu}
+        handleDelete={deleteWatcher}
+        handleUpdate={handleClickUpdateMenu}
+        anchorEl={anchorEl}
+        watchers={watchers}
+      />
       <WatcherDialog
         open={open}
         handleCancel={handleClose}
