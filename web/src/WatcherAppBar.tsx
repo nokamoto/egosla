@@ -69,6 +69,7 @@ function WatcherAppBar(props: WatcherAppBarProps) {
                 className: classes.searchInput,
               }}
               onChange={handleSearch}
+              data-testid="search"
             />
           </Grid>
           <Grid item>
