@@ -26,8 +26,10 @@ const styles = (theme: Theme) =>
   });
 
 export interface WatcherTableProps extends WithStyles<typeof styles> {
-  // Keycodes for ChipInput.
+  // Watchers retrieved from the backend.
   watchers: Watcher[];
+  // A search text string.
+  search: string;
   // HTML element passing to Menu.
   anchorEl: HTMLElement[];
   // Callback fired when Menu opened.
@@ -44,12 +46,19 @@ function WatcherTable(props: WatcherTableProps) {
   const {
     classes,
     watchers,
+    search,
     anchorEl,
     handleClick,
     handleClose,
     handleDelete,
     handleUpdate,
   } = props;
+
+  const visibleWatchers = watchers.filter(
+    (w) =>
+      w.getName().includes(search) ||
+      w.getKeywordsList().some((k) => k.includes(search))
+  );
 
   return (
     <div>
@@ -60,7 +69,14 @@ function WatcherTable(props: WatcherTableProps) {
           </Typography>
         </div>
       )}
-      {watchers.length > 0 && (
+      {watchers.length > 0 && visibleWatchers.length === 0 && (
+        <div className={classes.contentWrapper}>
+          <Typography color="textSecondary" align="center">
+            No results matching search
+          </Typography>
+        </div>
+      )}
+      {visibleWatchers.length > 0 && (
         <Table aria-label="simple table" data-testid="watchers-table">
           <TableHead>
             <TableRow>
@@ -70,7 +86,7 @@ function WatcherTable(props: WatcherTableProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {watchers.map((watcher, index) => (
+            {visibleWatchers.map((watcher, index) => (
               <TableRow key={index.toString()}>
                 <TableCell component="th" scope="row">
                   {watcher.getName()}
