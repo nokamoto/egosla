@@ -9,6 +9,8 @@ require (
 	github.com/golang/protobuf v1.5.0
 	github.com/google/go-cmp v0.5.5
 	github.com/moby/moby v20.10.6+incompatible
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/slack-go/slack v0.9.1
 	go.uber.org/zap v1.16.0
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.37.0
