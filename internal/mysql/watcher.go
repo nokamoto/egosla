@@ -14,13 +14,6 @@ const (
 	sep = ","
 )
 
-var (
-	// ErrInvalidArgument represents an error which arguments is invalid.
-	ErrInvalidArgument = errors.New("invalid argument")
-	// ErrUnknown represents an error which is unneccessary to distinguish the cause or just unexpected.
-	ErrUnknown = errors.New("unknown")
-)
-
 type watcher struct {
 	Name     string
 	Keywords string
@@ -58,17 +51,7 @@ func NewPersistentWatcher(db *gorm.DB) *PersistentWatcher {
 
 // Create inserts the api.Watcher.
 func (p *PersistentWatcher) Create(v *api.Watcher) error {
-	model := newWatcher(v)
-
-	err := p.db.Transaction(func(tx *gorm.DB) error {
-		return tx.Create(model).Error
-	})
-
-	if err != nil {
-		return fmt.Errorf("%w: %s", ErrUnknown, err)
-	}
-
-	return nil
+	return createMethod(newWatcher(v), p.db)
 }
 
 // List selects a list of watchers from offset to limit.

@@ -12,40 +12,17 @@ import (
 	"github.com/nokamoto/egosla/internal/fieldmasktest"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/testing/protocmp"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 func mockPersistentWatcher(t *testing.T, f func(*PersistentWatcher, sqlmock.Sqlmock)) {
-	gdb, mock, err := sqlmock.New()
-	if err != nil {
-		t.Error(err)
-	}
-	defer gdb.Close()
+	mockSql(t, func(mock sqlmock.Sqlmock, db *gorm.DB) {
+		p := &PersistentWatcher{
+			db: db,
+		}
 
-	db, err := gorm.Open(
-		mysql.Dialector{
-			Config: &mysql.Config{
-				DriverName:                "mysql",
-				Conn:                      gdb,
-				SkipInitializeWithVersion: true,
-			},
-		},
-		&gorm.Config{},
-	)
-	if err != nil {
-		t.Error(err)
-	}
-
-	p := &PersistentWatcher{
-		db: db,
-	}
-
-	f(p, mock)
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Error(err)
-	}
+		f(p, mock)
+	})
 }
 
 func TestPersistentWatcher_Create(t *testing.T) {
@@ -60,32 +37,7 @@ func TestPersistentWatcher_Create(t *testing.T) {
 		Keywords: []string{"bar", "baz"},
 	}
 
-	testcases := []struct {
-		name     string
-		mock     func(mock sqlmock.Sqlmock)
-		expected error
-	}{
-		{
-			name: "ok",
-			mock: func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				query(mock).WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			expected: nil,
-		},
-		{
-			name: "unexpected error",
-			mock: func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				query(mock).WillReturnError(errors.New("unexpected"))
-				mock.ExpectRollback()
-			},
-			expected: ErrUnknown,
-		},
-	}
-
-	for _, x := range testcases {
+	for _, x := range createMethodTestCases(query) {
 		t.Run(x.name, func(t *testing.T) {
 			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
 				if x.mock != nil {
