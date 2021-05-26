@@ -14,7 +14,7 @@
 import * as grpcWeb from 'grpc-web';
 
 import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
-import * as api_service_pb from '../api/service_pb';
+import * as api_watcher_pb from '../api/watcher_pb';
 
 
 export class WatcherServiceClient {
@@ -37,28 +37,28 @@ export class WatcherServiceClient {
   }
 
   methodInfoCreateWatcher = new grpcWeb.AbstractClientBase.MethodInfo(
-    api_service_pb.Watcher,
-    (request: api_service_pb.CreateWatcherRequest) => {
+    api_watcher_pb.Watcher,
+    (request: api_watcher_pb.CreateWatcherRequest) => {
       return request.serializeBinary();
     },
-    api_service_pb.Watcher.deserializeBinary
+    api_watcher_pb.Watcher.deserializeBinary
   );
 
   createWatcher(
-    request: api_service_pb.CreateWatcherRequest,
-    metadata: grpcWeb.Metadata | null): Promise<api_service_pb.Watcher>;
+    request: api_watcher_pb.CreateWatcherRequest,
+    metadata: grpcWeb.Metadata | null): Promise<api_watcher_pb.Watcher>;
 
   createWatcher(
-    request: api_service_pb.CreateWatcherRequest,
+    request: api_watcher_pb.CreateWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: api_service_pb.Watcher) => void): grpcWeb.ClientReadableStream<api_service_pb.Watcher>;
+               response: api_watcher_pb.Watcher) => void): grpcWeb.ClientReadableStream<api_watcher_pb.Watcher>;
 
   createWatcher(
-    request: api_service_pb.CreateWatcherRequest,
+    request: api_watcher_pb.CreateWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: api_service_pb.Watcher) => void) {
+               response: api_watcher_pb.Watcher) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -78,24 +78,24 @@ export class WatcherServiceClient {
 
   methodInfoDeleteWatcher = new grpcWeb.AbstractClientBase.MethodInfo(
     google_protobuf_empty_pb.Empty,
-    (request: api_service_pb.DeleteWatcherRequest) => {
+    (request: api_watcher_pb.DeleteWatcherRequest) => {
       return request.serializeBinary();
     },
     google_protobuf_empty_pb.Empty.deserializeBinary
   );
 
   deleteWatcher(
-    request: api_service_pb.DeleteWatcherRequest,
+    request: api_watcher_pb.DeleteWatcherRequest,
     metadata: grpcWeb.Metadata | null): Promise<google_protobuf_empty_pb.Empty>;
 
   deleteWatcher(
-    request: api_service_pb.DeleteWatcherRequest,
+    request: api_watcher_pb.DeleteWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
                response: google_protobuf_empty_pb.Empty) => void): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
 
   deleteWatcher(
-    request: api_service_pb.DeleteWatcherRequest,
+    request: api_watcher_pb.DeleteWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
                response: google_protobuf_empty_pb.Empty) => void) {
@@ -117,28 +117,28 @@ export class WatcherServiceClient {
   }
 
   methodInfoGetWatcher = new grpcWeb.AbstractClientBase.MethodInfo(
-    api_service_pb.Watcher,
-    (request: api_service_pb.GetWatcherRequest) => {
+    api_watcher_pb.Watcher,
+    (request: api_watcher_pb.GetWatcherRequest) => {
       return request.serializeBinary();
     },
-    api_service_pb.Watcher.deserializeBinary
+    api_watcher_pb.Watcher.deserializeBinary
   );
 
   getWatcher(
-    request: api_service_pb.GetWatcherRequest,
-    metadata: grpcWeb.Metadata | null): Promise<api_service_pb.Watcher>;
+    request: api_watcher_pb.GetWatcherRequest,
+    metadata: grpcWeb.Metadata | null): Promise<api_watcher_pb.Watcher>;
 
   getWatcher(
-    request: api_service_pb.GetWatcherRequest,
+    request: api_watcher_pb.GetWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: api_service_pb.Watcher) => void): grpcWeb.ClientReadableStream<api_service_pb.Watcher>;
+               response: api_watcher_pb.Watcher) => void): grpcWeb.ClientReadableStream<api_watcher_pb.Watcher>;
 
   getWatcher(
-    request: api_service_pb.GetWatcherRequest,
+    request: api_watcher_pb.GetWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: api_service_pb.Watcher) => void) {
+               response: api_watcher_pb.Watcher) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -157,28 +157,28 @@ export class WatcherServiceClient {
   }
 
   methodInfoListWatcher = new grpcWeb.AbstractClientBase.MethodInfo(
-    api_service_pb.ListWatcherResponse,
-    (request: api_service_pb.ListWatcherRequest) => {
+    api_watcher_pb.ListWatcherResponse,
+    (request: api_watcher_pb.ListWatcherRequest) => {
       return request.serializeBinary();
     },
-    api_service_pb.ListWatcherResponse.deserializeBinary
+    api_watcher_pb.ListWatcherResponse.deserializeBinary
   );
 
   listWatcher(
-    request: api_service_pb.ListWatcherRequest,
-    metadata: grpcWeb.Metadata | null): Promise<api_service_pb.ListWatcherResponse>;
+    request: api_watcher_pb.ListWatcherRequest,
+    metadata: grpcWeb.Metadata | null): Promise<api_watcher_pb.ListWatcherResponse>;
 
   listWatcher(
-    request: api_service_pb.ListWatcherRequest,
+    request: api_watcher_pb.ListWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: api_service_pb.ListWatcherResponse) => void): grpcWeb.ClientReadableStream<api_service_pb.ListWatcherResponse>;
+               response: api_watcher_pb.ListWatcherResponse) => void): grpcWeb.ClientReadableStream<api_watcher_pb.ListWatcherResponse>;
 
   listWatcher(
-    request: api_service_pb.ListWatcherRequest,
+    request: api_watcher_pb.ListWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: api_service_pb.ListWatcherResponse) => void) {
+               response: api_watcher_pb.ListWatcherResponse) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -197,28 +197,28 @@ export class WatcherServiceClient {
   }
 
   methodInfoUpdateWatcher = new grpcWeb.AbstractClientBase.MethodInfo(
-    api_service_pb.Watcher,
-    (request: api_service_pb.UpdateWatcherRequest) => {
+    api_watcher_pb.Watcher,
+    (request: api_watcher_pb.UpdateWatcherRequest) => {
       return request.serializeBinary();
     },
-    api_service_pb.Watcher.deserializeBinary
+    api_watcher_pb.Watcher.deserializeBinary
   );
 
   updateWatcher(
-    request: api_service_pb.UpdateWatcherRequest,
-    metadata: grpcWeb.Metadata | null): Promise<api_service_pb.Watcher>;
+    request: api_watcher_pb.UpdateWatcherRequest,
+    metadata: grpcWeb.Metadata | null): Promise<api_watcher_pb.Watcher>;
 
   updateWatcher(
-    request: api_service_pb.UpdateWatcherRequest,
+    request: api_watcher_pb.UpdateWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: api_service_pb.Watcher) => void): grpcWeb.ClientReadableStream<api_service_pb.Watcher>;
+               response: api_watcher_pb.Watcher) => void): grpcWeb.ClientReadableStream<api_watcher_pb.Watcher>;
 
   updateWatcher(
-    request: api_service_pb.UpdateWatcherRequest,
+    request: api_watcher_pb.UpdateWatcherRequest,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: api_service_pb.Watcher) => void) {
+               response: api_watcher_pb.Watcher) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +

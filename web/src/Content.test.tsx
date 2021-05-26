@@ -9,7 +9,7 @@ import {
   ListWatcherResponse,
   UpdateWatcherRequest,
   Watcher,
-} from "./api/service_pb";
+} from "./api/watcher_pb";
 import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 
 test("gets watchers", () => {

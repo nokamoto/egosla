@@ -16,6 +16,7 @@ protoc:
     	api/*.proto
 	go mod tidy
 
+	rm -rf web/src/api/*
 	protoc \
 		--js_out=import_style=commonjs:web/src \
 		--grpc-web_out=import_style=typescript,mode=grpcwebtext:web/src \
