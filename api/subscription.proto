@@ -23,7 +23,7 @@ message Subscription {
 }
 
 message CreateSubscriptionRequest {
-  Subscription watcher = 1;
+  Subscription subscription = 1;
 }
 
 message DeleteSubscriptionRequest {

@@ -27,10 +27,10 @@ export namespace Subscription {
 }
 
 export class CreateSubscriptionRequest extends jspb.Message {
-  getWatcher(): Subscription | undefined;
-  setWatcher(value?: Subscription): CreateSubscriptionRequest;
-  hasWatcher(): boolean;
-  clearWatcher(): CreateSubscriptionRequest;
+  getSubscription(): Subscription | undefined;
+  setSubscription(value?: Subscription): CreateSubscriptionRequest;
+  hasSubscription(): boolean;
+  clearSubscription(): CreateSubscriptionRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateSubscriptionRequest.AsObject;
@@ -42,7 +42,7 @@ export class CreateSubscriptionRequest extends jspb.Message {
 
 export namespace CreateSubscriptionRequest {
   export type AsObject = {
-    watcher?: Subscription.AsObject,
+    subscription?: Subscription.AsObject,
   }
 }
 

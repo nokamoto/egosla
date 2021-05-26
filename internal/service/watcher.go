@@ -16,15 +16,15 @@ import (
 // Watcher implements api.WatcherServiceServer.
 type Watcher struct {
 	api.UnimplementedWatcherServiceServer
-	p      persistent
+	p      persistentWatcher
 	n      nameGenerator
 	logger *zap.Logger
 }
 
 // NewWatcher creates a new Watcher.
-func NewWatcher(p persistent, logger *zap.Logger) *Watcher {
+func NewWatcher(p persistentWatcher, logger *zap.Logger) *Watcher {
 	return &Watcher{
-		n:      watcherNameGenerator{},
+		n:      newWatcherNameGenerator(),
 		p:      p,
 		logger: logger.With(zap.String("service", "WatcherService")),
 	}

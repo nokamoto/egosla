@@ -6,9 +6,13 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
-type persistent interface {
+type persistentWatcher interface {
 	Create(*api.Watcher) error
 	List(offset, limit int) ([]*api.Watcher, error)
 	Delete(name string) error
 	Update(*api.Watcher, *field_mask.FieldMask) (*api.Watcher, error)
+}
+
+type persistentSubscription interface {
+	Create(*api.Subscription) error
 }

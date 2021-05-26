@@ -18,11 +18,11 @@ import (
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
-func mockWatcher(t *testing.T, f func(*Watcher, *Mockpersistent, *MocknameGenerator)) {
+func mockWatcher(t *testing.T, f func(*Watcher, *MockpersistentWatcher, *MocknameGenerator)) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	p := NewMockpersistent(ctrl)
+	p := NewMockpersistentWatcher(ctrl)
 	n := NewMocknameGenerator(ctrl)
 	svc := &Watcher{
 		p:      p,
@@ -42,7 +42,7 @@ func TestWatcher_Create(t *testing.T) {
 	testcases := []struct {
 		name     string
 		req      *api.CreateWatcherRequest
-		mock     func(p *Mockpersistent, n *MocknameGenerator)
+		mock     func(p *MockpersistentWatcher, n *MocknameGenerator)
 		expected *api.Watcher
 		code     codes.Code
 	}{
@@ -53,7 +53,7 @@ func TestWatcher_Create(t *testing.T) {
 					Keywords: expected.GetKeywords(),
 				},
 			},
-			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
 				n.EXPECT().newName().Return(expected.GetName())
 				p.EXPECT().Create(protogomock.Equal(expected)).Return(nil)
 			},
@@ -66,7 +66,7 @@ func TestWatcher_Create(t *testing.T) {
 					Keywords: expected.GetKeywords(),
 				},
 			},
-			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
 				n.EXPECT().newName().Return(expected.GetName())
 				p.EXPECT().Create(protogomock.Equal(expected)).Return(mysql.ErrUnknown)
 			},
@@ -76,7 +76,7 @@ func TestWatcher_Create(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator) {
+			mockWatcher(t, func(svc *Watcher, p *MockpersistentWatcher, n *MocknameGenerator) {
 				if x.mock != nil {
 					x.mock(p, n)
 				}
@@ -110,7 +110,7 @@ func TestWatcher_List(t *testing.T) {
 	testcases := []struct {
 		name     string
 		req      *api.ListWatcherRequest
-		mock     func(p *Mockpersistent)
+		mock     func(p *MockpersistentWatcher)
 		expected *api.ListWatcherResponse
 		code     codes.Code
 	}{
@@ -119,7 +119,7 @@ func TestWatcher_List(t *testing.T) {
 			req: &api.ListWatcherRequest{
 				PageSize: 2,
 			},
-			mock: func(p *Mockpersistent) {
+			mock: func(p *MockpersistentWatcher) {
 				p.EXPECT().List(0, 3).Return(nil, nil)
 			},
 			expected: &api.ListWatcherResponse{},
@@ -130,7 +130,7 @@ func TestWatcher_List(t *testing.T) {
 				PageToken: "10",
 				PageSize:  2,
 			},
-			mock: func(p *Mockpersistent) {
+			mock: func(p *MockpersistentWatcher) {
 				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1}, nil)
 			},
 			expected: &api.ListWatcherResponse{
@@ -143,7 +143,7 @@ func TestWatcher_List(t *testing.T) {
 				PageToken: "10",
 				PageSize:  2,
 			},
-			mock: func(p *Mockpersistent) {
+			mock: func(p *MockpersistentWatcher) {
 				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2}, nil)
 			},
 			expected: &api.ListWatcherResponse{
@@ -156,7 +156,7 @@ func TestWatcher_List(t *testing.T) {
 				PageToken: "10",
 				PageSize:  2,
 			},
-			mock: func(p *Mockpersistent) {
+			mock: func(p *MockpersistentWatcher) {
 				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2, elm3}, nil)
 			},
 			expected: &api.ListWatcherResponse{
@@ -169,7 +169,7 @@ func TestWatcher_List(t *testing.T) {
 			req: &api.ListWatcherRequest{
 				PageSize: 2,
 			},
-			mock: func(p *Mockpersistent) {
+			mock: func(p *MockpersistentWatcher) {
 				p.EXPECT().List(0, 3).Return(nil, mysql.ErrUnknown)
 			},
 			code: codes.Unavailable,
@@ -185,7 +185,7 @@ func TestWatcher_List(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator) {
+			mockWatcher(t, func(svc *Watcher, p *MockpersistentWatcher, n *MocknameGenerator) {
 				if x.mock != nil {
 					x.mock(p)
 				}
@@ -208,18 +208,18 @@ func TestWatcher_Delete(t *testing.T) {
 
 	testcases := []struct {
 		name string
-		mock func(p *Mockpersistent, n *MocknameGenerator)
+		mock func(p *MockpersistentWatcher, n *MocknameGenerator)
 		code codes.Code
 	}{
 		{
 			name: "ok",
-			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
 				p.EXPECT().Delete(name).Return(nil)
 			},
 		},
 		{
 			name: "unexpected error",
-			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
 				p.EXPECT().Delete(name).Return(mysql.ErrUnknown)
 			},
 			code: codes.Unavailable,
@@ -228,7 +228,7 @@ func TestWatcher_Delete(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator) {
+			mockWatcher(t, func(svc *Watcher, p *MockpersistentWatcher, n *MocknameGenerator) {
 				if x.mock != nil {
 					x.mock(p, n)
 				}
@@ -259,7 +259,7 @@ func TestWatcher_Update(t *testing.T) {
 	testcases := []struct {
 		name     string
 		req      *api.UpdateWatcherRequest
-		mock     func(p *Mockpersistent, n *MocknameGenerator)
+		mock     func(p *MockpersistentWatcher, n *MocknameGenerator)
 		expected *api.Watcher
 		code     codes.Code
 	}{
@@ -270,7 +270,7 @@ func TestWatcher_Update(t *testing.T) {
 				Watcher:    watcher,
 				UpdateMask: updateMask,
 			},
-			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
 				p.EXPECT().Update(protogomock.Equal(result), protogomock.Equal(updateMask)).Return(result, nil)
 			},
 			expected: result,
@@ -302,7 +302,7 @@ func TestWatcher_Update(t *testing.T) {
 				Watcher:    watcher,
 				UpdateMask: updateMask,
 			},
-			mock: func(p *Mockpersistent, n *MocknameGenerator) {
+			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
 				p.EXPECT().Update(protogomock.Equal(result), protogomock.Equal(updateMask)).Return(nil, errors.New("unexpected"))
 			},
 			code: codes.Unavailable,
@@ -311,7 +311,7 @@ func TestWatcher_Update(t *testing.T) {
 
 	for _, x := range testcases {
 		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *Mockpersistent, n *MocknameGenerator) {
+			mockWatcher(t, func(svc *Watcher, p *MockpersistentWatcher, n *MocknameGenerator) {
 				if x.mock != nil {
 					x.mock(p, n)
 				}

@@ -13,10 +13,24 @@ type nameGenerator interface {
 	newName() string
 }
 
-type watcherNameGenerator struct{}
+type prefixNameGenerator struct {
+	prefix string
+}
 
-func (watcherNameGenerator) newName() string {
-	return fmt.Sprintf("watchers/%s", namesgenerator.GetRandomName(1))
+func (p prefixNameGenerator) newName() string {
+	return fmt.Sprintf("%s/%s", p.prefix, namesgenerator.GetRandomName(1))
+}
+
+func newWatcherNameGenerator() prefixNameGenerator {
+	return prefixNameGenerator{
+		prefix: "watchers",
+	}
+}
+
+func newSubscriptionNameGenerator() prefixNameGenerator {
+	return prefixNameGenerator{
+		prefix: "subscriptions",
+	}
 }
 
 func init() {
