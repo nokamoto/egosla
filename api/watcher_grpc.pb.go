@@ -242,5 +242,5 @@ var WatcherService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/service.proto",
+	Metadata: "api/watcher.proto",
 }

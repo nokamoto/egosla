@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package nokamoto.github.com.egosla.api;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+option go_package = "github.com/nokamoto/egosla/api";
+
+service SubscriptionService {
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription);
+  rpc DeleteSubscription(DeleteSubscriptionRequest)
+      returns (google.protobuf.Empty);
+  rpc GetSubscription(GetSubscriptionRequest) returns (Subscription);
+  rpc ListSubscription(ListSubscriptionRequest)
+      returns (ListSubscriptionResponse);
+  rpc UpdateSubscription(UpdateSubscriptionRequest) returns (Subscription);
+}
+
+message Subscription {
+  string name = 1;
+  string watcher = 2;
+}
+
+message CreateSubscriptionRequest {
+  Subscription watcher = 1;
+}
+
+message DeleteSubscriptionRequest {
+  string name = 1;
+}
+
+message GetSubscriptionRequest {
+  string name = 1;
+}
+
+message ListSubscriptionRequest {
+  string page_token = 1;
+  int32 page_size = 2;
+}
+
+message ListSubscriptionResponse {
+  string next_page_token = 1;
+  repeated Subscription watchers = 2;
+}
+
+message UpdateSubscriptionRequest {
+  string name = 1;
+  Subscription subscription = 2;
+  google.protobuf.FieldMask update_mask = 3;
+}

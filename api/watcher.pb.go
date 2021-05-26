@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.26.0
 // 	protoc        v3.6.1
-// source: api/service.proto
+// source: api/watcher.proto
 
 package api
 
@@ -34,7 +34,7 @@ type Watcher struct {
 func (x *Watcher) Reset() {
 	*x = Watcher{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_service_proto_msgTypes[0]
+		mi := &file_api_watcher_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -47,7 +47,7 @@ func (x *Watcher) String() string {
 func (*Watcher) ProtoMessage() {}
 
 func (x *Watcher) ProtoReflect() protoreflect.Message {
-	mi := &file_api_service_proto_msgTypes[0]
+	mi := &file_api_watcher_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +60,7 @@ func (x *Watcher) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Watcher.ProtoReflect.Descriptor instead.
 func (*Watcher) Descriptor() ([]byte, []int) {
-	return file_api_service_proto_rawDescGZIP(), []int{0}
+	return file_api_watcher_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Watcher) GetName() string {
@@ -88,7 +88,7 @@ type CreateWatcherRequest struct {
 func (x *CreateWatcherRequest) Reset() {
 	*x = CreateWatcherRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_service_proto_msgTypes[1]
+		mi := &file_api_watcher_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -101,7 +101,7 @@ func (x *CreateWatcherRequest) String() string {
 func (*CreateWatcherRequest) ProtoMessage() {}
 
 func (x *CreateWatcherRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_service_proto_msgTypes[1]
+	mi := &file_api_watcher_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -114,7 +114,7 @@ func (x *CreateWatcherRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWatcherRequest.ProtoReflect.Descriptor instead.
 func (*CreateWatcherRequest) Descriptor() ([]byte, []int) {
-	return file_api_service_proto_rawDescGZIP(), []int{1}
+	return file_api_watcher_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreateWatcherRequest) GetWatcher() *Watcher {
@@ -135,7 +135,7 @@ type DeleteWatcherRequest struct {
 func (x *DeleteWatcherRequest) Reset() {
 	*x = DeleteWatcherRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_service_proto_msgTypes[2]
+		mi := &file_api_watcher_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -148,7 +148,7 @@ func (x *DeleteWatcherRequest) String() string {
 func (*DeleteWatcherRequest) ProtoMessage() {}
 
 func (x *DeleteWatcherRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_service_proto_msgTypes[2]
+	mi := &file_api_watcher_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -161,7 +161,7 @@ func (x *DeleteWatcherRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteWatcherRequest.ProtoReflect.Descriptor instead.
 func (*DeleteWatcherRequest) Descriptor() ([]byte, []int) {
-	return file_api_service_proto_rawDescGZIP(), []int{2}
+	return file_api_watcher_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *DeleteWatcherRequest) GetName() string {
@@ -182,7 +182,7 @@ type GetWatcherRequest struct {
 func (x *GetWatcherRequest) Reset() {
 	*x = GetWatcherRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_service_proto_msgTypes[3]
+		mi := &file_api_watcher_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -195,7 +195,7 @@ func (x *GetWatcherRequest) String() string {
 func (*GetWatcherRequest) ProtoMessage() {}
 
 func (x *GetWatcherRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_service_proto_msgTypes[3]
+	mi := &file_api_watcher_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -208,7 +208,7 @@ func (x *GetWatcherRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWatcherRequest.ProtoReflect.Descriptor instead.
 func (*GetWatcherRequest) Descriptor() ([]byte, []int) {
-	return file_api_service_proto_rawDescGZIP(), []int{3}
+	return file_api_watcher_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetWatcherRequest) GetName() string {
@@ -230,7 +230,7 @@ type ListWatcherRequest struct {
 func (x *ListWatcherRequest) Reset() {
 	*x = ListWatcherRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_service_proto_msgTypes[4]
+		mi := &file_api_watcher_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -243,7 +243,7 @@ func (x *ListWatcherRequest) String() string {
 func (*ListWatcherRequest) ProtoMessage() {}
 
 func (x *ListWatcherRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_service_proto_msgTypes[4]
+	mi := &file_api_watcher_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -256,7 +256,7 @@ func (x *ListWatcherRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWatcherRequest.ProtoReflect.Descriptor instead.
 func (*ListWatcherRequest) Descriptor() ([]byte, []int) {
-	return file_api_service_proto_rawDescGZIP(), []int{4}
+	return file_api_watcher_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListWatcherRequest) GetPageToken() string {
@@ -285,7 +285,7 @@ type ListWatcherResponse struct {
 func (x *ListWatcherResponse) Reset() {
 	*x = ListWatcherResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_service_proto_msgTypes[5]
+		mi := &file_api_watcher_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -298,7 +298,7 @@ func (x *ListWatcherResponse) String() string {
 func (*ListWatcherResponse) ProtoMessage() {}
 
 func (x *ListWatcherResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_service_proto_msgTypes[5]
+	mi := &file_api_watcher_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -311,7 +311,7 @@ func (x *ListWatcherResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWatcherResponse.ProtoReflect.Descriptor instead.
 func (*ListWatcherResponse) Descriptor() ([]byte, []int) {
-	return file_api_service_proto_rawDescGZIP(), []int{5}
+	return file_api_watcher_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListWatcherResponse) GetNextPageToken() string {
@@ -341,7 +341,7 @@ type UpdateWatcherRequest struct {
 func (x *UpdateWatcherRequest) Reset() {
 	*x = UpdateWatcherRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_service_proto_msgTypes[6]
+		mi := &file_api_watcher_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -354,7 +354,7 @@ func (x *UpdateWatcherRequest) String() string {
 func (*UpdateWatcherRequest) ProtoMessage() {}
 
 func (x *UpdateWatcherRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_service_proto_msgTypes[6]
+	mi := &file_api_watcher_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -367,7 +367,7 @@ func (x *UpdateWatcherRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateWatcherRequest.ProtoReflect.Descriptor instead.
 func (*UpdateWatcherRequest) Descriptor() ([]byte, []int) {
-	return file_api_service_proto_rawDescGZIP(), []int{6}
+	return file_api_watcher_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateWatcherRequest) GetName() string {
@@ -391,10 +391,10 @@ func (x *UpdateWatcherRequest) GetUpdateMask() *field_mask.FieldMask {
 	return nil
 }
 
-var File_api_service_proto protoreflect.FileDescriptor
+var File_api_watcher_proto protoreflect.FileDescriptor
 
-var file_api_service_proto_rawDesc = []byte{
-	0x0a, 0x11, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x70, 0x72,
+var file_api_watcher_proto_rawDesc = []byte{
+	0x0a, 0x11, 0x61, 0x70, 0x69, 0x2f, 0x77, 0x61, 0x74, 0x63, 0x68, 0x65, 0x72, 0x2e, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x12, 0x1e, 0x6e, 0x6f, 0x6b, 0x61, 0x6d, 0x6f, 0x74, 0x6f, 0x2e, 0x67, 0x69,
 	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2e, 0x65, 0x67, 0x6f, 0x73, 0x6c, 0x61, 0x2e,
 	0x61, 0x70, 0x69, 0x1a, 0x1b, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74,
@@ -481,19 +481,19 @@ var file_api_service_proto_rawDesc = []byte{
 }
 
 var (
-	file_api_service_proto_rawDescOnce sync.Once
-	file_api_service_proto_rawDescData = file_api_service_proto_rawDesc
+	file_api_watcher_proto_rawDescOnce sync.Once
+	file_api_watcher_proto_rawDescData = file_api_watcher_proto_rawDesc
 )
 
-func file_api_service_proto_rawDescGZIP() []byte {
-	file_api_service_proto_rawDescOnce.Do(func() {
-		file_api_service_proto_rawDescData = protoimpl.X.CompressGZIP(file_api_service_proto_rawDescData)
+func file_api_watcher_proto_rawDescGZIP() []byte {
+	file_api_watcher_proto_rawDescOnce.Do(func() {
+		file_api_watcher_proto_rawDescData = protoimpl.X.CompressGZIP(file_api_watcher_proto_rawDescData)
 	})
-	return file_api_service_proto_rawDescData
+	return file_api_watcher_proto_rawDescData
 }
 
-var file_api_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_api_service_proto_goTypes = []interface{}{
+var file_api_watcher_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_api_watcher_proto_goTypes = []interface{}{
 	(*Watcher)(nil),              // 0: nokamoto.github.com.egosla.api.Watcher
 	(*CreateWatcherRequest)(nil), // 1: nokamoto.github.com.egosla.api.CreateWatcherRequest
 	(*DeleteWatcherRequest)(nil), // 2: nokamoto.github.com.egosla.api.DeleteWatcherRequest
@@ -504,7 +504,7 @@ var file_api_service_proto_goTypes = []interface{}{
 	(*field_mask.FieldMask)(nil), // 7: google.protobuf.FieldMask
 	(*empty.Empty)(nil),          // 8: google.protobuf.Empty
 }
-var file_api_service_proto_depIdxs = []int32{
+var file_api_watcher_proto_depIdxs = []int32{
 	0, // 0: nokamoto.github.com.egosla.api.CreateWatcherRequest.watcher:type_name -> nokamoto.github.com.egosla.api.Watcher
 	0, // 1: nokamoto.github.com.egosla.api.ListWatcherResponse.watchers:type_name -> nokamoto.github.com.egosla.api.Watcher
 	0, // 2: nokamoto.github.com.egosla.api.UpdateWatcherRequest.watcher:type_name -> nokamoto.github.com.egosla.api.Watcher
@@ -526,13 +526,13 @@ var file_api_service_proto_depIdxs = []int32{
 	0, // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_api_service_proto_init() }
-func file_api_service_proto_init() {
-	if File_api_service_proto != nil {
+func init() { file_api_watcher_proto_init() }
+func file_api_watcher_proto_init() {
+	if File_api_watcher_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_api_service_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_api_watcher_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Watcher); i {
 			case 0:
 				return &v.state
@@ -544,7 +544,7 @@ func file_api_service_proto_init() {
 				return nil
 			}
 		}
-		file_api_service_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_api_watcher_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CreateWatcherRequest); i {
 			case 0:
 				return &v.state
@@ -556,7 +556,7 @@ func file_api_service_proto_init() {
 				return nil
 			}
 		}
-		file_api_service_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_api_watcher_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*DeleteWatcherRequest); i {
 			case 0:
 				return &v.state
@@ -568,7 +568,7 @@ func file_api_service_proto_init() {
 				return nil
 			}
 		}
-		file_api_service_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_api_watcher_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetWatcherRequest); i {
 			case 0:
 				return &v.state
@@ -580,7 +580,7 @@ func file_api_service_proto_init() {
 				return nil
 			}
 		}
-		file_api_service_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_api_watcher_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ListWatcherRequest); i {
 			case 0:
 				return &v.state
@@ -592,7 +592,7 @@ func file_api_service_proto_init() {
 				return nil
 			}
 		}
-		file_api_service_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_api_watcher_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ListWatcherResponse); i {
 			case 0:
 				return &v.state
@@ -604,7 +604,7 @@ func file_api_service_proto_init() {
 				return nil
 			}
 		}
-		file_api_service_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_api_watcher_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdateWatcherRequest); i {
 			case 0:
 				return &v.state
@@ -621,18 +621,18 @@ func file_api_service_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_api_service_proto_rawDesc,
+			RawDescriptor: file_api_watcher_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_service_proto_goTypes,
-		DependencyIndexes: file_api_service_proto_depIdxs,
-		MessageInfos:      file_api_service_proto_msgTypes,
+		GoTypes:           file_api_watcher_proto_goTypes,
+		DependencyIndexes: file_api_watcher_proto_depIdxs,
+		MessageInfos:      file_api_watcher_proto_msgTypes,
 	}.Build()
-	File_api_service_proto = out.File
-	file_api_service_proto_rawDesc = nil
-	file_api_service_proto_goTypes = nil
-	file_api_service_proto_depIdxs = nil
+	File_api_watcher_proto = out.File
+	file_api_watcher_proto_rawDesc = nil
+	file_api_watcher_proto_goTypes = nil
+	file_api_watcher_proto_depIdxs = nil
 }
