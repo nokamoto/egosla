@@ -236,7 +236,7 @@ proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.toObjec
  */
 proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    watcher: (f = msg.getWatcher()) && proto.nokamoto.github.com.egosla.api.Subscription.toObject(includeInstance, f)
+    subscription: (f = msg.getSubscription()) && proto.nokamoto.github.com.egosla.api.Subscription.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -276,7 +276,7 @@ proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.deserializeBinary
     case 1:
       var value = new proto.nokamoto.github.com.egosla.api.Subscription;
       reader.readMessage(value,proto.nokamoto.github.com.egosla.api.Subscription.deserializeBinaryFromReader);
-      msg.setWatcher(value);
+      msg.setSubscription(value);
       break;
     default:
       reader.skipField();
@@ -307,7 +307,7 @@ proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.seriali
  */
 proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getWatcher();
+  f = message.getSubscription();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -319,23 +319,23 @@ proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.serializeBinaryTo
 
 
 /**
- * optional Subscription watcher = 1;
+ * optional Subscription subscription = 1;
  * @return {?proto.nokamoto.github.com.egosla.api.Subscription}
  */
-proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.getWatcher = function() {
+proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.getSubscription = function() {
   return /** @type{?proto.nokamoto.github.com.egosla.api.Subscription} */ (
     jspb.Message.getWrapperField(this, proto.nokamoto.github.com.egosla.api.Subscription, 1));
 };
 
 
 /** @param {?proto.nokamoto.github.com.egosla.api.Subscription|undefined} value */
-proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.setWatcher = function(value) {
+proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.setSubscription = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
 
 
-proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.clearWatcher = function() {
-  this.setWatcher(undefined);
+proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.clearSubscription = function() {
+  this.setSubscription(undefined);
 };
 
 
@@ -343,7 +343,7 @@ proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.clearWa
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.hasWatcher = function() {
+proto.nokamoto.github.com.egosla.api.CreateSubscriptionRequest.prototype.hasSubscription = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
