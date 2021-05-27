@@ -10,6 +10,12 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Hidden from "@material-ui/core/Hidden";
 import Navigator from "./Navigator";
 import Content from "./Content";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
 
 let theme = createMuiTheme({
   palette: {
@@ -161,30 +167,40 @@ function Paperbase(props: PaperbaseProps) {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <div className={classes.root}>
-        <CssBaseline />
-        <nav className={classes.drawer}>
-          <Hidden smUp implementation="js">
-            <Navigator
-              PaperProps={{ style: { width: drawerWidth } }}
-              variant="temporary"
-              open={mobileOpen}
-              onClose={handleDrawerToggle}
-            />
-          </Hidden>
-          <Hidden xsDown implementation="css">
-            <Navigator PaperProps={{ style: { width: drawerWidth } }} />
-          </Hidden>
-        </nav>
-        <div className={classes.app}>
-          <main className={classes.main}>
-            <Content newChipKeys={[]} />
-          </main>
-          <footer className={classes.footer}></footer>
+    <Router>
+      <ThemeProvider theme={theme}>
+        <div className={classes.root}>
+          <CssBaseline />
+          <nav className={classes.drawer}>
+            <Hidden smUp implementation="js">
+              <Navigator
+                PaperProps={{ style: { width: drawerWidth } }}
+                variant="temporary"
+                open={mobileOpen}
+                onClose={handleDrawerToggle}
+              />
+            </Hidden>
+            <Hidden xsDown implementation="css">
+              <Navigator PaperProps={{ style: { width: drawerWidth } }} />
+            </Hidden>
+          </nav>
+          <div className={classes.app}>
+            <main className={classes.main}>
+              <Switch>
+                <Route path="/watchers" exact={true}>
+                  <Content newChipKeys={[]} />
+                </Route>
+                <Route path="/subscriptions" exact={true}></Route>
+                <Route path="*">
+                  <Redirect to="/watchers" />
+                </Route>
+              </Switch>
+            </main>
+            <footer className={classes.footer}></footer>
+          </div>
         </div>
-      </div>
-    </ThemeProvider>
+      </ThemeProvider>
+    </Router>
   );
 }
 

@@ -14,11 +14,16 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import PeopleIcon from "@material-ui/icons/People";
 import { Omit } from "@material-ui/types";
+import SubscriptionsIcon from "@material-ui/icons/Subscriptions";
+import { Link, useLocation } from "react-router-dom";
 
 const categories = [
   {
     categoryId: "primary",
-    children: [{ id: "Watcher", icon: <PeopleIcon />, active: true }],
+    children: [
+      { id: "Watcher", icon: <PeopleIcon />, to: "/watchers" },
+      { id: "Subscription", icon: <SubscriptionsIcon />, to: "/subscriptions" },
+    ],
   },
 ];
 
@@ -68,12 +73,16 @@ export interface NavigatorProps
 function Navigator(props: NavigatorProps) {
   const { classes, ...other } = props;
 
+  const location = useLocation();
+
   return (
     <Drawer variant="permanent" {...other}>
       <List disablePadding>
         <ListItem
           className={clsx(classes.firebase, classes.item, classes.itemCategory)}
           key="title"
+          component={Link}
+          to="/"
         >
           egosla
         </ListItem>
@@ -83,11 +92,16 @@ function Navigator(props: NavigatorProps) {
               className={classes.categoryHeader}
               key={categoryId}
             ></ListItem>
-            {children.map(({ id, icon, active }) => (
+            {children.map(({ id, icon, to }) => (
               <ListItem
                 key={id}
                 button
-                className={clsx(classes.item, active && classes.itemActiveItem)}
+                className={clsx(
+                  classes.item,
+                  location.pathname === to && classes.itemActiveItem
+                )}
+                component={Link}
+                to={to}
               >
                 <ListItemIcon className={classes.itemIcon}>{icon}</ListItemIcon>
                 <ListItemText
