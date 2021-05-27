@@ -15,6 +15,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
@@ -31,6 +32,41 @@ func mockWatcher(t *testing.T, f func(*Watcher, *MockpersistentWatcher, *Mocknam
 	}
 
 	f(svc, p, n)
+}
+
+func testWatcher(
+	t *testing.T,
+	name string,
+	mock func(p *MockpersistentWatcher, n *MocknameGenerator),
+	expectedCode codes.Code,
+	expectedResponse proto.Message,
+	call func(*Watcher) (proto.Message, error),
+) {
+	t.Run(name, func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		p := NewMockpersistentWatcher(ctrl)
+		n := NewMocknameGenerator(ctrl)
+		svc := &Watcher{
+			p:      p,
+			n:      n,
+			logger: zaptest.NewLogger(t),
+		}
+
+		if mock != nil {
+			mock(p, n)
+		}
+
+		res, err := call(svc)
+		if code := status.Code(err); code != expectedCode {
+			t.Errorf("expected %v but actual %v", expectedCode, code)
+		}
+
+		if diff := cmp.Diff(expectedResponse, res, protocmp.Transform()); len(diff) != 0 {
+			t.Error(diff)
+		}
+	})
 }
 
 func TestWatcher_Create(t *testing.T) {
@@ -75,21 +111,8 @@ func TestWatcher_Create(t *testing.T) {
 	}
 
 	for _, x := range testcases {
-		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *MockpersistentWatcher, n *MocknameGenerator) {
-				if x.mock != nil {
-					x.mock(p, n)
-				}
-
-				actual, err := svc.CreateWatcher(context.TODO(), x.req)
-				if code := status.Code(err); code != x.code {
-					t.Errorf("expected %v but actual %v", x.code, code)
-				}
-
-				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
-					t.Error(diff)
-				}
-			})
+		testWatcher(t, x.name, x.mock, x.code, x.expected, func(w *Watcher) (proto.Message, error) {
+			return w.CreateWatcher(context.TODO(), x.req)
 		})
 	}
 }
