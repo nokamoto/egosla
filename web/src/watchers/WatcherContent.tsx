@@ -6,18 +6,18 @@ import {
   withStyles,
   WithStyles,
 } from "@material-ui/core/styles";
-import WatcherDialog from "./WatcherDialog";
-import { watcherService } from "./Rpc";
+import WatcherDialog from "src/watchers/WatcherDialog";
+import { watcherService } from "src/Rpc";
 import {
   CreateWatcherRequest,
   DeleteWatcherRequest,
   ListWatcherRequest,
   UpdateWatcherRequest,
   Watcher,
-} from "./api/watcher_pb";
+} from "src/api/watcher_pb";
 import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
-import WatcherTable from "./WatcherTable";
-import WatcherAppBar from "./WatcherAppBar";
+import WatcherTable from "src/watchers/WatcherTable";
+import WatcherAppBar from "src/watchers/WatcherAppBar";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -28,12 +28,12 @@ const styles = (theme: Theme) =>
     },
   });
 
-export interface ContentProps extends WithStyles<typeof styles> {
+interface contentProps extends WithStyles<typeof styles> {
   // Keycodes for ChipInput.
   newChipKeys: string[];
 }
 
-function Content(props: ContentProps) {
+function WatcherContent(props: contentProps) {
   const { classes } = props;
 
   const [refresh, setRefresh] = useState(false);
@@ -189,4 +189,4 @@ function Content(props: ContentProps) {
   );
 }
 
-export default withStyles(styles)(Content);
+export default withStyles(styles)(WatcherContent);

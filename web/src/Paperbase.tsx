@@ -8,14 +8,15 @@ import {
 } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Hidden from "@material-ui/core/Hidden";
-import Navigator from "./Navigator";
-import Content from "./Content";
+import Navigator from "src/Navigator";
+import WatcherContent from "src/watchers/WatcherContent";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Redirect,
 } from "react-router-dom";
+import SubscriptionContent from "./subscriptions/SubscriptionContent";
 
 let theme = createMuiTheme({
   palette: {
@@ -188,9 +189,11 @@ function Paperbase(props: PaperbaseProps) {
             <main className={classes.main}>
               <Switch>
                 <Route path="/watchers" exact={true}>
-                  <Content newChipKeys={[]} />
+                  <WatcherContent newChipKeys={[]} />
                 </Route>
-                <Route path="/subscriptions" exact={true}></Route>
+                <Route path="/subscriptions" exact={true}>
+                  <SubscriptionContent />
+                </Route>
                 <Route path="*">
                   <Redirect to="/watchers" />
                 </Route>

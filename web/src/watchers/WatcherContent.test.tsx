@@ -1,7 +1,7 @@
 import React from "react";
 import { fireEvent, render, within } from "@testing-library/react";
-import Content from "./Content";
-import { watcherService } from "./Rpc";
+import WatcherContent from "src/watchers/WatcherContent";
+import { watcherService } from "src/Rpc";
 import {
   CreateWatcherRequest,
   DeleteWatcherRequest,
@@ -9,7 +9,7 @@ import {
   ListWatcherResponse,
   UpdateWatcherRequest,
   Watcher,
-} from "./api/watcher_pb";
+} from "src/api/watcher_pb";
 import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 
 test("gets watchers", () => {
@@ -24,7 +24,7 @@ test("gets watchers", () => {
 
   jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
 
-  const { getByText } = render(<Content newChipKeys={[]} />);
+  const { getByText } = render(<WatcherContent newChipKeys={[]} />);
 
   const list = new ListWatcherRequest();
   list.setPageSize(100);
@@ -48,7 +48,7 @@ test("adds a new watcher", () => {
   jest.spyOn(watcherService, "createWatcher").mockImplementation(createWatcher);
   jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
 
-  const { getByTestId } = render(<Content newChipKeys={["Enter"]} />);
+  const { getByTestId } = render(<WatcherContent newChipKeys={["Enter"]} />);
 
   fireEvent.click(getByTestId("open-addwatch"));
 
@@ -82,7 +82,7 @@ test("cancels to add a watcher", () => {
   const createWatcher = jest.fn();
   jest.spyOn(watcherService, "createWatcher").mockImplementation(createWatcher);
 
-  const { getByTestId } = render(<Content newChipKeys={[""]} />);
+  const { getByTestId } = render(<WatcherContent newChipKeys={[""]} />);
 
   fireEvent.click(getByTestId("open-addwatch"));
   fireEvent.click(getByTestId("cancel"));
@@ -113,7 +113,7 @@ test("deletes a watcher", () => {
   jest.spyOn(watcherService, "deleteWatcher").mockImplementation(deleteWatcher);
 
   const { queryByText, getByText, getAllByTestId } = render(
-    <Content newChipKeys={[]} />
+    <WatcherContent newChipKeys={[]} />
   );
 
   expect(getByText("foo")).toBeInTheDocument();
@@ -174,7 +174,7 @@ test("updates a watcher", () => {
   jest.spyOn(watcherService, "updateWatcher").mockImplementation(updateWatcher);
 
   const { queryByText, getAllByTestId, getByTestId } = render(
-    <Content newChipKeys={["Enter"]} />
+    <WatcherContent newChipKeys={["Enter"]} />
   );
 
   expect(queryByText("quux")).not.toBeInTheDocument();
@@ -206,7 +206,7 @@ test("reloads a list of watchers", () => {
 
   jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
 
-  const { getByTestId } = render(<Content newChipKeys={[]} />);
+  const { getByTestId } = render(<WatcherContent newChipKeys={[]} />);
 
   expect(listWatcher).toHaveBeenCalledTimes(1);
 
@@ -231,7 +231,7 @@ test("search watchers", () => {
 
   jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
 
-  const { getByTestId } = render(<Content newChipKeys={[]} />);
+  const { getByTestId } = render(<WatcherContent newChipKeys={[]} />);
 
   const search = getByTestId("search");
   fireEvent.input(search, { value: "foo" });
