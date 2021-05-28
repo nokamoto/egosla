@@ -50,7 +50,7 @@ test("adds a new watcher", () => {
 
   const { getByTestId } = render(<WatcherContent newChipKeys={["Enter"]} />);
 
-  fireEvent.click(getByTestId("open-addwatch"));
+  fireEvent.click(getByTestId("open-add"));
 
   const keywords = getByTestId("keywords");
   fireEvent.input(keywords, { target: { value: "foo" } });
@@ -84,7 +84,7 @@ test("cancels to add a watcher", () => {
 
   const { getByTestId } = render(<WatcherContent newChipKeys={[""]} />);
 
-  fireEvent.click(getByTestId("open-addwatch"));
+  fireEvent.click(getByTestId("open-add"));
   fireEvent.click(getByTestId("cancel"));
 
   expect(createWatcher).toHaveBeenCalledTimes(0);

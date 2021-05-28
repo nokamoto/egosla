@@ -17,7 +17,7 @@ import {
 } from "src/api/watcher_pb";
 import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 import WatcherTable from "src/watchers/WatcherTable";
-import WatcherAppBar from "src/watchers/WatcherAppBar";
+import StandardAppBar from "src/standard/StandardAppBar";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -153,10 +153,12 @@ function WatcherContent(props: contentProps) {
 
   return (
     <Paper className={classes.paper}>
-      <WatcherAppBar
+      <StandardAppBar
         handleClickOpen={handleClickOpen}
         handleReload={handleReload}
         handleSearch={handleSearch}
+        searchPlaceholder="Search by name or keywords"
+        addText="Add Watcher"
       />
       <WatcherTable
         handleClick={handleClickDeleteMenu}

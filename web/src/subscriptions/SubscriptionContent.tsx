@@ -6,6 +6,7 @@ import {
   withStyles,
   WithStyles,
 } from "@material-ui/core/styles";
+import StandardAppBar from "src/standard/StandardAppBar";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -21,7 +22,17 @@ interface contentProps extends WithStyles<typeof styles> {}
 function SubscriptionContent(props: contentProps) {
   const { classes } = props;
 
-  return <Paper className={classes.paper}></Paper>;
+  return (
+    <Paper className={classes.paper}>
+      <StandardAppBar
+        handleClickOpen={() => {}}
+        handleReload={() => {}}
+        handleSearch={() => {}}
+        searchPlaceholder="Search by name or watcher name"
+        addText="Add Subscription"
+      />
+    </Paper>
+  );
 }
 
 export default withStyles(styles)(SubscriptionContent);

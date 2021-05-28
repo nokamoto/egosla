@@ -36,17 +36,28 @@ const styles = (theme: Theme) =>
     },
   });
 
-export interface WatcherAppBarProps extends WithStyles<typeof styles> {
-  // Callback fired when the add watcher button clicked.
+interface standardAppBarProps extends WithStyles<typeof styles> {
+  // Callback fired when the add button clicked.
   handleClickOpen: () => void;
   // Callback fired when the reload button clicked.
   handleReload: () => void;
   // Callback fired when the search text changed.
   handleSearch: (event: ChangeEvent<HTMLInputElement>) => void;
+  // Placeholder text for the search field.
+  searchPlaceholder: string;
+  // Text for the add button.
+  addText: string;
 }
 
-function WatcherAppBar(props: WatcherAppBarProps) {
-  const { classes, handleClickOpen, handleReload, handleSearch } = props;
+function StandardAppBar(props: standardAppBarProps) {
+  const {
+    classes,
+    handleClickOpen,
+    handleReload,
+    handleSearch,
+    searchPlaceholder,
+    addText,
+  } = props;
 
   return (
     <AppBar
@@ -63,7 +74,7 @@ function WatcherAppBar(props: WatcherAppBarProps) {
           <Grid item xs>
             <TextField
               fullWidth
-              placeholder="Search by name or keywords"
+              placeholder={searchPlaceholder}
               InputProps={{
                 disableUnderline: true,
                 className: classes.searchInput,
@@ -78,9 +89,9 @@ function WatcherAppBar(props: WatcherAppBarProps) {
               color="primary"
               className={classes.addUser}
               onClick={handleClickOpen}
-              data-testid="open-addwatch"
+              data-testid="open-add"
             >
-              Add Watcher
+              {addText}
             </Button>
             <Tooltip title="Reload">
               <IconButton onClick={handleReload} data-testid="reload">
@@ -94,4 +105,4 @@ function WatcherAppBar(props: WatcherAppBarProps) {
   );
 }
 
-export default withStyles(styles)(WatcherAppBar);
+export default withStyles(styles)(StandardAppBar);
