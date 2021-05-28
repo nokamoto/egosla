@@ -1,4 +1,4 @@
-import { WatcherServiceClient } from "./api/WatcherServiceClientPb";
+import { WatcherServiceClient } from "src/api/WatcherServiceClientPb";
 
 function gitpodExposedURL(): string {
   return (

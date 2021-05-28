@@ -6,14 +6,14 @@ import {
   WithStyles,
   withStyles,
 } from "@material-ui/core/styles";
-import { Watcher } from "./api/watcher_pb";
+import { Watcher } from "src/api/watcher_pb";
 import Table from "@material-ui/core/Table";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import Chip from "@material-ui/core/Chip";
-import WatcherMenu from "./WatcherMenu";
+import WatcherMenu from "src/watchers/WatcherMenu";
 
 const styles = (theme: Theme) =>
   createStyles({

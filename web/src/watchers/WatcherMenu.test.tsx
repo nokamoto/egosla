@@ -1,6 +1,6 @@
 import React from "react";
 import { fireEvent, render } from "@testing-library/react";
-import WatcherMenu from "./WatcherMenu";
+import WatcherMenu from "src/watchers/WatcherMenu";
 
 test("deletes a watcher", () => {
   var anchorEl: HTMLElement[] = [];
