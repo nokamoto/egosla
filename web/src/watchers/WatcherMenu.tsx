@@ -7,6 +7,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Menu from "@material-ui/core/Menu";
 import ListItemText from "@material-ui/core/ListItemText";
+import SubscriptionsIcon from "@material-ui/icons/Subscriptions";
 
 export interface WatcherMenuProps {
   // Index for anchorEl.
@@ -21,8 +22,13 @@ export interface WatcherMenuProps {
   handleClose: (event: MouseEvent<HTMLElement>) => void;
   // Callback fired when Menu closed and requested to delete the watcher.
   handleDelete: (watcherName: string, event: MouseEvent<HTMLElement>) => void;
-  // Callback fired when Menu closed and requested to open an update Dialog.
+  // Callback fired when Menu closed and requested to update the watcher.
   handleUpdate: (watcherName: string, event: MouseEvent<HTMLElement>) => void;
+  // Callback fired when Menu closed and requested to subscribe the watcher.
+  handleSubscribe: (
+    watcherName: string,
+    event: MouseEvent<HTMLElement>
+  ) => void;
 }
 
 function WatcherMenu({
@@ -33,6 +39,7 @@ function WatcherMenu({
   handleClose,
   handleDelete,
   handleUpdate,
+  handleSubscribe,
 }: WatcherMenuProps) {
   return (
     <div>
@@ -73,6 +80,15 @@ function WatcherMenu({
             <EditIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText primary="Update" />
+        </MenuItem>
+        <MenuItem
+          data-testid="subscribe"
+          onClick={(e) => handleSubscribe(watcherName, e)}
+        >
+          <ListItemIcon>
+            <SubscriptionsIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Subscribe" />
         </MenuItem>
       </Menu>
     </div>

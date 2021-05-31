@@ -21,9 +21,12 @@ static_resources:
             - name: local_service
               domains: ["*"]
               routes:
-              - match: { prefix: "/" }
+              - match: { prefix: "/nokamoto.github.com.egosla.api.WatcherService" }
                 route:
                   cluster: watcher_service
+              - match: { prefix: "/nokamoto.github.com.egosla.api.SubscriptionService" }
+                route:
+                  cluster: subscription_service
               cors:
                 allow_origin_string_match:
                 - prefix: "*"
@@ -50,3 +53,17 @@ static_resources:
                   socket_address:
                     address: 0.0.0.0
                     port_value: 9000
+  - name: subscription_service
+    connect_timeout: 0.25s
+    type: logical_dns
+    http2_protocol_options: {}
+    lb_policy: round_robin
+    load_assignment:
+      cluster_name: subscription_service
+      endpoints:
+        - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 0.0.0.0
+                    port_value: 9001

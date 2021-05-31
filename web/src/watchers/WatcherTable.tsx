@@ -38,8 +38,13 @@ export interface WatcherTableProps extends WithStyles<typeof styles> {
   handleClose: (event: MouseEvent<HTMLElement>) => void;
   // Callback fired when Menu closed and requested to delete the watcher.
   handleDelete: (watcherName: string, event: MouseEvent<HTMLElement>) => void;
-  // Callback fired when Menu closed and requested to open an update Dialog.
+  // Callback fired when Menu closed and requested to update the watcher.
   handleUpdate: (watcherName: string, event: MouseEvent<HTMLElement>) => void;
+  // Callback fired when Menu closed and requested to subscribe the watcher.
+  handleSubscribe: (
+    watcherName: string,
+    event: MouseEvent<HTMLElement>
+  ) => void;
 }
 
 function WatcherTable(props: WatcherTableProps) {
@@ -52,6 +57,7 @@ function WatcherTable(props: WatcherTableProps) {
     handleClose,
     handleDelete,
     handleUpdate,
+    handleSubscribe,
   } = props;
 
   const visibleWatchers = watchers.filter(
@@ -110,6 +116,7 @@ function WatcherTable(props: WatcherTableProps) {
                     handleClose={handleClose}
                     handleDelete={handleDelete}
                     handleUpdate={handleUpdate}
+                    handleSubscribe={handleSubscribe}
                   />
                 </TableCell>
               </TableRow>

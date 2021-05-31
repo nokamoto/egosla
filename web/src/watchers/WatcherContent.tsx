@@ -7,7 +7,7 @@ import {
   WithStyles,
 } from "@material-ui/core/styles";
 import WatcherDialog from "src/watchers/WatcherDialog";
-import { watcherService } from "src/Rpc";
+import { subscriptionService, watcherService } from "src/Rpc";
 import {
   CreateWatcherRequest,
   DeleteWatcherRequest,
@@ -18,6 +18,11 @@ import {
 import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 import WatcherTable from "src/watchers/WatcherTable";
 import StandardAppBar from "src/standard/StandardAppBar";
+import {
+  CreateSubscriptionRequest,
+  Subscription,
+} from "src/api/subscription_pb";
+import { useHistory } from "react-router-dom";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -45,6 +50,7 @@ function WatcherContent(props: contentProps) {
   const [watchers, setWatchers] = useState<Watcher[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLElement[]>([]);
   const [search, setSearch] = useState<string>("");
+  const history = useHistory();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -143,6 +149,19 @@ function WatcherContent(props: contentProps) {
     setSearch(event.target.value);
   };
 
+  const handleSubscribe = (watcherName: string, _: MouseEvent<HTMLElement>) => {
+    setAnchorEl([]);
+
+    const subscription = new Subscription();
+    subscription.setWatcher(watcherName);
+
+    const req = new CreateSubscriptionRequest();
+    req.setSubscription(subscription);
+    subscriptionService.createSubscription(req, {}, (err, res) => {
+      history.push("/subscriptions");
+    });
+  };
+
   useEffect(() => {
     const req = new ListWatcherRequest();
     req.setPageSize(100);
@@ -165,6 +184,7 @@ function WatcherContent(props: contentProps) {
         handleClose={handleCloseDeleteMenu}
         handleDelete={deleteWatcher}
         handleUpdate={handleClickUpdateMenu}
+        handleSubscribe={handleSubscribe}
         anchorEl={anchorEl}
         watchers={watchers}
         search={search}

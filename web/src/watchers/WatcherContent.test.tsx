@@ -1,7 +1,7 @@
 import React from "react";
 import { fireEvent, render, within } from "@testing-library/react";
 import WatcherContent from "src/watchers/WatcherContent";
-import { watcherService } from "src/Rpc";
+import { subscriptionService, watcherService } from "src/Rpc";
 import {
   CreateWatcherRequest,
   DeleteWatcherRequest,
@@ -11,6 +11,12 @@ import {
   Watcher,
 } from "src/api/watcher_pb";
 import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
+import {
+  CreateSubscriptionRequest,
+  Subscription,
+} from "src/api/subscription_pb";
+import { createMemoryHistory } from "history";
+import { Router } from "react-router-dom";
 
 test("gets watchers", () => {
   const listWatcher = jest.fn().mockImplementation((x, y, callback) => {
@@ -199,6 +205,61 @@ test("updates a watcher", () => {
 
   const table = getByTestId("watchers-table");
   expect(within(table).getByText("quux")).toBeInTheDocument();
+});
+
+test("subscribes a watcher", () => {
+  const listWatcher = jest.fn().mockImplementation((x, y, callback) => {
+    const foo = new Watcher();
+    foo.setName("foo");
+    foo.setKeywordsList(["bar"]);
+    const baz = new Watcher();
+    baz.setName("baz");
+    baz.setKeywordsList(["qux"]);
+    const res = new ListWatcherResponse();
+    res.addWatchers(foo);
+    res.addWatchers(baz);
+
+    callback(null, res);
+  });
+
+  const createSubscription = jest.fn().mockImplementation((x, y, callback) => {
+    callback(null, new Subscription());
+  });
+
+  jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
+  jest
+    .spyOn(subscriptionService, "createSubscription")
+    .mockImplementation(createSubscription);
+
+  const history = createMemoryHistory();
+
+  const { getAllByTestId } = render(
+    <Router history={history}>
+      <WatcherContent newChipKeys={[""]} />
+    </Router>
+  );
+
+  expect(history.location.pathname).toEqual("/");
+
+  const menus = getAllByTestId("open-menu");
+  const subscribe = getAllByTestId("subscribe");
+
+  expect(menus.length).toEqual(2);
+  expect(subscribe.length).toEqual(2);
+
+  fireEvent.click(menus[0]);
+  fireEvent.click(subscribe[0]);
+
+  const subscription = new Subscription();
+  subscription.setWatcher("foo");
+
+  const expected = new CreateSubscriptionRequest();
+  expected.setSubscription(subscription);
+
+  expect(createSubscription).toHaveBeenCalledTimes(1);
+  expect(createSubscription.mock.calls[0][0]).toEqual(expected);
+
+  expect(history.location.pathname).toEqual("/subscriptions");
 });
 
 test("reloads a list of watchers", () => {
