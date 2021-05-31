@@ -11,6 +11,7 @@ test("deletes a watcher", () => {
   const handleClose = jest.fn();
   const handleDelete = jest.fn();
   const handleUpdate = jest.fn();
+  const handleSubscribe = jest.fn();
 
   const { getByTestId } = render(
     <WatcherMenu
@@ -21,6 +22,7 @@ test("deletes a watcher", () => {
       handleClose={handleClose}
       handleDelete={handleDelete}
       handleUpdate={handleUpdate}
+      handleSubscribe={handleSubscribe}
     />
   );
 
@@ -36,6 +38,8 @@ test("deletes a watcher", () => {
   expect(handleUpdate).toHaveBeenCalledTimes(0);
 
   expect(handleClose).toHaveBeenCalledTimes(0);
+
+  expect(handleSubscribe).toHaveBeenCalledTimes(0);
 });
 
 test("updates a watcher", () => {
@@ -47,6 +51,7 @@ test("updates a watcher", () => {
   const handleClose = jest.fn();
   const handleDelete = jest.fn();
   const handleUpdate = jest.fn();
+  const handleSubscribe = jest.fn();
 
   const { getByTestId } = render(
     <WatcherMenu
@@ -57,6 +62,7 @@ test("updates a watcher", () => {
       handleClose={handleClose}
       handleDelete={handleDelete}
       handleUpdate={handleUpdate}
+      handleSubscribe={handleSubscribe}
     />
   );
 
@@ -72,4 +78,46 @@ test("updates a watcher", () => {
   expect(handleUpdate.mock.calls[0][0]).toEqual("foo");
 
   expect(handleClose).toHaveBeenCalledTimes(0);
+
+  expect(handleSubscribe).toHaveBeenCalledTimes(0);
+});
+
+test("subscribes a watcher", () => {
+  var anchorEl: HTMLElement[] = [];
+
+  const handleClick = jest
+    .fn()
+    .mockImplementation((index, e) => (anchorEl[index] = e));
+  const handleClose = jest.fn();
+  const handleDelete = jest.fn();
+  const handleUpdate = jest.fn();
+  const handleSubscribe = jest.fn();
+
+  const { getByTestId } = render(
+    <WatcherMenu
+      index={10}
+      anchorEl={anchorEl}
+      watcherName="foo"
+      handleClick={handleClick}
+      handleClose={handleClose}
+      handleDelete={handleDelete}
+      handleUpdate={handleUpdate}
+      handleSubscribe={handleSubscribe}
+    />
+  );
+
+  fireEvent.click(getByTestId("open-menu"));
+  fireEvent.click(getByTestId("subscribe"));
+
+  expect(handleClick).toHaveBeenCalledTimes(1);
+  expect(handleClick.mock.calls[0][0]).toEqual(10);
+
+  expect(handleDelete).toHaveBeenCalledTimes(0);
+
+  expect(handleUpdate).toHaveBeenCalledTimes(0);
+
+  expect(handleClose).toHaveBeenCalledTimes(0);
+
+  expect(handleSubscribe).toHaveBeenCalledTimes(1);
+  expect(handleSubscribe.mock.calls[0][0]).toEqual("foo");
 });

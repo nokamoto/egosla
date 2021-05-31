@@ -1,4 +1,5 @@
 import { WatcherServiceClient } from "src/api/WatcherServiceClientPb";
+import { SubscriptionServiceClient } from "./api/SubscriptionServiceClientPb";
 
 function gitpodExposedURL(): string {
   return (
@@ -9,6 +10,12 @@ function gitpodExposedURL(): string {
 }
 
 export const watcherService = new WatcherServiceClient(
+  gitpodExposedURL(),
+  null,
+  null
+);
+
+export const subscriptionService = new SubscriptionServiceClient(
   gitpodExposedURL(),
   null,
   null
