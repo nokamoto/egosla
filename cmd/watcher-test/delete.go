@@ -5,24 +5,23 @@ import (
 	"time"
 
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/cmd/test"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/encoding/prototext"
 )
 
-func testDelete(c api.WatcherServiceClient) scenario {
-	return scenario{
-		name: "DeleteWatcher",
-		run: func(s state, logger *zap.Logger) (state, error) {
+func testDelete(c api.WatcherServiceClient) test.Scenario {
+	return test.Scenario{
+		Name: "DeleteWatcher",
+		Run: func(s test.State, logger *zap.Logger) (test.State, error) {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 
 			var deleted api.Watcher
-			err := prototext.Unmarshal([]byte(s[createdRecord]), &deleted)
-			if err != nil {
+			if err := s.Get(createdRecord, &deleted); err != nil {
 				return nil, err
 			}
 
-			_, err = c.DeleteWatcher(ctx, &api.DeleteWatcherRequest{
+			_, err := c.DeleteWatcher(ctx, &api.DeleteWatcherRequest{
 				Name: deleted.GetName(),
 			})
 			if err != nil {
@@ -31,7 +30,7 @@ func testDelete(c api.WatcherServiceClient) scenario {
 
 			logger.Info("deleted", zap.String("name", deleted.GetName()))
 
-			delete(s, createdRecord)
+			s.Delete(createdRecord)
 
 			return s, nil
 		},

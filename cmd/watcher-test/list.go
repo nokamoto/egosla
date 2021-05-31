@@ -5,23 +5,20 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/cmd/test"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/encoding/prototext"
-	"google.golang.org/protobuf/testing/protocmp"
 )
 
-func testList(c api.WatcherServiceClient) scenario {
-	return scenario{
-		name: "ListWatcher",
-		run: func(s state, logger *zap.Logger) (state, error) {
+func testList(c api.WatcherServiceClient) test.Scenario {
+	return test.Scenario{
+		Name: "ListWatcher",
+		Run: func(s test.State, logger *zap.Logger) (test.State, error) {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 
 			var expected api.Watcher
-			err := prototext.Unmarshal([]byte(s[createdRecord]), &expected)
-			if err != nil {
+			if err := s.Get(createdRecord, &expected); err != nil {
 				return nil, err
 			}
 
@@ -41,7 +38,7 @@ func testList(c api.WatcherServiceClient) scenario {
 					return nil, fmt.Errorf("unexpected response: %v", res)
 				}
 
-				if diff := cmp.Diff(&expected, res.GetWatchers()[0], protocmp.Transform()); len(diff) == 0 {
+				if test.Equal(&expected, res.GetWatchers()[0]) == nil {
 					break
 				}
 
