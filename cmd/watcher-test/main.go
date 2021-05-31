@@ -6,18 +6,19 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	watcherAddress = "WATCHER_ADDRESS"
-)
-
 func main() {
-	test.Test("127.0.0.1:9000", func(cc *grpc.ClientConn) test.Scenarios {
-		c := api.NewWatcherServiceClient(cc)
-		return test.Scenarios{
-			testCreate(c),
-			testList(c),
-			testUpdate(c),
-			testDelete(c),
-		}
-	})
+	test.Test(
+		"127.0.0.1:9000",
+		func(cc *grpc.ClientConn) test.Scenarios {
+			c := api.NewWatcherServiceClient(cc)
+			return test.Scenarios{
+				testCreate(c),
+				testList(c),
+				testUpdate(c),
+				testDelete(c),
+			}
+		},
+		nil,
+		nil,
+	)
 }

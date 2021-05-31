@@ -12,7 +12,8 @@ const (
 )
 
 // Test tests with a single gRPC client connection.
-func Test(defaultAddresss string, f func(*grpc.ClientConn) Scenarios) {
+// It always executes setup and teardown even if one of the scenarios fails.
+func Test(defaultAddresss string, f func(*grpc.ClientConn) Scenarios, setup, teardown *Scenario) {
 	logger := cmd.NewLogger(true)
 	defer logger.Sync()
 
@@ -26,5 +27,5 @@ func Test(defaultAddresss string, f func(*grpc.ClientConn) Scenarios) {
 
 	logger.Info("connect", zap.String("address", address))
 
-	f(conn).Run(logger)
+	f(conn).run(logger, setup, teardown)
 }
