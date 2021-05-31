@@ -34,4 +34,8 @@ yarn:
 
 watcher:
 	go get github.com/cespare/reflex
-	reflex -r '(\.go|go\.mod|go\.sum)' -s go run ./cmd/watcher
+	GRPC_PORT=9000 reflex -r '(\.go|go\.mod|go\.sum)' -s go run ./cmd/watcher
+
+subscription:
+	go get github.com/cespare/reflex
+	GRPC_PORT=9001 reflex -r '(\.go|go\.mod|go\.sum)' -s go run ./cmd/subscription

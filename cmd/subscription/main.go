@@ -12,9 +12,9 @@ import (
 
 func main() {
 	cmd.GrpcServer(func(s *grpc.Server, db *gorm.DB, logger *zap.Logger) error {
-		api.RegisterWatcherServiceServer(
+		api.RegisterSubscriptionServiceServer(
 			s,
-			service.NewWatcher(mysql.NewPersistentWatcher(db), logger),
+			service.NewSubscription(mysql.NewPersistentSubscriptionn(db), logger),
 		)
 		return nil
 	})

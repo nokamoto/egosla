@@ -3,7 +3,10 @@ image:
 
 tasks:
 - init: mysqladmin --wait --count 3 ping && mysql < deployments/init.sql
+- init: mysqladmin --wait --count 3 ping
   command: make watcher
+- init: mysqladmin --wait --count 3 ping
+  command: make subscription
 - command: getenvoy run standard:1.18.2 -- --config-path deployments/envoy.yaml 
 - init: cd web && yarn
   command: cd web && yarn start
@@ -27,5 +30,7 @@ ports:
 - port: 9901
   onOpen: ignore
 - port: 9000
+  onOpen: ignore
+- port: 9001
   onOpen: ignore
 
