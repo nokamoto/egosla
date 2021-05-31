@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"os"
 
 	"go.uber.org/zap"
 )
@@ -11,25 +12,56 @@ type Scenario struct {
 	// Name is the test name.
 	Name string
 	// Run executes the test with the current state and returns an updated state.
-	Run func(state State, logger *zap.Logger) (State, error)
+	Run func(state State, logger *zap.Logger) error
 }
 
 // Scenarios represents ordered scenarios.
 type Scenarios []Scenario
 
-// Run executes all scenarios. It halts if one of the scenarios fails.
-func (xs Scenarios) Run(logger *zap.Logger) {
+func (xs Scenarios) run(logger *zap.Logger, setup, teardown *Scenario) {
 	size := len(xs)
 	logger.Info("begin", zap.Int("#", size))
 	st := make(State)
-	for i, x := range xs {
-		sl := logger.With(zap.String("scenario", x.Name), zap.Any("state", st))
-		s, err := x.Run(st, sl)
+
+	var failed = false
+
+	if setup != nil {
+		logger.Info(setup.Name)
+		err := setup.Run(st, logger)
 		if err != nil {
-			sl.Fatal("fatal", zap.Error(err))
+			failed = true
+			logger.Error(setup.Name, zap.Error(err))
 		}
-		st = s
+	}
+
+	for i, x := range xs {
+		if failed {
+			break
+		}
+		sl := logger.With(zap.String("scenario", x.Name), zap.Any("state", st))
+		err := x.Run(st, sl)
+		if err != nil {
+			failed = true
+			sl.Error("failed", zap.Error(err))
+			continue
+		}
 		sl.Info("ok", zap.String("#", fmt.Sprintf("%d/%d", i+1, size)))
 	}
-	logger.Info("done", zap.Int("#", size))
+
+	if !failed {
+		logger.Info("done", zap.Int("#", size))
+	}
+
+	if teardown != nil {
+		logger.Info(teardown.Name)
+		err := teardown.Run(st, logger)
+		if err != nil {
+			failed = true
+			logger.Error(teardown.Name, zap.Error(err))
+		}
+	}
+
+	if failed {
+		os.Exit(1)
+	}
 }

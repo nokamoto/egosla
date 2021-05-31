@@ -13,13 +13,13 @@ import (
 func testList(c api.WatcherServiceClient) test.Scenario {
 	return test.Scenario{
 		Name: "ListWatcher",
-		Run: func(s test.State, logger *zap.Logger) (test.State, error) {
+		Run: func(s test.State, logger *zap.Logger) error {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 
 			var expected api.Watcher
 			if err := s.Get(createdRecord, &expected); err != nil {
-				return nil, err
+				return err
 			}
 
 			logger.Info("until", zap.Any("expected", &expected))
@@ -32,10 +32,10 @@ func testList(c api.WatcherServiceClient) test.Scenario {
 					PageSize:  1,
 				})
 				if err != nil {
-					return nil, err
+					return err
 				}
 				if len(res.GetWatchers()) != 1 {
-					return nil, fmt.Errorf("unexpected response: %v", res)
+					return fmt.Errorf("unexpected response: %v", res)
 				}
 
 				if test.Equal(&expected, res.GetWatchers()[0]) == nil {
@@ -49,7 +49,7 @@ func testList(c api.WatcherServiceClient) test.Scenario {
 
 			logger.Info("found")
 
-			return s, nil
+			return nil
 		},
 	}
 }

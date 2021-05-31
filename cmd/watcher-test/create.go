@@ -14,7 +14,7 @@ const createdRecord = "created-record"
 func testCreate(c api.WatcherServiceClient) test.Scenario {
 	return test.Scenario{
 		Name: "CreateWatcher",
-		Run: func(s test.State, logger *zap.Logger) (test.State, error) {
+		Run: func(s test.State, logger *zap.Logger) error {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 
@@ -24,14 +24,14 @@ func testCreate(c api.WatcherServiceClient) test.Scenario {
 				},
 			})
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			logger.Info("got", zap.Any("res", res))
 
 			s.Set(createdRecord, res)
 
-			return s, nil
+			return nil
 		},
 	}
 }

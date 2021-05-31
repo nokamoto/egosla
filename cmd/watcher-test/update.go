@@ -13,20 +13,20 @@ import (
 func testUpdate(c api.WatcherServiceClient) test.Scenario {
 	return test.Scenario{
 		Name: "UpdateWatcher",
-		Run: func(s test.State, logger *zap.Logger) (test.State, error) {
+		Run: func(s test.State, logger *zap.Logger) error {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 
 			var created api.Watcher
 			if err := s.Get(createdRecord, &created); err != nil {
-				return nil, err
+				return err
 			}
 
 			keywords := []string{"baz", "qux"}
 
 			updateMask, err := fieldmaskpb.New(&created, "keywords")
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			logger.Info("update", zap.Strings("keywords", keywords), zap.Any("updateMask", updateMask))
@@ -39,7 +39,7 @@ func testUpdate(c api.WatcherServiceClient) test.Scenario {
 				UpdateMask: updateMask,
 			})
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			logger.Info("updated", zap.Any("updated", updated))
@@ -49,12 +49,12 @@ func testUpdate(c api.WatcherServiceClient) test.Scenario {
 				Keywords: keywords,
 			}
 			if err := test.Equal(expected, updated); err != nil {
-				return nil, err
+				return err
 			}
 
 			s.Set(createdRecord, updated)
 
-			return s, nil
+			return nil
 		},
 	}
 }
