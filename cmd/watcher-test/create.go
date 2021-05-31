@@ -5,16 +5,16 @@ import (
 	"time"
 
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/cmd/test"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/encoding/prototext"
 )
 
 const createdRecord = "created-record"
 
-func testCreate(c api.WatcherServiceClient) scenario {
-	return scenario{
-		name: "CreateWatcher",
-		run: func(s state, logger *zap.Logger) (state, error) {
+func testCreate(c api.WatcherServiceClient) test.Scenario {
+	return test.Scenario{
+		Name: "CreateWatcher",
+		Run: func(s test.State, logger *zap.Logger) (test.State, error) {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 
@@ -29,7 +29,7 @@ func testCreate(c api.WatcherServiceClient) scenario {
 
 			logger.Info("got", zap.Any("res", res))
 
-			s[createdRecord] = prototext.Format(res)
+			s.Set(createdRecord, res)
 
 			return s, nil
 		},

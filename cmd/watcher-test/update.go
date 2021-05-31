@@ -2,27 +2,23 @@ package main
 
 import (
 	"context"
-	"errors"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/cmd/test"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/encoding/prototext"
-	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
-func testUpdate(c api.WatcherServiceClient) scenario {
-	return scenario{
-		name: "UpdateWatcher",
-		run: func(s state, logger *zap.Logger) (state, error) {
+func testUpdate(c api.WatcherServiceClient) test.Scenario {
+	return test.Scenario{
+		Name: "UpdateWatcher",
+		Run: func(s test.State, logger *zap.Logger) (test.State, error) {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 
 			var created api.Watcher
-			err := prototext.Unmarshal([]byte(s[createdRecord]), &created)
-			if err != nil {
+			if err := s.Get(createdRecord, &created); err != nil {
 				return nil, err
 			}
 
@@ -52,11 +48,11 @@ func testUpdate(c api.WatcherServiceClient) scenario {
 				Name:     created.GetName(),
 				Keywords: keywords,
 			}
-			if diff := cmp.Diff(expected, updated, protocmp.Transform()); len(diff) != 0 {
-				return nil, errors.New(diff)
+			if err := test.Equal(expected, updated); err != nil {
+				return nil, err
 			}
 
-			s[createdRecord] = prototext.Format(updated)
+			s.Set(createdRecord, updated)
 
 			return s, nil
 		},
