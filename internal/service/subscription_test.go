@@ -128,6 +128,14 @@ func TestSubscription_List(t *testing.T) {
 				Subscriptions: []*api.Subscription{&elm1},
 			},
 		},
+		{
+			name: "unexpected error",
+			req:  &api.ListSubscriptionRequest{},
+			mock: func(p *MockpersistentSubscription, _ *MocknameGenerator) {
+				p.EXPECT().List(gomock.Any(), gomock.Any()).Return(nil, mysql.ErrUnknown)
+			},
+			code: codes.Unavailable,
+		},
 	}
 
 	for _, x := range testcases {

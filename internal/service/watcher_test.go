@@ -118,18 +118,6 @@ func TestWatcher_Create(t *testing.T) {
 }
 
 func TestWatcher_List(t *testing.T) {
-	elm1 := &api.Watcher{
-		Name: "foo",
-	}
-
-	elm2 := &api.Watcher{
-		Name: "bar",
-	}
-
-	elm3 := &api.Watcher{
-		Name: "baz",
-	}
-
 	testcases := []struct {
 		name     string
 		req      *api.ListWatcherRequest
@@ -138,7 +126,7 @@ func TestWatcher_List(t *testing.T) {
 		code     codes.Code
 	}{
 		{
-			name: "ok: empty token, empty watchers",
+			name: "ok",
 			req: &api.ListWatcherRequest{
 				PageSize: 2,
 			},
@@ -146,46 +134,6 @@ func TestWatcher_List(t *testing.T) {
 				p.EXPECT().List(0, 3).Return(nil, nil)
 			},
 			expected: &api.ListWatcherResponse{},
-		},
-		{
-			name: "ok: len(watchers) < page size",
-			req: &api.ListWatcherRequest{
-				PageToken: "10",
-				PageSize:  2,
-			},
-			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
-				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1}, nil)
-			},
-			expected: &api.ListWatcherResponse{
-				Watchers: []*api.Watcher{elm1},
-			},
-		},
-		{
-			name: "ok: len(watchers) == page size",
-			req: &api.ListWatcherRequest{
-				PageToken: "10",
-				PageSize:  2,
-			},
-			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
-				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2}, nil)
-			},
-			expected: &api.ListWatcherResponse{
-				Watchers: []*api.Watcher{elm1, elm2},
-			},
-		},
-		{
-			name: "ok: len(watchers) >= page size + 1",
-			req: &api.ListWatcherRequest{
-				PageToken: "10",
-				PageSize:  2,
-			},
-			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
-				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2, elm3}, nil)
-			},
-			expected: &api.ListWatcherResponse{
-				NextPageToken: "12",
-				Watchers:      []*api.Watcher{elm1, elm2},
-			},
 		},
 		{
 			name: "unexpected error",
@@ -196,13 +144,6 @@ func TestWatcher_List(t *testing.T) {
 				p.EXPECT().List(0, 3).Return(nil, mysql.ErrUnknown)
 			},
 			code: codes.Unavailable,
-		},
-		{
-			name: "invalid token",
-			req: &api.ListWatcherRequest{
-				PageToken: "abc",
-			},
-			code: codes.InvalidArgument,
 		},
 	}
 
