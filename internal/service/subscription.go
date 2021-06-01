@@ -45,3 +45,26 @@ func (s *Subscription) CreateSubscription(ctx context.Context, req *api.CreateSu
 
 	return created, nil
 }
+
+func (s *Subscription) ListSubscription(ctx context.Context, req *api.ListSubscriptionRequest) (*api.ListSubscriptionResponse, error) {
+	var res api.ListSubscriptionResponse
+	nextPageToken, err := listMethod(
+		s.logger.With(zap.Any("req", req), zap.String("method", "ListSubscription")),
+		req,
+		func(offset, limit int) (int, error) {
+			v, err := s.p.List(offset, limit)
+			res.Subscriptions = v
+			return len(v), err
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	res.NextPageToken = nextPageToken
+	if len(nextPageToken) != 0 {
+		res.Subscriptions = res.Subscriptions[:len(res.Subscriptions)-1]
+	}
+
+	return &res, nil
+}
