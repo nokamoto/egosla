@@ -44,3 +44,19 @@ func NewPersistentSubscriptionn(db *gorm.DB) *PersistentSubscription {
 func (p *PersistentSubscription) Create(v *api.Subscription) error {
 	return createMethod(newSubscription(v), p.db)
 }
+
+// List selects a list of watchers from offset to limit.
+func (p *PersistentSubscription) List(offset, limit int) ([]*api.Subscription, error) {
+	var models []subscription
+	err := listMethod(&models, p.db, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	var subscriptions []*api.Subscription
+	for _, m := range models {
+		subscriptions = append(subscriptions, m.Value())
+	}
+
+	return subscriptions, nil
+}

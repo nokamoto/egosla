@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"google.golang.org/protobuf/proto"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -64,6 +65,39 @@ func createMethodTestCases(query func(sqlmock.Sqlmock) *sqlmock.ExpectedExec) []
 				mock.ExpectRollback()
 			},
 			expected: ErrUnknown,
+		},
+	}
+}
+
+func listMethodTestCases(query func(sqlmock.Sqlmock) *sqlmock.ExpectedQuery, expected []proto.Message, rows *sqlmock.Rows) []struct {
+	name     string
+	mock     func(mock sqlmock.Sqlmock)
+	expected []proto.Message
+	err      error
+} {
+	return []struct {
+		name     string
+		mock     func(mock sqlmock.Sqlmock)
+		expected []proto.Message
+		err      error
+	}{
+		{
+			name: "ok",
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				query(mock).WillReturnRows(rows)
+				mock.ExpectCommit()
+			},
+			expected: expected,
+		},
+		{
+			name: "unexpected error",
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				query(mock).WillReturnError(errors.New("unexpected"))
+				mock.ExpectRollback()
+			},
+			err: ErrUnknown,
 		},
 	}
 }
