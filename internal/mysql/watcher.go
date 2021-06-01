@@ -56,23 +56,15 @@ func (p *PersistentWatcher) Create(v *api.Watcher) error {
 
 // List selects a list of watchers from offset to limit.
 func (p *PersistentWatcher) List(offset, limit int) ([]*api.Watcher, error) {
-	var watchers []*api.Watcher
-	err := p.db.Transaction(func(tx *gorm.DB) error {
-		var ms []watcher
-		res := tx.Offset(offset).Limit(limit).Find(&ms)
-		if res.Error != nil {
-			return res.Error
-		}
-
-		for _, m := range ms {
-			watchers = append(watchers, m.Value())
-		}
-
-		return nil
-	})
-
+	var models []watcher
+	err := listMethod(&models, p.db, offset, limit)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrUnknown, err)
+		return nil, err
+	}
+
+	var watchers []*api.Watcher
+	for _, m := range models {
+		watchers = append(watchers, m.Value())
 	}
 
 	return watchers, nil
