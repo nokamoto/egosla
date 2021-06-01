@@ -31,72 +31,49 @@ func NewWatcher(p persistentWatcher, logger *zap.Logger) *Watcher {
 }
 
 func (w *Watcher) CreateWatcher(ctx context.Context, req *api.CreateWatcherRequest) (*api.Watcher, error) {
-	validate := func(req *api.CreateWatcherRequest) error {
-		return nil
-	}
-
-	logger := w.logger.With(zap.Any("req", req), zap.String("method", "CreateWatcher"))
-	logger.Debug("receive")
-
-	err := validate(req)
-	if err != nil {
-		logger.Debug("invalid argument", zap.Error(err))
-		return nil, status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
-	}
-
 	created := &api.Watcher{
 		Name:     w.n.newName(),
 		Keywords: req.GetWatcher().GetKeywords(),
 	}
 
-	err = w.p.Create(created)
+	err := createMethod(
+		w.logger.With(zap.Any("req", req), zap.String("method", "CreateWatcher"), zap.Any("created", created)),
+		func() error {
+			return nil
+		},
+		func() error {
+			return w.p.Create(created)
+		},
+	)
 	if err != nil {
-		logger.Error("unavailable", zap.Error(err))
-		return nil, status.Errorf(codes.Unavailable, "unavailable")
+		return nil, err
 	}
-
-	logger.Info("created", zap.Any("watcher", created))
 
 	return created, nil
 }
 
 func (w *Watcher) ListWatcher(ctx context.Context, req *api.ListWatcherRequest) (*api.ListWatcherResponse, error) {
-	validate := func(req *api.ListWatcherRequest) error {
-		_, err := fromPageToken(req.GetPageToken())
-		return err
-	}
+	var res api.ListWatcherResponse
 
-	logger := w.logger.With(zap.Any("req", req), zap.String("method", "ListWatcher"))
-	logger.Debug("receive")
-
-	err := validate(req)
+	nextPageToken, err := listMethod(
+		w.logger.With(zap.Any("req", req), zap.String("method", "ListWatcher")),
+		req,
+		func(offset, limit int) (int, error) {
+			v, err := w.p.List(offset, limit)
+			res.Watchers = v
+			return len(v), err
+		},
+	)
 	if err != nil {
-		logger.Debug("invalid argument", zap.Error(err))
-		return nil, status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
+		return nil, err
 	}
 
-	offset, _ := fromPageToken(req.GetPageToken())
-	size := int(req.GetPageSize())
-	if size <= 0 {
-		size = defaultPageSize
+	res.NextPageToken = nextPageToken
+	if len(nextPageToken) != 0 {
+		res.Watchers = res.Watchers[:len(res.Watchers)-1]
 	}
 
-	watchers, err := w.p.List(offset, size+1)
-	if err != nil {
-		logger.Error("unavailable", zap.Error(err))
-		return nil, status.Errorf(codes.Unavailable, "unavailable")
-	}
-
-	var nextPageToken string
-	if len(watchers) == size+1 {
-		nextPageToken = fromPageOffset(offset + size)
-		watchers = watchers[:len(watchers)-1]
-	}
-
-	return &api.ListWatcherResponse{
-		NextPageToken: nextPageToken,
-		Watchers:      watchers,
-	}, nil
+	return &res, nil
 }
 
 func (w *Watcher) DeleteWatcher(ctx context.Context, req *api.DeleteWatcherRequest) (*empty.Empty, error) {
