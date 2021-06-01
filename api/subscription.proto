@@ -41,7 +41,7 @@ message ListSubscriptionRequest {
 
 message ListSubscriptionResponse {
   string next_page_token = 1;
-  repeated Subscription watchers = 2;
+  repeated Subscription subscriptions = 2;
 }
 
 message UpdateSubscriptionRequest {

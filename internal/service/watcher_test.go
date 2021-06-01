@@ -133,7 +133,7 @@ func TestWatcher_List(t *testing.T) {
 	testcases := []struct {
 		name     string
 		req      *api.ListWatcherRequest
-		mock     func(p *MockpersistentWatcher)
+		mock     func(p *MockpersistentWatcher, _ *MocknameGenerator)
 		expected *api.ListWatcherResponse
 		code     codes.Code
 	}{
@@ -142,7 +142,7 @@ func TestWatcher_List(t *testing.T) {
 			req: &api.ListWatcherRequest{
 				PageSize: 2,
 			},
-			mock: func(p *MockpersistentWatcher) {
+			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
 				p.EXPECT().List(0, 3).Return(nil, nil)
 			},
 			expected: &api.ListWatcherResponse{},
@@ -153,7 +153,7 @@ func TestWatcher_List(t *testing.T) {
 				PageToken: "10",
 				PageSize:  2,
 			},
-			mock: func(p *MockpersistentWatcher) {
+			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
 				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1}, nil)
 			},
 			expected: &api.ListWatcherResponse{
@@ -166,7 +166,7 @@ func TestWatcher_List(t *testing.T) {
 				PageToken: "10",
 				PageSize:  2,
 			},
-			mock: func(p *MockpersistentWatcher) {
+			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
 				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2}, nil)
 			},
 			expected: &api.ListWatcherResponse{
@@ -179,7 +179,7 @@ func TestWatcher_List(t *testing.T) {
 				PageToken: "10",
 				PageSize:  2,
 			},
-			mock: func(p *MockpersistentWatcher) {
+			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
 				p.EXPECT().List(10, 3).Return([]*api.Watcher{elm1, elm2, elm3}, nil)
 			},
 			expected: &api.ListWatcherResponse{
@@ -192,7 +192,7 @@ func TestWatcher_List(t *testing.T) {
 			req: &api.ListWatcherRequest{
 				PageSize: 2,
 			},
-			mock: func(p *MockpersistentWatcher) {
+			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
 				p.EXPECT().List(0, 3).Return(nil, mysql.ErrUnknown)
 			},
 			code: codes.Unavailable,
@@ -207,21 +207,8 @@ func TestWatcher_List(t *testing.T) {
 	}
 
 	for _, x := range testcases {
-		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *MockpersistentWatcher, n *MocknameGenerator) {
-				if x.mock != nil {
-					x.mock(p)
-				}
-
-				actual, err := svc.ListWatcher(context.TODO(), x.req)
-				if code := status.Code(err); code != x.code {
-					t.Errorf("expected %v but actual %v", x.code, code)
-				}
-
-				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
-					t.Error(diff)
-				}
-			})
+		testWatcher(t, x.name, x.mock, x.code, x.expected, func(w *Watcher) (proto.Message, error) {
+			return w.ListWatcher(context.TODO(), x.req)
 		})
 	}
 }

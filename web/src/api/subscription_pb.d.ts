@@ -108,10 +108,10 @@ export class ListSubscriptionResponse extends jspb.Message {
   getNextPageToken(): string;
   setNextPageToken(value: string): ListSubscriptionResponse;
 
-  getWatchersList(): Array<Subscription>;
-  setWatchersList(value: Array<Subscription>): ListSubscriptionResponse;
-  clearWatchersList(): ListSubscriptionResponse;
-  addWatchers(value?: Subscription, index?: number): Subscription;
+  getSubscriptionsList(): Array<Subscription>;
+  setSubscriptionsList(value: Array<Subscription>): ListSubscriptionResponse;
+  clearSubscriptionsList(): ListSubscriptionResponse;
+  addSubscriptions(value?: Subscription, index?: number): Subscription;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListSubscriptionResponse.AsObject;
@@ -124,7 +124,7 @@ export class ListSubscriptionResponse extends jspb.Message {
 export namespace ListSubscriptionResponse {
   export type AsObject = {
     nextPageToken: string,
-    watchersList: Array<Subscription.AsObject>,
+    subscriptionsList: Array<Subscription.AsObject>,
   }
 }
 

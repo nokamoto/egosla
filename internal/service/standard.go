@@ -26,19 +26,18 @@ func createMethod(logger *zap.Logger, validate func() error, create func() error
 
 type listRequest interface {
 	GetPageToken() string
-	GetPageSize() int
+	GetPageSize() int32
 }
 
-func listMethod(logger *zap.Logger, req listRequest, validate func() error, list func(int, int) (int, error)) (string, error) {
+func listMethod(logger *zap.Logger, req listRequest, list func(int, int) (int, error)) (string, error) {
 	logger.Debug("receive")
 
-	err := validate()
+	offset, err := fromPageToken(req.GetPageToken())
 	if err != nil {
 		logger.Debug("invalid argument", zap.Error(err))
 		return "", status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
 	}
 
-	offset, _ := fromPageToken(req.GetPageToken())
 	size := int(req.GetPageSize())
 	if size <= 0 {
 		size = defaultPageSize

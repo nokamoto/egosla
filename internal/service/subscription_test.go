@@ -98,3 +98,41 @@ func TestSubscription_Create(t *testing.T) {
 		})
 	}
 }
+
+func TestSubscription_List(t *testing.T) {
+	elm1 := api.Subscription{
+		Name: "foo",
+	}
+
+	elm2 := api.Subscription{
+		Name: "bar",
+	}
+
+	testcases := []struct {
+		name     string
+		req      *api.ListSubscriptionRequest
+		mock     func(p *MockpersistentSubscription, _ *MocknameGenerator)
+		expected *api.ListSubscriptionResponse
+		code     codes.Code
+	}{
+		{
+			name: "ok",
+			req: &api.ListSubscriptionRequest{
+				PageSize: 1,
+			},
+			mock: func(p *MockpersistentSubscription, _ *MocknameGenerator) {
+				p.EXPECT().List(0, 2).Return([]*api.Subscription{&elm1, &elm2}, nil)
+			},
+			expected: &api.ListSubscriptionResponse{
+				NextPageToken: "1",
+				Subscriptions: []*api.Subscription{&elm1},
+			},
+		},
+	}
+
+	for _, x := range testcases {
+		testSubscription(t, x.name, x.mock, x.code, x.expected, func(s *Subscription) (proto.Message, error) {
+			return s.ListSubscription(context.TODO(), x.req)
+		})
+	}
+}

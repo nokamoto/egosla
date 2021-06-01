@@ -856,7 +856,7 @@ proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.toObject
 proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     nextPageToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    watchersList: jspb.Message.toObjectList(msg.getWatchersList(),
+    subscriptionsList: jspb.Message.toObjectList(msg.getSubscriptionsList(),
     proto.nokamoto.github.com.egosla.api.Subscription.toObject, includeInstance)
   };
 
@@ -901,7 +901,7 @@ proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.deserializeBinaryF
     case 2:
       var value = new proto.nokamoto.github.com.egosla.api.Subscription;
       reader.readMessage(value,proto.nokamoto.github.com.egosla.api.Subscription.deserializeBinaryFromReader);
-      msg.addWatchers(value);
+      msg.addSubscriptions(value);
       break;
     default:
       reader.skipField();
@@ -939,7 +939,7 @@ proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.serializeBinaryToW
       f
     );
   }
-  f = message.getWatchersList();
+  f = message.getSubscriptionsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       2,
@@ -966,17 +966,17 @@ proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.setNextP
 
 
 /**
- * repeated Subscription watchers = 2;
+ * repeated Subscription subscriptions = 2;
  * @return {!Array<!proto.nokamoto.github.com.egosla.api.Subscription>}
  */
-proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.getWatchersList = function() {
+proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.getSubscriptionsList = function() {
   return /** @type{!Array<!proto.nokamoto.github.com.egosla.api.Subscription>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.nokamoto.github.com.egosla.api.Subscription, 2));
 };
 
 
 /** @param {!Array<!proto.nokamoto.github.com.egosla.api.Subscription>} value */
-proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.setWatchersList = function(value) {
+proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.setSubscriptionsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
@@ -986,13 +986,13 @@ proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.setWatch
  * @param {number=} opt_index
  * @return {!proto.nokamoto.github.com.egosla.api.Subscription}
  */
-proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.addWatchers = function(opt_value, opt_index) {
+proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.addSubscriptions = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 2, opt_value, proto.nokamoto.github.com.egosla.api.Subscription, opt_index);
 };
 
 
-proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.clearWatchersList = function() {
-  this.setWatchersList([]);
+proto.nokamoto.github.com.egosla.api.ListSubscriptionResponse.prototype.clearSubscriptionsList = function() {
+  this.setSubscriptionsList([]);
 };
 
 
