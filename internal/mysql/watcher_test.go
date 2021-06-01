@@ -11,6 +11,7 @@ import (
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/fieldmasktest"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
 	"gorm.io/gorm"
 )
@@ -62,48 +63,20 @@ func TestPersistentWatcher_List(t *testing.T) {
 		return mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `watcher` LIMIT 10 OFFSET 1"))
 	}
 
-	expected := []*api.Watcher{
-		{
+	expected := []proto.Message{
+		&api.Watcher{
 			Name:     "foo",
 			Keywords: []string{"bar", "baz"},
 		},
-		{
+		&api.Watcher{
 			Name:     "qux",
 			Keywords: []string{"quux"},
 		},
 	}
 
-	testcases := []struct {
-		name     string
-		mock     func(mock sqlmock.Sqlmock)
-		expected []*api.Watcher
-		err      error
-	}{
-		{
-			name: "ok",
-			mock: func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				query(mock).WillReturnRows(
-					sqlmock.NewRows([]string{"name", "keywords"}).
-						AddRow(expected[0].GetName(), strings.Join(expected[0].GetKeywords(), ",")).
-						AddRow(expected[1].GetName(), strings.Join(expected[1].GetKeywords(), ",")),
-				)
-				mock.ExpectCommit()
-			},
-			expected: expected,
-		},
-		{
-			name: "unexpected error",
-			mock: func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				query(mock).WillReturnError(errors.New("unexpected"))
-				mock.ExpectRollback()
-			},
-			err: ErrUnknown,
-		},
-	}
+	rows := sqlmock.NewRows([]string{"name", "keywords"}).AddRow("foo", "bar,baz").AddRow("qux", "quux")
 
-	for _, x := range testcases {
+	for _, x := range listMethodTestCases(query, expected, rows) {
 		t.Run(x.name, func(t *testing.T) {
 			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
 				if x.mock != nil {
@@ -112,11 +85,16 @@ func TestPersistentWatcher_List(t *testing.T) {
 
 				actual, err := p.List(offset, limit)
 
-				if !errors.Is(err, x.err) {
-					t.Errorf("expected %v but actual %v", x.expected, actual)
+				var messages []proto.Message
+				for _, a := range actual {
+					messages = append(messages, a)
 				}
 
-				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
+				if !errors.Is(err, x.err) {
+					t.Errorf("expected %v but actual %v", x.err, err)
+				}
+
+				if diff := cmp.Diff(x.expected, messages, protocmp.Transform()); len(diff) != 0 {
 					t.Error(diff)
 				}
 			})

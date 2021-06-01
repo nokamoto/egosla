@@ -62,11 +62,11 @@ func TestPersistentSubscription_List(t *testing.T) {
 
 	expected := []proto.Message{
 		&api.Subscription{
-			Name: "foo",
+			Name:    "foo",
 			Watcher: "bar",
 		},
 		&api.Subscription{
-			Name: "baz",
+			Name:    "baz",
 			Watcher: "qux",
 		},
 	}
@@ -81,7 +81,7 @@ func TestPersistentSubscription_List(t *testing.T) {
 				}
 
 				actual, err := p.List(offset, limit)
-				
+
 				var messages []proto.Message
 				for _, a := range actual {
 					messages = append(messages, a)
