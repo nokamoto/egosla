@@ -38,7 +38,7 @@ const styles = (theme: Theme) =>
 
 interface standardAppBarProps extends WithStyles<typeof styles> {
   // Callback fired when the add button clicked.
-  handleClickOpen: () => void;
+  handleClickOpen?: () => void;
   // Callback fired when the reload button clicked.
   handleReload: () => void;
   // Callback fired when the search text changed.
@@ -46,7 +46,7 @@ interface standardAppBarProps extends WithStyles<typeof styles> {
   // Placeholder text for the search field.
   searchPlaceholder: string;
   // Text for the add button.
-  addText: string;
+  addText?: string;
 }
 
 function StandardAppBar(props: standardAppBarProps) {
@@ -86,15 +86,17 @@ function StandardAppBar(props: standardAppBarProps) {
             />
           </Grid>
           <Grid item>
-            <Button
-              variant="contained"
-              color="primary"
-              className={classes.addUser}
-              onClick={handleClickOpen}
-              data-testid="open-add"
-            >
-              {addText}
-            </Button>
+            {addText && (
+              <Button
+                variant="contained"
+                color="primary"
+                className={classes.addUser}
+                onClick={handleClickOpen}
+                data-testid="open-add"
+              >
+                {addText}
+              </Button>
+            )}
             <Tooltip title="Reload">
               <IconButton onClick={handleReload} data-testid="reload">
                 <RefreshIcon className={classes.block} color="inherit" />
