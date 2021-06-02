@@ -60,3 +60,8 @@ func (p *PersistentSubscription) List(offset, limit int) ([]*api.Subscription, e
 
 	return subscriptions, nil
 }
+
+// Delete deletes a subscription by the name.
+func (p *PersistentSubscription) Delete(name string) error {
+	return deleteMethod(&subscription{}, p.db, name)
+}

@@ -72,16 +72,7 @@ func (p *PersistentWatcher) List(offset, limit int) ([]*api.Watcher, error) {
 
 // Delete deletes a watcher by the name.
 func (p *PersistentWatcher) Delete(name string) error {
-	err := p.db.Transaction(func(tx *gorm.DB) error {
-		res := tx.Where("name = ?", name).Delete(&watcher{})
-		return res.Error
-	})
-
-	if err != nil {
-		return fmt.Errorf("%w: %s", ErrUnknown, err)
-	}
-
-	return nil
+	return deleteMethod(&watcher{}, p.db, name)
 }
 
 // Update updates the watcher by the name with the update mask.

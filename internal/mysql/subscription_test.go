@@ -13,14 +13,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func mockPersistentSubscription(t *testing.T, f func(*PersistentSubscription, sqlmock.Sqlmock)) {
-	mockSql(t, func(mock sqlmock.Sqlmock, db *gorm.DB) {
+func mockPersistentSubscription(t *testing.T, name string, f func(*PersistentSubscription, sqlmock.Sqlmock)) {
+	t.Run(name, mockSql(func(mock sqlmock.Sqlmock, db *gorm.DB) {
 		p := &PersistentSubscription{
 			db: db,
 		}
 
 		f(p, mock)
-	})
+	}))
 }
 
 func TestPersistentSubscription_Create(t *testing.T) {
@@ -36,18 +36,16 @@ func TestPersistentSubscription_Create(t *testing.T) {
 	}
 
 	for _, x := range createMethodTestCases(query) {
-		t.Run(x.name, func(t *testing.T) {
-			mockPersistentSubscription(t, func(p *PersistentSubscription, mock sqlmock.Sqlmock) {
-				if x.mock != nil {
-					x.mock(mock)
-				}
+		mockPersistentSubscription(t, x.name, func(p *PersistentSubscription, mock sqlmock.Sqlmock) {
+			if x.mock != nil {
+				x.mock(mock)
+			}
 
-				actual := p.Create(input)
+			actual := p.Create(input)
 
-				if !errors.Is(actual, x.expected) {
-					t.Errorf("expected %v but actual %v", x.expected, actual)
-				}
-			})
+			if !errors.Is(actual, x.expected) {
+				t.Errorf("expected %v but actual %v", x.expected, actual)
+			}
 		})
 	}
 }
@@ -74,27 +72,44 @@ func TestPersistentSubscription_List(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"name", "watcher"}).AddRow("foo", "bar").AddRow("baz", "qux")
 
 	for _, x := range listMethodTestCases(query, expected, rows) {
-		t.Run(x.name, func(t *testing.T) {
-			mockPersistentSubscription(t, func(p *PersistentSubscription, mock sqlmock.Sqlmock) {
-				if x.mock != nil {
-					x.mock(mock)
-				}
+		mockPersistentSubscription(t, x.name, func(p *PersistentSubscription, mock sqlmock.Sqlmock) {
+			if x.mock != nil {
+				x.mock(mock)
+			}
 
-				actual, err := p.List(offset, limit)
+			actual, err := p.List(offset, limit)
 
-				var messages []proto.Message
-				for _, a := range actual {
-					messages = append(messages, a)
-				}
+			var messages []proto.Message
+			for _, a := range actual {
+				messages = append(messages, a)
+			}
 
-				if diff := cmp.Diff(x.expected, messages, protocmp.Transform()); len(diff) != 0 {
-					t.Error(diff)
-				}
+			if diff := cmp.Diff(x.expected, messages, protocmp.Transform()); len(diff) != 0 {
+				t.Error(diff)
+			}
 
-				if !errors.Is(err, x.err) {
-					t.Errorf("expected %v but actual %v", x.expected, actual)
-				}
-			})
+			if !errors.Is(err, x.err) {
+				t.Errorf("expected %v but actual %v", x.expected, actual)
+			}
+		})
+	}
+}
+
+func TestPersistentSubscription_Delete(t *testing.T) {
+	query := "DELETE FROM `subscription` WHERE name = ?"
+	name := "foo"
+
+	for _, x := range deleteMethodTestCases(query, name) {
+		mockPersistentSubscription(t, x.name, func(p *PersistentSubscription, mock sqlmock.Sqlmock) {
+			if x.mock != nil {
+				x.mock(mock)
+			}
+
+			actual := p.Delete(name)
+
+			if !errors.Is(actual, x.expected) {
+				t.Errorf("expected %v but actual %v", x.expected, actual)
+			}
 		})
 	}
 }
