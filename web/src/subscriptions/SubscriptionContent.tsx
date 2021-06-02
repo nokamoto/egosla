@@ -53,11 +53,9 @@ function SubscriptionContent(props: contentProps) {
   return (
     <Paper className={classes.paper}>
       <StandardAppBar
-        handleClickOpen={() => {}}
         handleReload={handleReload}
         handleSearch={handleSearch}
         searchPlaceholder="Search by name or watcher name"
-        addText="Add Subscription"
       />
       <StandardTable
         length={subscriptions.length}
