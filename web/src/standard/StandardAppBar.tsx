@@ -80,7 +80,9 @@ function StandardAppBar(props: standardAppBarProps) {
                 className: classes.searchInput,
               }}
               onChange={handleSearch}
-              data-testid="search"
+              inputProps={{
+                "data-testid": "search",
+              }}
             />
           </Grid>
           <Grid item>

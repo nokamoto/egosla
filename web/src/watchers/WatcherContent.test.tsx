@@ -286,6 +286,7 @@ test("search watchers", () => {
     w2.setKeywordsList(["qux"]);
     const res = new ListWatcherResponse();
     res.addWatchers(w1);
+    res.addWatchers(w2);
 
     callback(null, res);
   });
@@ -295,7 +296,7 @@ test("search watchers", () => {
   const { getByTestId } = render(<WatcherContent newChipKeys={[]} />);
 
   const search = getByTestId("search");
-  fireEvent.input(search, { value: "foo" });
+  fireEvent.input(search, { target: { value: "foo" } });
 
   const table = getByTestId("watchers-table");
   expect(within(table).getByText("foo")).toBeInTheDocument();
