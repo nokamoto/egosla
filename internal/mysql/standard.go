@@ -32,3 +32,16 @@ func listMethod(models interface{}, db *gorm.DB, offset, limit int) error {
 	}
 	return nil
 }
+
+func deleteMethod(model interface{}, db *gorm.DB, name string) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
+		res := tx.Where("name = ?", name).Delete(model)
+		return res.Error
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %s", ErrUnknown, err)
+	}
+
+	return nil
+}

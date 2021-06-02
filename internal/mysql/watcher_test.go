@@ -16,14 +16,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func mockPersistentWatcher(t *testing.T, f func(*PersistentWatcher, sqlmock.Sqlmock)) {
-	mockSql(t, func(mock sqlmock.Sqlmock, db *gorm.DB) {
+func mockPersistentWatcher(t *testing.T, name string, f func(*PersistentWatcher, sqlmock.Sqlmock)) {
+	t.Run(name, mockSql(func(mock sqlmock.Sqlmock, db *gorm.DB) {
 		p := &PersistentWatcher{
 			db: db,
 		}
 
 		f(p, mock)
-	})
+	}))
 }
 
 func TestPersistentWatcher_Create(t *testing.T) {
@@ -39,18 +39,16 @@ func TestPersistentWatcher_Create(t *testing.T) {
 	}
 
 	for _, x := range createMethodTestCases(query) {
-		t.Run(x.name, func(t *testing.T) {
-			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
-				if x.mock != nil {
-					x.mock(mock)
-				}
+		mockPersistentWatcher(t, x.name, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
+			if x.mock != nil {
+				x.mock(mock)
+			}
 
-				actual := p.Create(input)
+			actual := p.Create(input)
 
-				if !errors.Is(actual, x.expected) {
-					t.Errorf("expected %v but actual %v", x.expected, actual)
-				}
-			})
+			if !errors.Is(actual, x.expected) {
+				t.Errorf("expected %v but actual %v", x.expected, actual)
+			}
 		})
 	}
 }
@@ -77,85 +75,44 @@ func TestPersistentWatcher_List(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"name", "keywords"}).AddRow("foo", "bar,baz").AddRow("qux", "quux")
 
 	for _, x := range listMethodTestCases(query, expected, rows) {
-		t.Run(x.name, func(t *testing.T) {
-			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
-				if x.mock != nil {
-					x.mock(mock)
-				}
+		mockPersistentWatcher(t, x.name, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
+			if x.mock != nil {
+				x.mock(mock)
+			}
 
-				actual, err := p.List(offset, limit)
+			actual, err := p.List(offset, limit)
 
-				var messages []proto.Message
-				for _, a := range actual {
-					messages = append(messages, a)
-				}
+			var messages []proto.Message
+			for _, a := range actual {
+				messages = append(messages, a)
+			}
 
-				if !errors.Is(err, x.err) {
-					t.Errorf("expected %v but actual %v", x.err, err)
-				}
+			if !errors.Is(err, x.err) {
+				t.Errorf("expected %v but actual %v", x.err, err)
+			}
 
-				if diff := cmp.Diff(x.expected, messages, protocmp.Transform()); len(diff) != 0 {
-					t.Error(diff)
-				}
-			})
+			if diff := cmp.Diff(x.expected, messages, protocmp.Transform()); len(diff) != 0 {
+				t.Error(diff)
+			}
 		})
 	}
 }
 
 func TestPersistentWatcher_Delete(t *testing.T) {
+	query := "DELETE FROM `watcher` WHERE name = ?"
 	name := "foo"
 
-	query := func(mock sqlmock.Sqlmock) *sqlmock.ExpectedExec {
-		return mock.
-			ExpectExec(regexp.QuoteMeta("DELETE FROM `watcher` WHERE name = ?")).
-			WithArgs(name)
-	}
+	for _, x := range deleteMethodTestCases(query, name) {
+		mockPersistentWatcher(t, x.name, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
+			if x.mock != nil {
+				x.mock(mock)
+			}
 
-	testcases := []struct {
-		name     string
-		mock     func(mock sqlmock.Sqlmock)
-		expected error
-	}{
-		{
-			name: "ok",
-			mock: func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				query(mock).WillReturnResult(sqlmock.NewResult(0, 1))
-				mock.ExpectCommit()
-			},
-		},
-		{
-			name: "ok: undeleted",
-			mock: func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				query(mock).WillReturnResult(sqlmock.NewResult(0, 0))
-				mock.ExpectCommit()
-			},
-		},
-		{
-			name: "unexpected error",
-			mock: func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				query(mock).WillReturnError(errors.New("unexpected"))
-				mock.ExpectRollback()
-			},
-			expected: ErrUnknown,
-		},
-	}
+			actual := p.Delete(name)
 
-	for _, x := range testcases {
-		t.Run(x.name, func(t *testing.T) {
-			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
-				if x.mock != nil {
-					x.mock(mock)
-				}
-
-				actual := p.Delete(name)
-
-				if !errors.Is(actual, x.expected) {
-					t.Errorf("expected %v but actual %v", x.expected, actual)
-				}
-			})
+			if !errors.Is(actual, x.expected) {
+				t.Errorf("expected %v but actual %v", x.expected, actual)
+			}
 		})
 	}
 }
@@ -272,21 +229,19 @@ func TestPersistentWatcher_Update(t *testing.T) {
 	}
 
 	for _, x := range testcases {
-		t.Run(x.name, func(t *testing.T) {
-			mockPersistentWatcher(t, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
-				if x.mock != nil {
-					x.mock(mock)
-				}
+		mockPersistentWatcher(t, x.name, func(p *PersistentWatcher, mock sqlmock.Sqlmock) {
+			if x.mock != nil {
+				x.mock(mock)
+			}
 
-				actual, err := p.Update(x.update, x.updateMask)
+			actual, err := p.Update(x.update, x.updateMask)
 
-				if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
-					t.Error(diff)
-				}
-				if !errors.Is(err, x.err) {
-					t.Errorf("expected %v but actual %v", x.err, err)
-				}
-			})
+			if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
+				t.Error(diff)
+			}
+			if !errors.Is(err, x.err) {
+				t.Errorf("expected %v but actual %v", x.err, err)
+			}
 		})
 	}
 }
