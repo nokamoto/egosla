@@ -32,7 +32,6 @@ function SubscriptionContent(props: contentProps) {
     const req = new ListSubscriptionRequest();
     req.setPageSize(100);
     subscriptionService.listSubscription(req, {}, (err, res) => {
-      console.log(err, res);
       setSubscriptions(res.getSubscriptionsList());
     });
   }, []);
