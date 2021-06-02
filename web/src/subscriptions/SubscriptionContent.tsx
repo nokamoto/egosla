@@ -28,6 +28,7 @@ function SubscriptionContent(props: contentProps) {
 
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [search, setSearch] = useState<string>("");
+  const [refresh, setRefresh] = useState<boolean>(false);
 
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
@@ -37,19 +38,23 @@ function SubscriptionContent(props: contentProps) {
     (s) => s.getName().includes(search) || s.getWatcher().includes(search)
   );
 
+  const handleReload = () => {
+    setRefresh(!refresh);
+  };
+
   useEffect(() => {
     const req = new ListSubscriptionRequest();
     req.setPageSize(100);
     subscriptionService.listSubscription(req, {}, (err, res) => {
       setSubscriptions(res.getSubscriptionsList());
     });
-  }, []);
+  }, [refresh]);
 
   return (
     <Paper className={classes.paper}>
       <StandardAppBar
         handleClickOpen={() => {}}
-        handleReload={() => {}}
+        handleReload={handleReload}
         handleSearch={handleSearch}
         searchPlaceholder="Search by name or watcher name"
         addText="Add Subscription"

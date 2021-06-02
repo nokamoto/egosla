@@ -66,3 +66,21 @@ test("searches subscriptions", () => {
   expect(within(table).getByText("foo")).toBeInTheDocument();
   expect(within(table).queryByText("bar")).not.toBeInTheDocument();
 });
+
+test("reload subscriptions", () => {
+  const listSubscription = jest.fn();
+
+  jest
+    .spyOn(subscriptionService, "listSubscription")
+    .mockImplementation(listSubscription);
+
+  const { getByTestId } = render(<SubscriptionContent />);
+
+  fireEvent.click(getByTestId("reload"));
+
+  const expected = new ListSubscriptionRequest();
+  expected.setPageSize(100);
+
+  expect(listSubscription).toHaveBeenCalledTimes(2);
+  expect(listSubscription.mock.calls[1][0]).toEqual(expected);
+});
