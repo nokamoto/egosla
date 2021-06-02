@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import Paper from "@material-ui/core/Paper";
 import {
   createStyles,
@@ -27,6 +27,15 @@ function SubscriptionContent(props: contentProps) {
   const { classes } = props;
 
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [search, setSearch] = useState<string>("");
+
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
+  };
+
+  const visibleSubscriptions = subscriptions.filter(
+    (s) => s.getName().includes(search) || s.getWatcher().includes(search)
+  );
 
   useEffect(() => {
     const req = new ListSubscriptionRequest();
@@ -41,13 +50,13 @@ function SubscriptionContent(props: contentProps) {
       <StandardAppBar
         handleClickOpen={() => {}}
         handleReload={() => {}}
-        handleSearch={() => {}}
+        handleSearch={handleSearch}
         searchPlaceholder="Search by name or watcher name"
         addText="Add Subscription"
       />
       <StandardTable
         length={subscriptions.length}
-        visibleLength={subscriptions.length}
+        visibleLength={visibleSubscriptions.length}
         emptyTypography="No subscriptions for this workspace yet"
         tableHeadRow={
           <TableRow>
@@ -55,7 +64,7 @@ function SubscriptionContent(props: contentProps) {
             <TableCell align="right">Watcher</TableCell>
           </TableRow>
         }
-        tableRows={subscriptions.map((subscription, index) => {
+        tableRows={visibleSubscriptions.map((subscription, index) => {
           return (
             <TableRow key={index.toString()}>
               <TableCell component="th" scope="row">

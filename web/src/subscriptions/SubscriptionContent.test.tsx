@@ -1,5 +1,5 @@
 import React from "react";
-import { render, within } from "@testing-library/react";
+import { fireEvent, render, within } from "@testing-library/react";
 import SubscriptionContent from "./SubscriptionContent";
 import { subscriptionService } from "src/Rpc";
 import {
@@ -36,4 +36,33 @@ test("gets subscriptions", () => {
   expect(
     within(table).getByText(subscription.getWatcher())
   ).toBeInTheDocument();
+});
+
+test("searches subscriptions", () => {
+  const listSubscription = jest.fn().mockImplementation((x, y, callback) => {
+    const s1 = new Subscription();
+    s1.setName("foo");
+
+    const s2 = new Subscription();
+    s2.setName("bar");
+
+    const res = new ListSubscriptionResponse();
+    res.setSubscriptionsList([s1, s2]);
+    callback(null, res);
+  });
+
+  jest
+    .spyOn(subscriptionService, "listSubscription")
+    .mockImplementation(listSubscription);
+
+  const { getByTestId } = render(<SubscriptionContent />);
+
+  const search = getByTestId("search");
+  fireEvent.input(search, { target: { value: "foo" } });
+
+  expect(listSubscription).toHaveBeenCalledTimes(1);
+
+  const table = getByTestId("table");
+  expect(within(table).getByText("foo")).toBeInTheDocument();
+  expect(within(table).queryByText("bar")).not.toBeInTheDocument();
 });
