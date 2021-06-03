@@ -7,8 +7,7 @@ format:
 	cd web && yarn && yarn format
 
 lint:
-	go install honnef.co/go/tools/cmd/staticcheck
-	staticcheck -version
+	go get honnef.co/go/tools/cmd/staticcheck
 	staticcheck ./... 
 	cd web && yarn lint
 
