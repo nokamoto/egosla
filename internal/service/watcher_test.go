@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/fieldmasktest"
@@ -158,15 +159,17 @@ func TestWatcher_Delete(t *testing.T) {
 	name := "foo"
 
 	testcases := []struct {
-		name string
-		mock func(p *MockpersistentWatcher, n *MocknameGenerator)
-		code codes.Code
+		name     string
+		mock     func(p *MockpersistentWatcher, n *MocknameGenerator)
+		expected *empty.Empty
+		code     codes.Code
 	}{
 		{
 			name: "ok",
 			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
 				p.EXPECT().Delete(name).Return(nil)
 			},
+			expected: &empty.Empty{},
 		},
 		{
 			name: "unexpected error",
@@ -178,18 +181,9 @@ func TestWatcher_Delete(t *testing.T) {
 	}
 
 	for _, x := range testcases {
-		t.Run(x.name, func(t *testing.T) {
-			mockWatcher(t, func(svc *Watcher, p *MockpersistentWatcher, n *MocknameGenerator) {
-				if x.mock != nil {
-					x.mock(p, n)
-				}
-
-				_, err := svc.DeleteWatcher(context.TODO(), &api.DeleteWatcherRequest{
-					Name: name,
-				})
-				if code := status.Code(err); code != x.code {
-					t.Errorf("expected %v but actual %v", x.code, code)
-				}
+		testWatcher(t, x.name, x.mock, x.code, x.expected, func(w *Watcher) (proto.Message, error) {
+			return w.DeleteWatcher(context.TODO(), &api.DeleteWatcherRequest{
+				Name: name,
 			})
 		})
 	}

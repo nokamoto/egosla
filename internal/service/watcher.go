@@ -77,26 +77,14 @@ func (w *Watcher) ListWatcher(ctx context.Context, req *api.ListWatcherRequest) 
 }
 
 func (w *Watcher) DeleteWatcher(ctx context.Context, req *api.DeleteWatcherRequest) (*empty.Empty, error) {
-	validate := func(req *api.DeleteWatcherRequest) error {
-		return nil
-	}
-
-	logger := w.logger.With(zap.Any("req", req), zap.String("method", "DeleteWatcher"))
-	logger.Debug("receive")
-
-	err := validate(req)
-	if err != nil {
-		logger.Debug("invalid argument", zap.Error(err))
-		return nil, status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
-	}
-
-	err = w.p.Delete(req.GetName())
-	if err != nil {
-		logger.Error("unavailable", zap.Error(err))
-		return nil, status.Errorf(codes.Unavailable, "unavailable")
-	}
-
-	return &empty.Empty{}, nil
+	return deleteMethod(
+		w.logger.With(zap.Any("req", req), zap.String("method", "DeleteWatcher")),
+		w.p,
+		req,
+		func(_ string) error {
+			return nil
+		},
+	)
 }
 
 func (w *Watcher) UpdateWatcher(ctx context.Context, req *api.UpdateWatcherRequest) (*api.Watcher, error) {

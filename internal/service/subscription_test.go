@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/mysql"
@@ -141,6 +142,40 @@ func TestSubscription_List(t *testing.T) {
 	for _, x := range testcases {
 		testSubscription(t, x.name, x.mock, x.code, x.expected, func(s *Subscription) (proto.Message, error) {
 			return s.ListSubscription(context.TODO(), x.req)
+		})
+	}
+}
+
+func TestSubscription_Delete(t *testing.T) {
+	name := "foo"
+
+	testcases := []struct {
+		name     string
+		mock     func(p *MockpersistentSubscription, n *MocknameGenerator)
+		expected *empty.Empty
+		code     codes.Code
+	}{
+		{
+			name: "ok",
+			mock: func(p *MockpersistentSubscription, n *MocknameGenerator) {
+				p.EXPECT().Delete(name).Return(nil)
+			},
+			expected: &empty.Empty{},
+		},
+		{
+			name: "unexpected error",
+			mock: func(p *MockpersistentSubscription, n *MocknameGenerator) {
+				p.EXPECT().Delete(name).Return(mysql.ErrUnknown)
+			},
+			code: codes.Unavailable,
+		},
+	}
+
+	for _, x := range testcases {
+		testSubscription(t, x.name, x.mock, x.code, x.expected, func(s *Subscription) (proto.Message, error) {
+			return s.DeleteSubscription(context.TODO(), &api.DeleteSubscriptionRequest{
+				Name: name,
+			})
 		})
 	}
 }

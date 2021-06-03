@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/golang/protobuf/ptypes/empty"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -55,4 +56,30 @@ func listMethod(logger *zap.Logger, req listRequest, list func(int, int) (int, e
 	}
 
 	return nextPageToken, nil
+}
+
+type deletePersistent interface {
+	Delete(string) error
+}
+
+type deleteRequest interface {
+	GetName() string
+}
+
+func deleteMethod(logger *zap.Logger, p deletePersistent, req deleteRequest, validate func(string) error) (*empty.Empty, error) {
+	logger.Debug("receive")
+
+	err := validate(req.GetName())
+	if err != nil {
+		logger.Debug("invalid argument", zap.Error(err))
+		return nil, status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
+	}
+
+	err = p.Delete(req.GetName())
+	if err != nil {
+		logger.Error("unavailable", zap.Error(err))
+		return nil, status.Errorf(codes.Unavailable, "unavailable")
+	}
+
+	return &empty.Empty{}, nil
 }
