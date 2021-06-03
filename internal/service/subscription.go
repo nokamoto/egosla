@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/egosla/api"
 	"go.uber.org/zap"
 )
@@ -67,4 +68,15 @@ func (s *Subscription) ListSubscription(ctx context.Context, req *api.ListSubscr
 	}
 
 	return &res, nil
+}
+
+func (s *Subscription) DeleteSubscription(ctx context.Context, req *api.DeleteSubscriptionRequest) (*empty.Empty, error) {
+	return deleteMethod(
+		s.logger.With(zap.Any("req", req), zap.String("method", "DeleteSubscription")),
+		s.p,
+		req,
+		func(_ string) error {
+			return nil
+		},
+	)
 }
