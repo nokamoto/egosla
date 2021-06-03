@@ -1,11 +1,15 @@
-all: protoc format go yarn
+all: protoc format go yarn lint
 
 format:
 	clang-format --style=Google -i api/*.proto
 	go fmt ./cmd/...
 	go fmt ./internal/...
-	go mod tidy
 	cd web && yarn && yarn format
+
+lint:
+	go get honnef.co/go/tools/cmd/staticcheck
+	staticcheck ./... 
+	cd web && yarn lint
 
 protoc:
 	go get google.golang.org/protobuf/cmd/protoc-gen-go
@@ -30,7 +34,6 @@ go:
 
 yarn:
 	cd web && yarn test --watchAll=false
-	cd web && yarn lint
 
 watcher:
 	go get github.com/cespare/reflex
