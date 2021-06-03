@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/nokamoto/egosla/api"
@@ -63,8 +62,8 @@ var teardown = test.Scenario{
 			_, err := c.DeleteWatcher(ctx, &api.DeleteWatcherRequest{
 				Name: deleted.GetName(),
 			})
-			if err == nil {
-				return fmt.Errorf("todo: Error 1451: Cannot delete or update a parent row: a foreign key constraint fails")
+			if err != nil {
+				return err
 			}
 
 			state.Delete(testWatcherRecord)

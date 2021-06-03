@@ -17,6 +17,8 @@ func main() {
 			c := api.NewSubscriptionServiceClient(cc)
 			return test.Scenarios{
 				testCreate(c),
+				testList(c),
+				testDelete(c),
 			}
 		},
 		&setup,
