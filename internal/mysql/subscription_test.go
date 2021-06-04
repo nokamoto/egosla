@@ -14,7 +14,7 @@ import (
 )
 
 func mockPersistentSubscription(t *testing.T, name string, f func(*PersistentSubscription, sqlmock.Sqlmock)) {
-	t.Run(name, mockSql(func(mock sqlmock.Sqlmock, db *gorm.DB) {
+	t.Run(name, mockSQL(func(mock sqlmock.Sqlmock, db *gorm.DB) {
 		p := &PersistentSubscription{
 			db: db,
 		}

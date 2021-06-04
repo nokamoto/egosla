@@ -17,7 +17,7 @@ import (
 )
 
 func mockPersistentWatcher(t *testing.T, name string, f func(*PersistentWatcher, sqlmock.Sqlmock)) {
-	t.Run(name, mockSql(func(mock sqlmock.Sqlmock, db *gorm.DB) {
+	t.Run(name, mockSQL(func(mock sqlmock.Sqlmock, db *gorm.DB) {
 		p := &PersistentWatcher{
 			db: db,
 		}
