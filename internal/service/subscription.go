@@ -16,7 +16,7 @@ type Subscription struct {
 	logger *zap.Logger
 }
 
-// NewWatcher creates a new Watcher.
+// NewSubscription creates a new Subscription.
 func NewSubscription(p persistentSubscription, logger *zap.Logger) *Subscription {
 	return &Subscription{
 		n:      newSubscriptionNameGenerator(),
