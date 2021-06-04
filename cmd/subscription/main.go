@@ -14,7 +14,7 @@ func main() {
 	cmd.GrpcServer(func(s *grpc.Server, db *gorm.DB, logger *zap.Logger) error {
 		api.RegisterSubscriptionServiceServer(
 			s,
-			service.NewSubscription(mysql.NewPersistentSubscriptionn(db), logger),
+			service.NewSubscription(mysql.NewPersistentSubscription(db), logger),
 		)
 		return nil
 	})

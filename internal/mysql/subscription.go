@@ -34,7 +34,7 @@ type PersistentSubscription struct {
 }
 
 // NewPersistentSubscription creates a new PersistentSubscription.
-func NewPersistentSubscriptionn(db *gorm.DB) *PersistentSubscription {
+func NewPersistentSubscription(db *gorm.DB) *PersistentSubscription {
 	return &PersistentSubscription{
 		db: db,
 	}
