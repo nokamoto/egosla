@@ -65,6 +65,7 @@ function SubscriptionContent(props: contentProps) {
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell align="right">Watcher</TableCell>
+            <TableCell></TableCell>
           </TableRow>
         }
         tableRows={visibleSubscriptions.map((subscription, index) => {
@@ -74,6 +75,7 @@ function SubscriptionContent(props: contentProps) {
                 {subscription.getName()}
               </TableCell>
               <TableCell align="right">{subscription.getWatcher()}</TableCell>
+              <TableCell align="right"></TableCell>
             </TableRow>
           );
         })}
