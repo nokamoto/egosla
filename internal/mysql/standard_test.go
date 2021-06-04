@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func mockSql(f func(sqlmock.Sqlmock, *gorm.DB)) func(*testing.T) {
+func mockSQL(f func(sqlmock.Sqlmock, *gorm.DB)) func(*testing.T) {
 	return func(t *testing.T) {
 		gdb, mock, err := sqlmock.New()
 		if err != nil {
