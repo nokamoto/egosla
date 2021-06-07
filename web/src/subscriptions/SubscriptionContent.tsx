@@ -13,6 +13,7 @@ import StandardTable from "src/standard/StandardTable";
 import { TableCell, TableRow } from "@material-ui/core";
 import StandardMenu from "src/standard/StandardMenu";
 import DeleteIcon from "@material-ui/icons/Delete";
+import useStandardMenuList from "src/standard/useStandardMenuList";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -31,7 +32,7 @@ function SubscriptionContent(props: contentProps) {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement[]>([]);
+  const [anchorEl, openMenu, closeMenu] = useStandardMenuList();
 
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
@@ -43,16 +44,6 @@ function SubscriptionContent(props: contentProps) {
 
   const handleReload = () => {
     setRefresh(!refresh);
-  };
-
-  const handleClickMenu = (index: number, event: MouseEvent<HTMLElement>) => {
-    var els: HTMLElement[] = [];
-    els[index] = event.currentTarget;
-    setAnchorEl(els);
-  };
-
-  const handleCloseMenu = () => {
-    setAnchorEl([]);
   };
 
   useEffect(() => {
@@ -93,8 +84,8 @@ function SubscriptionContent(props: contentProps) {
                   index={index}
                   anchorEl={anchorEl}
                   name={subscription.getName()}
-                  handleClick={handleClickMenu}
-                  handleClose={handleCloseMenu}
+                  handleClick={openMenu}
+                  handleClose={closeMenu}
                   items={[
                     {
                       icon: <DeleteIcon fontSize="small" />,
@@ -104,7 +95,7 @@ function SubscriptionContent(props: contentProps) {
                         name: string,
                         event: MouseEvent<HTMLElement>
                       ) => {
-                        setAnchorEl([]);
+                        closeMenu();
                       },
                     },
                   ]}
