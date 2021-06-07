@@ -180,14 +180,14 @@ func getMethodTestCases(query string, name string, expected proto.Message, rows 
 			},
 			err: ErrNotFound,
 		},
-		// {
-		// 	name: "unexpected error",
-		// 	mock: func(mock sqlmock.Sqlmock) {
-		// 		mock.ExpectBegin()
-		// 		q(mock).WillReturnError(errors.New("unknown"))
-		// 		mock.ExpectRollback()
-		// 	},
-		// 	err: ErrUnknown,
-		// },
+		{
+			name: "unexpected error",
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				q(mock).WillReturnError(errors.New("unknown"))
+				mock.ExpectRollback()
+			},
+			err: ErrUnknown,
+		},
 	}
 }
