@@ -8,7 +8,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
-	"github.com/nokamoto/egosla/internal/cmd/test"
+	"github.com/nokamoto/egosla/internal/prototest"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
 	"gorm.io/gorm"
@@ -121,7 +121,7 @@ func TestPersistentSubscription_Get(t *testing.T) {
 	query := "SELECT * FROM `subscription` WHERE name = ? LIMIT 1"
 
 	expected := api.Subscription{
-		Name: "foo",
+		Name:    "foo",
 		Watcher: "bar",
 	}
 
@@ -144,7 +144,7 @@ func TestPersistentSubscription_Get(t *testing.T) {
 				t.Log("nil")
 			}
 
-			if err := test.Equal(x.expected, actual); err != nil {
+			if err := prototest.Equal(x.expected, actual); err != nil {
 				t.Error(err)
 				t.Log(x.expected)
 				t.Log(actual)

@@ -11,7 +11,7 @@ import (
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/fieldmasktest"
 	"github.com/nokamoto/egosla/internal/mysql"
-	"github.com/nokamoto/egosla/internal/protogomock"
+	"github.com/nokamoto/egosla/internal/prototest"
 	"go.uber.org/zap/zaptest"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
@@ -92,7 +92,7 @@ func TestWatcher_Create(t *testing.T) {
 			},
 			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
 				n.EXPECT().newName().Return(expected.GetName())
-				p.EXPECT().Create(protogomock.Equal(expected)).Return(nil)
+				p.EXPECT().Create(prototest.Match(expected)).Return(nil)
 			},
 			expected: expected,
 		},
@@ -105,7 +105,7 @@ func TestWatcher_Create(t *testing.T) {
 			},
 			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
 				n.EXPECT().newName().Return(expected.GetName())
-				p.EXPECT().Create(protogomock.Equal(expected)).Return(mysql.ErrUnknown)
+				p.EXPECT().Create(prototest.Match(expected)).Return(mysql.ErrUnknown)
 			},
 			code: codes.Unavailable,
 		},
@@ -216,7 +216,7 @@ func TestWatcher_Update(t *testing.T) {
 				UpdateMask: updateMask,
 			},
 			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
-				p.EXPECT().Update(protogomock.Equal(result), protogomock.Equal(updateMask)).Return(result, nil)
+				p.EXPECT().Update(prototest.Match(result), prototest.Match(updateMask)).Return(result, nil)
 			},
 			expected: result,
 		},
@@ -248,7 +248,7 @@ func TestWatcher_Update(t *testing.T) {
 				UpdateMask: updateMask,
 			},
 			mock: func(p *MockpersistentWatcher, n *MocknameGenerator) {
-				p.EXPECT().Update(protogomock.Equal(result), protogomock.Equal(updateMask)).Return(nil, errors.New("unexpected"))
+				p.EXPECT().Update(prototest.Match(result), prototest.Match(updateMask)).Return(nil, errors.New("unexpected"))
 			},
 			code: codes.Unavailable,
 		},

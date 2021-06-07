@@ -1,4 +1,4 @@
-package package prototest
+package prototest
 
 import (
 	"fmt"
@@ -22,8 +22,8 @@ func (m matcher) String() string {
 	return fmt.Sprintf("equal(%v)", m.x)
 }
 
-// Equal is gomock.Matcher using proto.Equal.
-func Equal(x proto.Message) matcher {
+// Match returns gomock.Matcher using proto.Equal.
+func Match(x proto.Message) matcher {
 	return matcher{
 		x: x,
 	}
