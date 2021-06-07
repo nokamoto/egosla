@@ -7,14 +7,14 @@ import Menu from "@material-ui/core/Menu";
 import ListItemText from "@material-ui/core/ListItemText";
 
 interface menuItem {
-    // Icon for ListItemIcon.
-    icon: React.ReactNode;
-    // ID for data-testid.
-    dateTestID: string;
-    // Primary for ListItemText.
-    itemText: string;
-    // Callback fired when MenuItem selected.
-    onClick: (name: string, event: MouseEvent<HTMLElement>) => void;
+  // Icon for ListItemIcon.
+  icon: React.ReactNode;
+  // ID for data-testid.
+  dataTestID: string;
+  // Primary for ListItemText.
+  itemText: string;
+  // Callback fired when MenuItem selected.
+  onClick: (name: string, event: MouseEvent<HTMLElement>) => void;
 }
 
 interface menuProps {
@@ -33,7 +33,7 @@ interface menuProps {
 }
 
 function StandardMenu(props: menuProps) {
-    const { handleClick, index, anchorEl, handleClose, items, name} = props;
+  const { handleClick, index, anchorEl, handleClose, items, name } = props;
 
   return (
     <div>
@@ -57,17 +57,18 @@ function StandardMenu(props: menuProps) {
           },
         }}
       >
-          {items.map((item) => {
-                      <MenuItem
-                      data-testid={item.dateTestID}
-                      onClick={(e) => item.onClick(name, e)}
-                    >
-                      <ListItemIcon>
-                        {item.icon}
-                      </ListItemIcon>
-                      <ListItemText primary={item.itemText} />
-                    </MenuItem>
-          })}
+        {items.map((item) => {
+          return (
+            <MenuItem
+              data-testid={item.dataTestID}
+              key={item.dataTestID}
+              onClick={(e) => item.onClick(name, e)}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.itemText} />
+            </MenuItem>
+          );
+        })}
       </Menu>
     </div>
   );
