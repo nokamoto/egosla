@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useState, MouseEvent } from "react";
 import Paper from "@material-ui/core/Paper";
 import {
   createStyles,
@@ -11,6 +11,8 @@ import { ListSubscriptionRequest, Subscription } from "src/api/subscription_pb";
 import { subscriptionService } from "src/Rpc";
 import StandardTable from "src/standard/StandardTable";
 import { TableCell, TableRow } from "@material-ui/core";
+import StandardMenu from "src/standard/StandardMenu";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -29,6 +31,7 @@ function SubscriptionContent(props: contentProps) {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement[]>([]);
 
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
@@ -40,6 +43,16 @@ function SubscriptionContent(props: contentProps) {
 
   const handleReload = () => {
     setRefresh(!refresh);
+  };
+
+  const handleClickMenu = (index: number, event: MouseEvent<HTMLElement>) => {
+    var els: HTMLElement[] = [];
+    els[index] = event.currentTarget;
+    setAnchorEl(els);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl([]);
   };
 
   useEffect(() => {
@@ -65,6 +78,7 @@ function SubscriptionContent(props: contentProps) {
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell align="right">Watcher</TableCell>
+            <TableCell></TableCell>
           </TableRow>
         }
         tableRows={visibleSubscriptions.map((subscription, index) => {
@@ -74,6 +88,28 @@ function SubscriptionContent(props: contentProps) {
                 {subscription.getName()}
               </TableCell>
               <TableCell align="right">{subscription.getWatcher()}</TableCell>
+              <TableCell align="right">
+                <StandardMenu
+                  index={index}
+                  anchorEl={anchorEl}
+                  name={subscription.getName()}
+                  handleClick={handleClickMenu}
+                  handleClose={handleCloseMenu}
+                  items={[
+                    {
+                      icon: <DeleteIcon fontSize="small" />,
+                      dataTestID: "delete",
+                      itemText: "Delete",
+                      onClick: (
+                        name: string,
+                        event: MouseEvent<HTMLElement>
+                      ) => {
+                        setAnchorEl([]);
+                      },
+                    },
+                  ]}
+                />
+              </TableCell>
             </TableRow>
           );
         })}
