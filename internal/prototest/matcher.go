@@ -1,4 +1,4 @@
-package protogomock
+package package prototest
 
 import (
 	"fmt"

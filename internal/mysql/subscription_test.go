@@ -8,6 +8,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
+	"github.com/nokamoto/egosla/internal/cmd/test"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
 	"gorm.io/gorm"
@@ -109,6 +110,48 @@ func TestPersistentSubscription_Delete(t *testing.T) {
 
 			if !errors.Is(actual, x.expected) {
 				t.Errorf("expected %v but actual %v", x.expected, actual)
+			}
+		})
+	}
+}
+
+func TestPersistentSubscription_Get(t *testing.T) {
+	name := "foo"
+
+	query := "SELECT * FROM `subscription` WHERE name = ? LIMIT 1"
+
+	expected := api.Subscription{
+		Name: "foo",
+		Watcher: "bar",
+	}
+
+	rows := sqlmock.NewRows([]string{"name", "watcher"}).AddRow("foo", "bar")
+
+	empty := sqlmock.NewRows([]string{"name", "watcher"})
+
+	for _, x := range getMethodTestCases(query, name, &expected, rows, empty) {
+		mockPersistentSubscription(t, x.name, func(ps *PersistentSubscription, s sqlmock.Sqlmock) {
+			if x.mock != nil {
+				x.mock(s)
+			}
+
+			actual, err := ps.Get(name)
+
+			if x.expected == nil {
+				t.Log("nil")
+			}
+			if actual == nil {
+				t.Log("nil")
+			}
+
+			if err := test.Equal(x.expected, actual); err != nil {
+				t.Error(err)
+				t.Log(x.expected)
+				t.Log(actual)
+			}
+
+			if !errors.Is(err, x.err) {
+				t.Errorf("expected %v but actual %v", x.err, err)
 			}
 		})
 	}
