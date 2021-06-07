@@ -65,3 +65,13 @@ func (p *PersistentSubscription) List(offset, limit int) ([]*api.Subscription, e
 func (p *PersistentSubscription) Delete(name string) error {
 	return deleteMethod(&subscription{}, p.db, name)
 }
+
+// Get selects a subscription by the name.
+func (p *PersistentSubscription) Get(name string) (*api.Subscription, error) {
+	var m subscription
+	err := getMethod(&m, p.db, name)
+	if err != nil {
+		return nil, err
+	}
+	return m.Value(), nil
+}

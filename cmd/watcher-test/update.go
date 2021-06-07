@@ -6,6 +6,7 @@ import (
 
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/cmd/test"
+	"github.com/nokamoto/egosla/internal/prototest"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -48,7 +49,7 @@ func testUpdate(c api.WatcherServiceClient) test.Scenario {
 				Name:     created.GetName(),
 				Keywords: keywords,
 			}
-			if err := test.Equal(expected, updated); err != nil {
+			if err := prototest.Equal(expected, updated); err != nil {
 				return err
 			}
 

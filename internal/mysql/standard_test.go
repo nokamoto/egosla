@@ -146,3 +146,48 @@ func deleteMethodTestCases(query string, name string) []struct {
 		},
 	}
 }
+
+func getMethodTestCases(query string, name string, expected proto.Message, rows *sqlmock.Rows, empty *sqlmock.Rows) []struct {
+	name     string
+	mock     func(mock sqlmock.Sqlmock)
+	expected proto.Message
+	err      error
+} {
+	q := func(mock sqlmock.Sqlmock) *sqlmock.ExpectedQuery {
+		return mock.ExpectQuery(regexp.QuoteMeta(query)).WithArgs(name)
+	}
+	return []struct {
+		name     string
+		mock     func(mock sqlmock.Sqlmock)
+		expected proto.Message
+		err      error
+	}{
+		{
+			name: "ok",
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				q(mock).WillReturnRows(rows)
+				mock.ExpectCommit()
+			},
+			expected: expected,
+		},
+		{
+			name: "not found",
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				q(mock).WillReturnRows(empty)
+				mock.ExpectRollback()
+			},
+			err: ErrNotFound,
+		},
+		{
+			name: "unexpected error",
+			mock: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				q(mock).WillReturnError(errors.New("unknown"))
+				mock.ExpectRollback()
+			},
+			err: ErrUnknown,
+		},
+	}
+}

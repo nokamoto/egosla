@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/mysql"
-	"github.com/nokamoto/egosla/internal/protogomock"
+	"github.com/nokamoto/egosla/internal/prototest"
 	"go.uber.org/zap/zaptest"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -74,7 +74,7 @@ func TestSubscription_Create(t *testing.T) {
 			},
 			mock: func(p *MockpersistentSubscription, n *MocknameGenerator) {
 				n.EXPECT().newName().Return(expected.GetName())
-				p.EXPECT().Create(protogomock.Equal(expected)).Return(nil)
+				p.EXPECT().Create(prototest.Match(expected)).Return(nil)
 			},
 			expected: expected,
 		},
@@ -87,7 +87,7 @@ func TestSubscription_Create(t *testing.T) {
 			},
 			mock: func(p *MockpersistentSubscription, n *MocknameGenerator) {
 				n.EXPECT().newName().Return(expected.GetName())
-				p.EXPECT().Create(protogomock.Equal(expected)).Return(mysql.ErrUnknown)
+				p.EXPECT().Create(prototest.Match(expected)).Return(mysql.ErrUnknown)
 			},
 			code: codes.Unavailable,
 		},

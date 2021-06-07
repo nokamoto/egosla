@@ -6,6 +6,7 @@ import (
 
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/cmd/test"
+	"github.com/nokamoto/egosla/internal/prototest"
 	"go.uber.org/zap"
 )
 
@@ -28,7 +29,7 @@ func testList(c api.WatcherServiceClient) test.Scenario {
 					return nil, false, fmt.Errorf("unexpected response: %v", res)
 				}
 
-				return res, test.Equal(&expected, res.GetWatchers()[0]) == nil, err
+				return res, prototest.Equal(&expected, res.GetWatchers()[0]) == nil, err
 			})
 		},
 	}
