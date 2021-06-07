@@ -23,6 +23,7 @@ import {
   Subscription,
 } from "src/api/subscription_pb";
 import { useHistory } from "react-router-dom";
+import useStandardMenuList from "src/standard/useStandardMenuList";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -48,7 +49,7 @@ function WatcherContent(props: contentProps) {
   const [updateWatcherName, setUpdateWatcherName] = useState<string>("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [watchers, setWatchers] = useState<Watcher[]>([]);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement[]>([]);
+  const [anchorEl, openMenu, closeMenu] = useStandardMenuList();
   const [search, setSearch] = useState<string>("");
   const history = useHistory();
 
@@ -103,24 +104,11 @@ function WatcherContent(props: contentProps) {
     });
   };
 
-  const handleClickDeleteMenu = (
-    index: number,
-    event: MouseEvent<HTMLElement>
-  ) => {
-    var els: HTMLElement[] = [];
-    els[index] = event.currentTarget;
-    setAnchorEl(els);
-  };
-
-  const handleCloseDeleteMenu = () => {
-    setAnchorEl([]);
-  };
-
   const handleClickUpdateMenu = (
     watcherName: string,
     event: MouseEvent<HTMLElement>
   ) => {
-    setAnchorEl([]);
+    closeMenu();
     setUpdateOpen(true);
     setUpdateWatcherName(watcherName);
 
@@ -132,7 +120,7 @@ function WatcherContent(props: contentProps) {
   };
 
   const deleteWatcher = (watcherName: string, _: MouseEvent<HTMLElement>) => {
-    setAnchorEl([]);
+    closeMenu();
 
     const req = new DeleteWatcherRequest();
     req.setName(watcherName);
@@ -150,7 +138,7 @@ function WatcherContent(props: contentProps) {
   };
 
   const handleSubscribe = (watcherName: string, _: MouseEvent<HTMLElement>) => {
-    setAnchorEl([]);
+    closeMenu();
 
     const subscription = new Subscription();
     subscription.setWatcher(watcherName);
@@ -180,8 +168,8 @@ function WatcherContent(props: contentProps) {
         addText="Add Watcher"
       />
       <WatcherTable
-        handleClick={handleClickDeleteMenu}
-        handleClose={handleCloseDeleteMenu}
+        handleClick={openMenu}
+        handleClose={closeMenu}
         handleDelete={deleteWatcher}
         handleUpdate={handleClickUpdateMenu}
         handleSubscribe={handleSubscribe}
