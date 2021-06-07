@@ -137,17 +137,8 @@ func TestPersistentSubscription_Get(t *testing.T) {
 
 			actual, err := ps.Get(name)
 
-			if x.expected == nil {
-				t.Log("nil")
-			}
-			if actual == nil {
-				t.Log("nil")
-			}
-
 			if err := prototest.Equal(x.expected, actual); err != nil {
 				t.Error(err)
-				t.Log(x.expected)
-				t.Log(actual)
 			}
 
 			if !errors.Is(err, x.err) {
