@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState, MouseEvent } from "react";
+import React, { ChangeEvent, useState, MouseEvent } from "react";
 import Paper from "@material-ui/core/Paper";
 import {
   createStyles,
@@ -7,13 +7,12 @@ import {
   WithStyles,
 } from "@material-ui/core/styles";
 import StandardAppBar from "src/standard/StandardAppBar";
-import { ListSubscriptionRequest, Subscription } from "src/api/subscription_pb";
-import { subscriptionService } from "src/Rpc";
 import StandardTable from "src/standard/StandardTable";
 import { TableCell, TableRow } from "@material-ui/core";
 import StandardMenu from "src/standard/StandardMenu";
 import DeleteIcon from "@material-ui/icons/Delete";
 import useStandardMenuList from "src/standard/useStandardMenuList";
+import useSubscriptions from "./useSubscriptions";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -29,30 +28,19 @@ interface contentProps extends WithStyles<typeof styles> {}
 function SubscriptionContent(props: contentProps) {
   const { classes } = props;
 
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
   const [anchorEl, openMenu, closeMenu] = useStandardMenuList();
+  const [subscriptions, visibleSubscriptions, deleteSubscription] =
+    useSubscriptions(refresh, search);
 
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
   };
 
-  const visibleSubscriptions = subscriptions.filter(
-    (s) => s.getName().includes(search) || s.getWatcher().includes(search)
-  );
-
   const handleReload = () => {
     setRefresh(!refresh);
   };
-
-  useEffect(() => {
-    const req = new ListSubscriptionRequest();
-    req.setPageSize(100);
-    subscriptionService.listSubscription(req, {}, (err, res) => {
-      setSubscriptions(res.getSubscriptionsList());
-    });
-  }, [refresh]);
 
   return (
     <Paper className={classes.paper}>
@@ -96,6 +84,7 @@ function SubscriptionContent(props: contentProps) {
                         event: MouseEvent<HTMLElement>
                       ) => {
                         closeMenu();
+                        deleteSubscription(name);
                       },
                     },
                   ]}
