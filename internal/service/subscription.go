@@ -80,3 +80,23 @@ func (s *Subscription) DeleteSubscription(ctx context.Context, req *api.DeleteSu
 		},
 	)
 }
+
+func (s *Subscription) GetSubscription(ctx context.Context, req *api.GetSubscriptionRequest) (*api.Subscription, error) {
+	var res *api.Subscription
+	err := getMethod(
+		s.logger.With(zap.Any("req", req), zap.String("method", "GetSubscription")),
+		req,
+		func(name string) error {
+			return nil
+		},
+		func(name string) error {
+			v, err := s.p.Get(name)
+			res = v
+			return err
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}

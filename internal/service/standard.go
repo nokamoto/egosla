@@ -1,7 +1,10 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/nokamoto/egosla/internal/mysql"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -82,4 +85,30 @@ func deleteMethod(logger *zap.Logger, p deletePersistent, req deleteRequest, val
 	}
 
 	return &empty.Empty{}, nil
+}
+
+type getRequest interface {
+	GetName() string
+}
+
+func getMethod(logger *zap.Logger, req getRequest, validate func(string) error, get func(string) error) error {
+	logger.Debug("receive")
+
+	err := validate(req.GetName())
+	if err != nil {
+		logger.Debug("invalid argument", zap.Error(err))
+		return status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
+	}
+
+	err = get(req.GetName())
+	if errors.Is(err, mysql.ErrNotFound) {
+		logger.Debug("not found", zap.Error(err))
+		return status.Errorf(codes.NotFound, "%s not found", req.GetName())
+	}
+	if err != nil {
+		logger.Error("unavailable", zap.Error(err))
+		return status.Errorf(codes.Unavailable, "unavailable")
+	}
+
+	return nil
 }

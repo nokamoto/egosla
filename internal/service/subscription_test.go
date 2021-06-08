@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -175,6 +176,51 @@ func TestSubscription_Delete(t *testing.T) {
 		testSubscription(t, x.name, x.mock, x.code, x.expected, func(s *Subscription) (proto.Message, error) {
 			return s.DeleteSubscription(context.TODO(), &api.DeleteSubscriptionRequest{
 				Name: name,
+			})
+		})
+	}
+}
+
+func TestSubscription_Get(t *testing.T) {
+	testcases := []struct {
+		name     string
+		mock     func(p *MockpersistentSubscription, n *MocknameGenerator)
+		expected *api.Subscription
+		code     codes.Code
+	}{
+		{
+			name: "ok",
+			mock: func(p *MockpersistentSubscription, _ *MocknameGenerator) {
+				p.EXPECT().Get("foo").Return(&api.Subscription{
+					Name:    "foo",
+					Watcher: "bar",
+				}, nil)
+			},
+			expected: &api.Subscription{
+				Name:    "foo",
+				Watcher: "bar",
+			},
+		},
+		{
+			name: "not found",
+			mock: func(p *MockpersistentSubscription, _ *MocknameGenerator) {
+				p.EXPECT().Get("foo").Return(nil, mysql.ErrNotFound)
+			},
+			code: codes.NotFound,
+		},
+		{
+			name: "unexpected error",
+			mock: func(p *MockpersistentSubscription, _ *MocknameGenerator) {
+				p.EXPECT().Get("foo").Return(nil, errors.New("unexpected"))
+			},
+			code: codes.Unavailable,
+		},
+	}
+
+	for _, x := range testcases {
+		testSubscription(t, x.name, x.mock, x.code, x.expected, func(s *Subscription) (proto.Message, error) {
+			return s.GetSubscription(context.TODO(), &api.GetSubscriptionRequest{
+				Name: "foo",
 			})
 		})
 	}
