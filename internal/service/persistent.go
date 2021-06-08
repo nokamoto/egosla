@@ -17,4 +17,5 @@ type persistentSubscription interface {
 	Create(*api.Subscription) error
 	List(offset, limit int) ([]*api.Subscription, error)
 	Delete(name string) error
+	Get(name string) (*api.Subscription, error)
 }

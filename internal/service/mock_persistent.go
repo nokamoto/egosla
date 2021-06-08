@@ -144,6 +144,21 @@ func (mr *MockpersistentSubscriptionMockRecorder) Delete(name interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockpersistentSubscription)(nil).Delete), name)
 }
 
+// Get mocks base method.
+func (m *MockpersistentSubscription) Get(name string) (*api.Subscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", name)
+	ret0, _ := ret[0].(*api.Subscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockpersistentSubscriptionMockRecorder) Get(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockpersistentSubscription)(nil).Get), name)
+}
+
 // List mocks base method.
 func (m *MockpersistentSubscription) List(offset, limit int) ([]*api.Subscription, error) {
 	m.ctrl.T.Helper()
