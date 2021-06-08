@@ -1,11 +1,6 @@
 import React, { ChangeEvent, useState, MouseEvent } from "react";
 import Paper from "@material-ui/core/Paper";
-import {
-  createStyles,
-  Theme,
-  withStyles,
-  WithStyles,
-} from "@material-ui/core/styles";
+import { withStyles, WithStyles } from "@material-ui/core/styles";
 import StandardAppBar from "src/standard/StandardAppBar";
 import StandardTable from "src/standard/StandardTable";
 import { TableCell, TableRow } from "@material-ui/core";
@@ -13,17 +8,9 @@ import StandardMenu from "src/standard/StandardMenu";
 import DeleteIcon from "@material-ui/icons/Delete";
 import useStandardMenuList from "src/standard/useStandardMenuList";
 import useSubscriptions from "./useSubscriptions";
+import contentStyles from "src/standard/contentStyles";
 
-const styles = (theme: Theme) =>
-  createStyles({
-    paper: {
-      maxWidth: 936,
-      margin: "auto",
-      overflow: "hidden",
-    },
-  });
-
-interface contentProps extends WithStyles<typeof styles> {}
+interface contentProps extends WithStyles<typeof contentStyles> {}
 
 function SubscriptionContent(props: contentProps) {
   const { classes } = props;
@@ -98,4 +85,4 @@ function SubscriptionContent(props: contentProps) {
   );
 }
 
-export default withStyles(styles)(SubscriptionContent);
+export default withStyles(contentStyles)(SubscriptionContent);

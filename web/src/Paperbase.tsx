@@ -17,6 +17,7 @@ import {
   Redirect,
 } from "react-router-dom";
 import SubscriptionContent from "./subscriptions/SubscriptionContent";
+import SingleSubscriptionContent from "./subscriptions/SingleSubscriptionContent";
 
 let theme = createMuiTheme({
   palette: {
@@ -193,6 +194,9 @@ function Paperbase(props: PaperbaseProps) {
                 </Route>
                 <Route path="/subscriptions" exact={true}>
                   <SubscriptionContent />
+                </Route>
+                <Route path="/subscriptions/:id" exact={true}>
+                  <SingleSubscriptionContent />
                 </Route>
                 <Route path="*">
                   <Redirect to="/watchers" />
