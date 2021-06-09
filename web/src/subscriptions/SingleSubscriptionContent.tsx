@@ -26,16 +26,8 @@ function SingleSubscriptionContent(props: contentProps) {
               InputProps={{
                 readOnly: true,
               }}
-              variant="outlined"
-            />
-          </div>
-          <div className={classes.page}>
-            <TextField
-              className={classes.textField}
-              label="Watcher"
-              defaultValue={subscription.getWatcher()}
-              InputProps={{
-                readOnly: true,
+              inputProps={{
+                "data-testid": "name",
               }}
               variant="outlined"
             />
