@@ -1,11 +1,6 @@
 import React, { useEffect, useState, MouseEvent, ChangeEvent } from "react";
 import Paper from "@material-ui/core/Paper";
-import {
-  createStyles,
-  Theme,
-  withStyles,
-  WithStyles,
-} from "@material-ui/core/styles";
+import { withStyles, WithStyles } from "@material-ui/core/styles";
 import WatcherDialog from "src/watchers/WatcherDialog";
 import { subscriptionService, watcherService } from "src/Rpc";
 import {
@@ -24,17 +19,9 @@ import {
 } from "src/api/subscription_pb";
 import { useHistory } from "react-router-dom";
 import useStandardMenuList from "src/standard/useStandardMenuList";
+import contentStyles from "src/standard/contentStyles";
 
-const styles = (theme: Theme) =>
-  createStyles({
-    paper: {
-      maxWidth: 936,
-      margin: "auto",
-      overflow: "hidden",
-    },
-  });
-
-interface contentProps extends WithStyles<typeof styles> {
+interface contentProps extends WithStyles<typeof contentStyles> {
   // Keycodes for ChipInput.
   newChipKeys: string[];
 }
@@ -199,4 +186,4 @@ function WatcherContent(props: contentProps) {
   );
 }
 
-export default withStyles(styles)(WatcherContent);
+export default withStyles(contentStyles)(WatcherContent);
