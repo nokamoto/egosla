@@ -7,6 +7,16 @@ const contentStyles = (theme: Theme) =>
       margin: "auto",
       overflow: "hidden",
     },
+    page: {
+      margin: theme.spacing(2),
+      display: "flex",
+      flexWrap: "wrap",
+    },
+    textField: {
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+      width: "50ch",
+    },
   });
 
 export default contentStyles;

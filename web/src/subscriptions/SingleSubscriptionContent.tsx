@@ -4,6 +4,7 @@ import { withStyles, WithStyles } from "@material-ui/core/styles";
 import contentStyles from "src/standard/contentStyles";
 import { useParams } from "react-router-dom";
 import useSubscription from "./useSubscription";
+import { TextField } from "@material-ui/core";
 
 interface contentProps extends WithStyles<typeof contentStyles> {}
 
@@ -15,7 +16,32 @@ function SingleSubscriptionContent(props: contentProps) {
 
   return (
     <Paper className={classes.paper}>
-      {subscription && subscription.getName()}
+      {subscription && (
+        <div>
+          <div className={classes.page}>
+            <TextField
+              className={classes.textField}
+              label="Name"
+              defaultValue={subscription.getName()}
+              InputProps={{
+                readOnly: true,
+              }}
+              variant="outlined"
+            />
+          </div>
+          <div className={classes.page}>
+            <TextField
+              className={classes.textField}
+              label="Watcher"
+              defaultValue={subscription.getWatcher()}
+              InputProps={{
+                readOnly: true,
+              }}
+              variant="outlined"
+            />
+          </div>
+        </div>
+      )}
     </Paper>
   );
 }
