@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Paper from "@material-ui/core/Paper";
 import { withStyles, WithStyles } from "@material-ui/core/styles";
 import contentStyles from "src/standard/contentStyles";
@@ -6,7 +6,6 @@ import { useParams } from "react-router-dom";
 import useSubscription from "./useSubscription";
 import { TextField } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { Watcher } from "src/api/watcher_pb";
 import useWatcherOptions from "./useWatcherOptions";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
@@ -18,7 +17,8 @@ function SingleSubscriptionContent(props: contentProps) {
   const { id } = useParams<{ id: string }>();
   const [subscription] = useSubscription(id);
 
-  const [isopen, options, loading, open, close] = useWatcherOptions();
+  const [isopen, options, loading, open, close, inputValue, setInputValue] =
+    useWatcherOptions(subscription);
 
   return (
     <Paper className={classes.paper}>
@@ -44,6 +44,8 @@ function SingleSubscriptionContent(props: contentProps) {
               open={isopen}
               onOpen={open}
               onClose={close}
+              inputValue={inputValue}
+              onInputChange={setInputValue}
               getOptionSelected={(option, value) =>
                 option.getName() === value.getName()
               }
@@ -54,7 +56,7 @@ function SingleSubscriptionContent(props: contentProps) {
                 <TextField
                   {...params}
                   className={classes.textField}
-                  label="Asynchronous"
+                  label="Watcher"
                   variant="outlined"
                   InputProps={{
                     ...params.InputProps,
