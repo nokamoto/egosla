@@ -36,4 +36,8 @@ test("gets a subscription", () => {
 
   const name = getByTestId("name");
   expect(name).toHaveValue("subscriptions/foo");
+
+  const autocomplete = getByTestId("watcher-autocomplete");
+  const watcher = autocomplete.querySelector("input");
+  expect(watcher).toHaveValue("watchers/bar");
 });
