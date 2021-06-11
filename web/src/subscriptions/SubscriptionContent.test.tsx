@@ -9,6 +9,8 @@ import {
   Subscription,
 } from "src/api/subscription_pb";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { createMemoryHistory } from "history";
+import { Router } from "react-router-dom";
 
 test("gets subscriptions", () => {
   const subscription = new Subscription();
@@ -138,4 +140,45 @@ test("delete subscriptions", () => {
   table = getByTestId("table");
   expect(within(table).queryByText("foo")).not.toBeInTheDocument();
   expect(within(table).getByText("bar")).toBeInTheDocument();
+});
+
+test("updates subscriptions", () => {
+  const listSubscription = jest.fn().mockImplementation((x, y, callback) => {
+    const s1 = new Subscription();
+    s1.setName("foo");
+
+    const s2 = new Subscription();
+    s2.setName("bar");
+
+    const res = new ListSubscriptionResponse();
+    res.setSubscriptionsList([s1, s2]);
+    callback(null, res);
+  });
+
+  jest
+    .spyOn(subscriptionService, "listSubscription")
+    .mockImplementation(listSubscription);
+
+  const history = createMemoryHistory();
+
+  const { getAllByTestId } = render(
+    <Router history={history}>
+      <SubscriptionContent />
+    </Router>
+  );
+
+  expect(history.location.pathname).toEqual("/");
+
+  expect(listSubscription).toHaveBeenCalledTimes(1);
+
+  const menus = getAllByTestId("open-menu");
+  const update = getAllByTestId("update");
+
+  expect(menus.length).toEqual(2);
+  expect(update.length).toEqual(2);
+
+  fireEvent.click(menus[0]);
+  fireEvent.click(update[0]);
+
+  expect(history.location.pathname).toEqual("/foo");
 });
