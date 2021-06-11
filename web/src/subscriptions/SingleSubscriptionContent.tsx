@@ -52,6 +52,7 @@ function SingleSubscriptionContent(props: contentProps) {
               getOptionLabel={(option) => option.getName()}
               options={options}
               loading={loading}
+              data-testid="watcher-autocomplete"
               renderInput={(params) => (
                 <TextField
                   {...params}

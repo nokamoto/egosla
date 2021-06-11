@@ -29,9 +29,7 @@ function useWatcherOptions(
     const req = new ListWatcherRequest();
     req.setPageSize(100);
     watcherService.listWatcher(req, {}).then((res) => {
-      console.log(res);
       if (active) {
-        console.log(active);
         setOptions(res.getWatchersList());
       }
     });
