@@ -9,6 +9,8 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import useStandardMenuList from "src/standard/useStandardMenuList";
 import useSubscriptions from "./useSubscriptions";
 import contentStyles from "src/standard/contentStyles";
+import EditIcon from "@material-ui/icons/Edit";
+import { useHistory } from "react-router-dom";
 
 interface contentProps extends WithStyles<typeof contentStyles> {}
 
@@ -20,6 +22,7 @@ function SubscriptionContent(props: contentProps) {
   const [anchorEl, openMenu, closeMenu] = useStandardMenuList();
   const [subscriptions, visibleSubscriptions, deleteSubscription] =
     useSubscriptions(refresh, search);
+  const history = useHistory();
 
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
@@ -72,6 +75,18 @@ function SubscriptionContent(props: contentProps) {
                       ) => {
                         closeMenu();
                         deleteSubscription(name);
+                      },
+                    },
+                    {
+                      icon: <EditIcon fontSize="small" />,
+                      dataTestID: "update",
+                      itemText: "Update",
+                      onClick: (
+                        name: string,
+                        event: MouseEvent<HTMLElement>
+                      ) => {
+                        closeMenu();
+                        history.push("/" + name);
                       },
                     },
                   ]}
