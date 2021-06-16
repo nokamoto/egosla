@@ -3,7 +3,6 @@ import { fireEvent, render, within } from "@testing-library/react";
 import WatcherContent from "src/watchers/WatcherContent";
 import { subscriptionService, watcherService } from "src/Rpc";
 import {
-  CreateWatcherRequest,
   DeleteWatcherRequest,
   ListWatcherRequest,
   ListWatcherResponse,
@@ -43,57 +42,18 @@ test("gets watchers", () => {
 });
 
 test("adds a new watcher", () => {
-  const watcher = new Watcher();
-  watcher.setKeywordsList(["foo", "bar"]);
+  const history = createMemoryHistory();
+  const { getByTestId } = render(
+    <Router history={history}>
+      <WatcherContent newChipKeys={[]} />
+    </Router>
+  );
 
-  const createWatcher = jest.fn().mockImplementation((x, y, callback) => {
-    callback(null, watcher);
-  });
-
-  const listWatcher = jest.fn();
-  jest.spyOn(watcherService, "createWatcher").mockImplementation(createWatcher);
-  jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
-
-  const { getByTestId } = render(<WatcherContent newChipKeys={["Enter"]} />);
+  expect(history.location.pathname).toEqual("/");
 
   fireEvent.click(getByTestId("open-add"));
 
-  const keywords = getByTestId("keywords");
-  fireEvent.input(keywords, { target: { value: "foo" } });
-  fireEvent.keyDown(keywords, { key: "Enter", code: "Enter" });
-
-  fireEvent.input(keywords, { target: { value: "bar" } });
-  fireEvent.keyDown(keywords, { key: "Enter", code: "Enter" });
-
-  fireEvent.click(getByTestId("watch"));
-
-  const expected = new CreateWatcherRequest();
-  expected.setWatcher(watcher);
-
-  expect(createWatcher).toHaveBeenCalledTimes(1);
-  expect(createWatcher.mock.calls[0][0]).toEqual(expected);
-
-  const table = getByTestId("watchers-table");
-  expect(within(table).getByText("foo")).toBeInTheDocument();
-  expect(within(table).getByText("bar")).toBeInTheDocument();
-
-  const list = new ListWatcherRequest();
-  list.setPageSize(100);
-
-  expect(listWatcher).toHaveBeenCalledTimes(1);
-  expect(listWatcher.mock.calls[0][0]).toEqual(list);
-});
-
-test("cancels to add a watcher", () => {
-  const createWatcher = jest.fn();
-  jest.spyOn(watcherService, "createWatcher").mockImplementation(createWatcher);
-
-  const { getByTestId } = render(<WatcherContent newChipKeys={[""]} />);
-
-  fireEvent.click(getByTestId("open-add"));
-  fireEvent.click(getByTestId("cancel"));
-
-  expect(createWatcher).toHaveBeenCalledTimes(0);
+  expect(history.location.pathname).toEqual("/watchers/new");
 });
 
 test("deletes a watcher", () => {

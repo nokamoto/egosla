@@ -3,12 +3,20 @@ import { withStyles, WithStyles } from "@material-ui/core/styles";
 import contentStyles from "src/standard/contentStyles";
 import { Button, Grid, Paper } from "@material-ui/core";
 import ChipInput from "material-ui-chip-input";
-import { isClassExpression } from "typescript";
+import useNewWatcher from "src/watchers/useNewWatcher";
+import { Watcher } from "src/api/watcher_pb";
+import { useHistory } from "react-router-dom";
 
-interface contentProps extends WithStyles<typeof contentStyles> {}
+interface contentProps extends WithStyles<typeof contentStyles> {
+  // ChipInput.newChipKeys for testing.
+  newChipKeys?: string[];
+}
 
 function NewWatcherContent(props: contentProps) {
-  const { classes } = props;
+  const { classes, newChipKeys } = props;
+  const [setKeywords, create] = useNewWatcher();
+  const history = useHistory();
+
   return (
     <Paper className={classes.paper}>
       <div className={classes.page}>
@@ -17,8 +25,8 @@ function NewWatcherContent(props: contentProps) {
             <ChipInput
               label="Keywords"
               defaultValue={[]}
-              onChange={() => {}}
-              newChipKeys={[]}
+              onChange={setKeywords}
+              newChipKeys={newChipKeys ? newChipKeys : []}
               InputProps={{
                 inputProps: {
                   "data-testid": "keywords",
@@ -29,20 +37,27 @@ function NewWatcherContent(props: contentProps) {
             />
           </Grid>
           <Grid item xs={12}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
-            >
-              <Button onClick={() => {}} color="secondary" data-testid="cancel">
+            <div className={classes.buttons}>
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  history.push("/watchers");
+                }}
+                color="secondary"
+                data-testid="cancel"
+              >
                 Cancel
               </Button>
               <Button
-                onClick={() => {}}
+                className={classes.button}
+                onClick={() => {
+                  create((res: Watcher) => {
+                    history.push("/" + res.getName());
+                  });
+                }}
                 color="primary"
                 variant="contained"
-                data-testid="watch"
+                data-testid="create"
               >
                 Create
               </Button>
