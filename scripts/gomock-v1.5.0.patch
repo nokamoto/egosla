@@ -1,0 +1,11 @@
+# https://github.com/golang/mock#building-mocks
+# If you are using a Go version of 1.14+, a mockgen version of 1.5.0+, and are passing a *testing.T into gomock.NewController(t) you no longer need to call ctrl.Finish() explicitly. It will be called for you automatically from a self registered Cleanup function.
+@@
+var ctrl identifier
+var t expression
+@@
+ import "github.com/golang/mock/gomock"
+
+ ctrl := gomock.NewController(t)
+ ...
+-defer ctrl.Finish()

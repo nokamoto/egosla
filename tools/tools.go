@@ -8,4 +8,5 @@ import (
 	_ "github.com/golang/mock/mockgen"
 	_ "github.com/cespare/reflex"
 	_ "honnef.co/go/tools/cmd/staticcheck"
+	_ "github.com/uber-go/gopatch"
 )
