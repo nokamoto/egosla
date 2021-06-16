@@ -17,6 +17,14 @@ const contentStyles = (theme: Theme) =>
       marginRight: theme.spacing(1),
       width: "50ch",
     },
+    buttons: {
+      display: "flex",
+      justifyContent: "flex-end",
+    },
+    button: {
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+    },
   });
 
 export default contentStyles;

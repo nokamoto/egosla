@@ -41,7 +41,7 @@ function WatcherContent(props: contentProps) {
   const history = useHistory();
 
   const handleClickOpen = () => {
-    setOpen(true);
+    history.push("/watchers/new");
   };
 
   const handleClose = () => {

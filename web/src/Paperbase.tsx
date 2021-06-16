@@ -10,6 +10,8 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Hidden from "@material-ui/core/Hidden";
 import Navigator from "src/Navigator";
 import WatcherContent from "src/watchers/WatcherContent";
+import NewWatcherContent from "src/watchers/NewWatcherContent";
+import SingleWatcherContent from "src/watchers/SingleWatcherContent";
 import {
   BrowserRouter as Router,
   Switch,
@@ -191,6 +193,12 @@ function Paperbase(props: PaperbaseProps) {
               <Switch>
                 <Route path="/watchers" exact={true}>
                   <WatcherContent newChipKeys={[]} />
+                </Route>
+                <Route path="/watchers/new" exact={true}>
+                  <NewWatcherContent />
+                </Route>
+                <Route path="/watchers/:id" exact={true}>
+                  <SingleWatcherContent />
                 </Route>
                 <Route path="/subscriptions" exact={true}>
                   <SubscriptionContent />
