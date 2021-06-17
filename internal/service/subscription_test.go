@@ -28,7 +28,6 @@ func testSubscription(
 ) {
 	t.Run(name, func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
 
 		p := NewMockpersistentSubscription(ctrl)
 		n := NewMocknameGenerator(ctrl)

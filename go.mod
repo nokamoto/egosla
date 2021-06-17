@@ -11,6 +11,7 @@ require (
 	github.com/moby/moby v20.10.6+incompatible
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/slack-go/slack v0.9.1
+	github.com/uber-go/gopatch v0.0.2
 	go.uber.org/zap v1.16.0
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.37.0

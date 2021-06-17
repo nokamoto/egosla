@@ -1,4 +1,8 @@
-all: protoc format go yarn lint
+all: protoc patch format go yarn lint
+
+patch:
+	go get github.com/uber-go/gopatch
+	gopatch -p ./scripts/gomock-v1.5.0.patch ./...
 
 format:
 	clang-format --style=Google -i api/*.proto

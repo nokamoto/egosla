@@ -22,7 +22,6 @@ import (
 
 func mockWatcher(t *testing.T, f func(*Watcher, *MockpersistentWatcher, *MocknameGenerator)) {
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
 
 	p := NewMockpersistentWatcher(ctrl)
 	n := NewMocknameGenerator(ctrl)
@@ -45,7 +44,6 @@ func testWatcher(
 ) {
 	t.Run(name, func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
 
 		p := NewMockpersistentWatcher(ctrl)
 		n := NewMocknameGenerator(ctrl)
