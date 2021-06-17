@@ -6,10 +6,8 @@ import {
   DeleteWatcherRequest,
   ListWatcherRequest,
   ListWatcherResponse,
-  UpdateWatcherRequest,
   Watcher,
 } from "src/api/watcher_pb";
-import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 import {
   CreateSubscriptionRequest,
   Subscription,
@@ -120,30 +118,16 @@ test("updates a watcher", () => {
     callback(null, res);
   });
 
-  const watcher = new Watcher();
-  watcher.setKeywordsList(["bar", "quux"]);
-  const updateMask = new FieldMask();
-  updateMask.addPaths("keywords");
-  const expected = new UpdateWatcherRequest();
-  expected.setName("foo");
-  expected.setWatcher(watcher);
-  expected.setUpdateMask(updateMask);
-
-  const updateWatcher = jest.fn().mockImplementation((x, y, callback) => {
-    const res = new Watcher();
-    res.setName(expected.getName());
-    res.setKeywordsList(expected.getWatcher()!.getKeywordsList());
-    callback(null, res);
-  });
-
   jest.spyOn(watcherService, "listWatcher").mockImplementation(listWatcher);
-  jest.spyOn(watcherService, "updateWatcher").mockImplementation(updateWatcher);
 
-  const { queryByText, getAllByTestId, getByTestId } = render(
-    <WatcherContent newChipKeys={["Enter"]} />
+  const history = createMemoryHistory();
+  const { getAllByTestId } = render(
+    <Router history={history}>
+    <WatcherContent newChipKeys={[]} />
+    </Router>
   );
 
-  expect(queryByText("quux")).not.toBeInTheDocument();
+  expect(history.location.pathname).toEqual("/");
 
   const menus = getAllByTestId("open-menu");
   const update = getAllByTestId("update");
@@ -154,17 +138,7 @@ test("updates a watcher", () => {
   fireEvent.click(menus[0]);
   fireEvent.click(update[0]);
 
-  const keywords = getByTestId("keywords");
-  fireEvent.input(keywords, { target: { value: "quux" } });
-  fireEvent.keyDown(keywords, { key: "Enter", code: "Enter" });
-
-  fireEvent.click(getByTestId("watch"));
-
-  expect(updateWatcher).toHaveBeenCalledTimes(1);
-  expect(updateWatcher.mock.calls[0][0]).toEqual(expected);
-
-  const table = getByTestId("watchers-table");
-  expect(within(table).getByText("quux")).toBeInTheDocument();
+  expect(history.location.pathname).toEqual("/foo");
 });
 
 test("subscribes a watcher", () => {
