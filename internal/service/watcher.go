@@ -126,3 +126,23 @@ func (w *Watcher) UpdateWatcher(ctx context.Context, req *api.UpdateWatcherReque
 
 	return updated, nil
 }
+
+func (w *Watcher) GetWatcher(ctx context.Context, req *api.GetWatcherRequest) (*api.Watcher, error) {
+	var res *api.Watcher
+	err := getMethod(
+		w.logger.With(zap.Any("req", req), zap.String("method", "GetWatcher")),
+		req,
+		func(name string) error {
+			return nil
+		},
+		func(name string) error {
+			v, err := w.p.Get(name)
+			res = v
+			return err
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}

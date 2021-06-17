@@ -271,3 +271,48 @@ func TestWatcher_Update(t *testing.T) {
 		})
 	}
 }
+
+func TestWatcher_Get(t *testing.T) {
+	testcases := []struct {
+		name     string
+		mock     func(p *MockpersistentWatcher, n *MocknameGenerator)
+		expected *api.Watcher
+		code     codes.Code
+	}{
+		{
+			name: "ok",
+			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
+				p.EXPECT().Get("foo").Return(&api.Watcher{
+					Name:     "foo",
+					Keywords: []string{"bar"},
+				}, nil)
+			},
+			expected: &api.Watcher{
+				Name:     "foo",
+				Keywords: []string{"bar"},
+			},
+		},
+		{
+			name: "not found",
+			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
+				p.EXPECT().Get("foo").Return(nil, mysql.ErrNotFound)
+			},
+			code: codes.NotFound,
+		},
+		{
+			name: "unexpected error",
+			mock: func(p *MockpersistentWatcher, _ *MocknameGenerator) {
+				p.EXPECT().Get("foo").Return(nil, errors.New("unexpected"))
+			},
+			code: codes.Unavailable,
+		},
+	}
+
+	for _, x := range testcases {
+		testWatcher(t, x.name, x.mock, x.code, x.expected, func(w *Watcher) (proto.Message, error) {
+			return w.GetWatcher(context.TODO(), &api.GetWatcherRequest{
+				Name: "foo",
+			})
+		})
+	}
+}

@@ -10,6 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/fieldmasktest"
+	"github.com/nokamoto/egosla/internal/prototest"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -239,6 +240,39 @@ func TestPersistentWatcher_Update(t *testing.T) {
 			if diff := cmp.Diff(x.expected, actual, protocmp.Transform()); len(diff) != 0 {
 				t.Error(diff)
 			}
+			if !errors.Is(err, x.err) {
+				t.Errorf("expected %v but actual %v", x.err, err)
+			}
+		})
+	}
+}
+
+func TestPersistentWatcher_Get(t *testing.T) {
+	name := "foo"
+
+	query := "SELECT * FROM `watcher` WHERE name = ? LIMIT 1"
+
+	expected := api.Watcher{
+		Name:     "foo",
+		Keywords: []string{"bar", "baz"},
+	}
+
+	rows := sqlmock.NewRows([]string{"name", "keywords"}).AddRow("foo", "bar,baz")
+
+	empty := sqlmock.NewRows([]string{"name", "keywords"})
+
+	for _, x := range getMethodTestCases(query, name, &expected, rows, empty) {
+		mockPersistentWatcher(t, x.name, func(pw *PersistentWatcher, s sqlmock.Sqlmock) {
+			if x.mock != nil {
+				x.mock(s)
+			}
+
+			actual, err := pw.Get(name)
+
+			if err := prototest.Equal(x.expected, actual); err != nil {
+				t.Error(err)
+			}
+
 			if !errors.Is(err, x.err) {
 				t.Errorf("expected %v but actual %v", x.err, err)
 			}
