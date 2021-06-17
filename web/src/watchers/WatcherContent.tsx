@@ -1,16 +1,12 @@
 import React, { useEffect, useState, MouseEvent, ChangeEvent } from "react";
 import Paper from "@material-ui/core/Paper";
 import { withStyles, WithStyles } from "@material-ui/core/styles";
-import WatcherDialog from "src/watchers/WatcherDialog";
 import { subscriptionService, watcherService } from "src/Rpc";
 import {
-  CreateWatcherRequest,
   DeleteWatcherRequest,
   ListWatcherRequest,
-  UpdateWatcherRequest,
   Watcher,
 } from "src/api/watcher_pb";
-import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 import WatcherTable from "src/watchers/WatcherTable";
 import StandardAppBar from "src/standard/StandardAppBar";
 import {
@@ -30,11 +26,6 @@ function WatcherContent(props: contentProps) {
   const { classes } = props;
 
   const [refresh, setRefresh] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [updateOpen, setUpdateOpen] = useState(false);
-  const [updateKeywords, setUpdateKeywords] = useState<string[]>([]);
-  const [updateWatcherName, setUpdateWatcherName] = useState<string>("");
-  const [keywords, setKeywords] = useState<string[]>([]);
   const [watchers, setWatchers] = useState<Watcher[]>([]);
   const [anchorEl, openMenu, closeMenu] = useStandardMenuList();
   const [search, setSearch] = useState<string>("");
@@ -44,66 +35,11 @@ function WatcherContent(props: contentProps) {
     history.push("/watchers/new");
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleUpdateClose = () => {
-    setUpdateOpen(false);
-  };
-
-  const handleUpdate = () => {
-    setUpdateOpen(false);
-
-    const watcher = new Watcher();
-    watcher.setKeywordsList(updateKeywords);
-
-    const updateMask = new FieldMask();
-    updateMask.addPaths("keywords");
-
-    const req = new UpdateWatcherRequest();
-    req.setName(updateWatcherName);
-    req.setWatcher(watcher);
-    req.setUpdateMask(updateMask);
-
-    watcherService.updateWatcher(req, {}, (err, res) => {
-      setWatchers(
-        watchers.map((v) => {
-          if (v.getName() === res.getName()) {
-            return res;
-          }
-          return v;
-        })
-      );
-    });
-  };
-
-  const handleWatch = () => {
-    setOpen(false);
-
-    const watcher = new Watcher();
-    watcher.setKeywordsList(keywords);
-    const req = new CreateWatcherRequest();
-    req.setWatcher(watcher);
-
-    watcherService.createWatcher(req, {}, (err, res) => {
-      setWatchers(watchers.concat(res));
-    });
-  };
-
   const handleClickUpdateMenu = (
     watcherName: string,
     event: MouseEvent<HTMLElement>
   ) => {
-    closeMenu();
-    setUpdateOpen(true);
-    setUpdateWatcherName(watcherName);
-
-    const found = watchers.filter((w) => w.getName() === watcherName);
-    if (found.length !== 1) {
-      return;
-    }
-    setUpdateKeywords(found[0].getKeywordsList());
+    history.push(watcherName);
   };
 
   const deleteWatcher = (watcherName: string, _: MouseEvent<HTMLElement>) => {
@@ -163,24 +99,6 @@ function WatcherContent(props: contentProps) {
         anchorEl={anchorEl}
         watchers={watchers}
         search={search}
-      />
-      <WatcherDialog
-        open={open}
-        handleCancel={handleClose}
-        handleWatch={handleWatch}
-        setKeywords={setKeywords}
-        newChipKeys={props.newChipKeys}
-        buttonText="Watch :eye:"
-        defaultKeywords={[]}
-      />
-      <WatcherDialog
-        open={updateOpen}
-        handleCancel={handleUpdateClose}
-        handleWatch={handleUpdate}
-        setKeywords={setUpdateKeywords}
-        newChipKeys={props.newChipKeys}
-        buttonText="Update :pen:"
-        defaultKeywords={updateKeywords}
       />
     </Paper>
   );
