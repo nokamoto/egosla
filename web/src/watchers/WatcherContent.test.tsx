@@ -123,7 +123,7 @@ test("updates a watcher", () => {
   const history = createMemoryHistory();
   const { getAllByTestId } = render(
     <Router history={history}>
-    <WatcherContent newChipKeys={[]} />
+      <WatcherContent newChipKeys={[]} />
     </Router>
   );
 
