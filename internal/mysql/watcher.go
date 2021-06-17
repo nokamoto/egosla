@@ -123,3 +123,13 @@ func (p *PersistentWatcher) Update(v *api.Watcher, updateMask *field_mask.FieldM
 
 	return updated.Value(), nil
 }
+
+// Get selects a watcher by the name.
+func (p *PersistentWatcher) Get(name string) (*api.Watcher, error) {
+	var m watcher
+	err := getMethod(&m, p.db, name)
+	if err != nil {
+		return nil, err
+	}
+	return m.Value(), nil
+}

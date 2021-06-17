@@ -63,6 +63,21 @@ func (mr *MockpersistentWatcherMockRecorder) Delete(name interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockpersistentWatcher)(nil).Delete), name)
 }
 
+// Get mocks base method.
+func (m *MockpersistentWatcher) Get(name string) (*api.Watcher, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", name)
+	ret0, _ := ret[0].(*api.Watcher)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockpersistentWatcherMockRecorder) Get(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockpersistentWatcher)(nil).Get), name)
+}
+
 // List mocks base method.
 func (m *MockpersistentWatcher) List(offset, limit int) ([]*api.Watcher, error) {
 	m.ctrl.T.Helper()

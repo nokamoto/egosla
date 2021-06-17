@@ -11,6 +11,7 @@ type persistentWatcher interface {
 	List(offset, limit int) ([]*api.Watcher, error)
 	Delete(name string) error
 	Update(*api.Watcher, *field_mask.FieldMask) (*api.Watcher, error)
+	Get(name string) (*api.Watcher, error)
 }
 
 type persistentSubscription interface {

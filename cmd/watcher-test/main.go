@@ -13,6 +13,7 @@ func main() {
 			c := api.NewWatcherServiceClient(cc)
 			return test.Scenarios{
 				testCreate(c),
+				testGet(c),
 				testList(c),
 				testUpdate(c),
 				testDelete(c),
