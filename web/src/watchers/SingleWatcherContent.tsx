@@ -1,8 +1,8 @@
 import React from "react";
 import { withStyles, WithStyles } from "@material-ui/core/styles";
 import contentStyles from "src/standard/contentStyles";
-import { Paper, Grid, TextField } from "@material-ui/core";
-import { useParams } from "react-router-dom";
+import { Paper, Grid, TextField, Button } from "@material-ui/core";
+import { useHistory, useParams } from "react-router-dom";
 import useWatcher from "src/watchers/useWatcher";
 import ChipInput from "material-ui-chip-input";
 
@@ -14,8 +14,9 @@ interface contentProps extends WithStyles<typeof contentStyles> {
 function SingleWatcherContent(props: contentProps) {
   const { classes, newChipKeys } = props;
   const { id } = useParams<{ id: string }>();
+  const history = useHistory();
 
-  const [watcher, setKeywords] = useWatcher(id);
+  const [watcher, setKeywords, update] = useWatcher(id);
 
   return (
     <Paper className={classes.paper}>
@@ -51,6 +52,28 @@ function SingleWatcherContent(props: contentProps) {
                 variant="outlined"
                 fullWidth={true}
               />
+            </Grid>
+            <Grid item xs={12}>
+              <div className={classes.buttons}>
+                <Button
+                  className={classes.button}
+                  onClick={() => {
+                    history.push("/watchers");
+                  }}
+                  data-testid="back"
+                >
+                  Back
+                </Button>
+                <Button
+                  className={classes.button}
+                  onClick={update}
+                  color="primary"
+                  variant="contained"
+                  data-testid="create"
+                >
+                  Update
+                </Button>
+              </div>
             </Grid>
           </Grid>
         </div>
