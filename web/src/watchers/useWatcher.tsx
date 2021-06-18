@@ -15,7 +15,6 @@ function arrayEqual(x: string[], y: string[]): boolean {
   if (x.length !== y.length) {
     return false;
   }
-  console.log(x, y);
   return x.every((v, i) => v === y[i]);
 }
 
