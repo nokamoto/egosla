@@ -51,6 +51,7 @@ function SingleWatcherContent(props: contentProps) {
                 }}
                 variant="outlined"
                 fullWidth={true}
+                data-testid="abc"
               />
             </Grid>
             <Grid item xs={12}>
@@ -69,7 +70,7 @@ function SingleWatcherContent(props: contentProps) {
                   onClick={update}
                   color="primary"
                   variant="contained"
-                  data-testid="create"
+                  data-testid="update"
                 >
                   Update
                 </Button>
