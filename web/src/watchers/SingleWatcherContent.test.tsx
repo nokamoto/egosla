@@ -4,7 +4,8 @@ import SingleWatcherContent from "./SingleWatcherContent";
 import { createMemoryHistory } from "history";
 import { Route, Router } from "react-router-dom";
 import { watcherService } from "src/Rpc";
-import { Watcher } from "src/api/watcher_pb";
+import { UpdateWatcherRequest, Watcher } from "src/api/watcher_pb";
+import { FieldMask } from "google-protobuf/google/protobuf/field_mask_pb";
 
 describe("watcher found", () => {
   var get = jest.fn();
@@ -26,7 +27,7 @@ describe("watcher found", () => {
     element = (
       <Router history={history}>
         <Route path="/:id">
-          <SingleWatcherContent />
+          <SingleWatcherContent newChipKeys={["Enter"]} />
         </Route>
       </Router>
     );
@@ -73,8 +74,25 @@ describe("watcher found", () => {
 
     const { getByTestId } = render(element);
 
+    const keywords = getByTestId("keywords");
+    fireEvent.input(keywords, { target: { value: "qux" } });
+    fireEvent.keyDown(keywords, { key: "Enter", code: "Enter" });
+
     fireEvent.click(getByTestId("update"));
 
-    expect(update).toHaveBeenCalledTimes(0);
+    const w = new Watcher();
+    w.setName("foo");
+    w.setKeywordsList(["bar", "baz", "qux"]);
+
+    const mask = new FieldMask();
+    mask.setPathsList(["keywords"]);
+
+    const expected = new UpdateWatcherRequest();
+    expected.setName("foo");
+    expected.setWatcher(w);
+    expected.setUpdateMask(mask);
+
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(update.mock.calls[0][0]).toEqual(expected);
   });
 });
