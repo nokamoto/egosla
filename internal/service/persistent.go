@@ -4,6 +4,7 @@ package service
 import (
 	"github.com/nokamoto/egosla/api"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/proto"
 )
 
 type persistentWatcher interface {
@@ -19,4 +20,8 @@ type persistentSubscription interface {
 	List(offset, limit int) ([]*api.Subscription, error)
 	Delete(name string) error
 	Get(name string) (*api.Subscription, error)
+}
+
+type persistent interface {
+	Create(proto.Message) error
 }
