@@ -27,9 +27,13 @@ func newWatcher(v *api.Watcher) watcher {
 }
 
 func (w watcher) Value() *api.Watcher {
+	k := strings.Split(w.Keywords, sep)
+	if len(k) == 1 && k[0] == "" {
+		k = nil
+	}
 	return &api.Watcher{
 		Name:     w.Name,
-		Keywords: strings.Split(w.Keywords, sep),
+		Keywords: k,
 	}
 }
 

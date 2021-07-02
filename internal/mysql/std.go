@@ -37,3 +37,9 @@ func (s *std) get(name string, res interface{}) error {
 		return d.Where("name = ?", name).Take(res).Error
 	})
 }
+
+func (s *std) list(offset, limit int, res interface{}) error {
+	return s.tx(func(d *gorm.DB) error {
+		return d.Offset(offset).Limit(limit).Find(res).Error
+	})
+}

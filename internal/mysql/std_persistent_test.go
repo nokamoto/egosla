@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func newTestDB(t *testing.T) (*gorm.DB, sqlmock.Sqlmock) {
+func newStdPersistent(t *testing.T, f func(sqlmock.Sqlmock)) *StdPersistent {
 	gdb, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -42,10 +42,22 @@ func newTestDB(t *testing.T) (*gorm.DB, sqlmock.Sqlmock) {
 		gdb.Close()
 	})
 
-	return db, mock
+	if f != nil {
+		f(mock)
+	}
+
+	return &StdPersistent{
+		std:   &std{db: db},
+		model: &WatcherModel{},
+	}
 }
 
 func TestStdPersistent_Create(t *testing.T) {
+	requested := &api.Watcher{
+		Name:     "foo",
+		Keywords: []string{"bar"},
+	}
+
 	created := &watcher{
 		Name:     "foo",
 		Keywords: "bar",
@@ -81,22 +93,8 @@ func TestStdPersistent_Create(t *testing.T) {
 
 	for _, testcase := range testcases {
 		t.Run(testcase.name, func(t *testing.T) {
-			db, mock := newTestDB(t)
-
-			if testcase.mock != nil {
-				testcase.mock(mock)
-			}
-
-			sp := &StdPersistent{
-				std: &std{db: db},
-				convert: func(_ proto.Message) (interface{}, error) {
-					return created, nil
-				},
-			}
-
-			dummy := &api.Watcher{}
-
-			if err := sp.Create(dummy); !errors.Is(err, testcase.expected) {
+			sp := newStdPersistent(t, testcase.mock)
+			if err := sp.Create(requested); !errors.Is(err, testcase.expected) {
 				t.Errorf("expected %v but actual %v", testcase.expected, err)
 			}
 		})
@@ -152,23 +150,7 @@ func TestStdPersistent_Get(t *testing.T) {
 
 	for _, testcase := range testcases {
 		t.Run(testcase.name, func(t *testing.T) {
-			db, mock := newTestDB(t)
-
-			if testcase.mock != nil {
-				testcase.mock(mock)
-			}
-
-			sp := &StdPersistent{
-				std: &std{db: db},
-				typ: func() interface{} {
-					return &watcher{}
-				},
-				revert: func(i interface{}) (proto.Message, error) {
-					v := i.(*watcher)
-					return v.Value(), nil
-				},
-			}
-
+			sp := newStdPersistent(t, testcase.mock)
 			actual, err := sp.Get(got.GetName())
 			if err := prototest.Equal(testcase.expected, actual); err != nil {
 				t.Error(err)
@@ -178,4 +160,8 @@ func TestStdPersistent_Get(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestStdPersistent_List(t *testing.T) {
+	
 }
