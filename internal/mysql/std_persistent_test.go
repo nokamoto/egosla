@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"testing"
@@ -50,6 +51,10 @@ func newStdPersistent(t *testing.T, f func(sqlmock.Sqlmock)) *StdPersistent {
 		std:   &std{db: db},
 		model: &WatcherModel{},
 	}
+}
+
+func newRows() *sqlmock.Rows {
+	return sqlmock.NewRows([]string{"name", "keywords"})
 }
 
 func TestStdPersistent_Create(t *testing.T) {
@@ -122,7 +127,7 @@ func TestStdPersistent_Get(t *testing.T) {
 			mock: func(s sqlmock.Sqlmock) {
 				s.ExpectBegin()
 				query(s).WillReturnRows(
-					sqlmock.NewRows([]string{"name", "keywords"}).AddRow(got.GetName(), strings.Join(got.GetKeywords(), ",")),
+					newRows().AddRow(got.GetName(), strings.Join(got.GetKeywords(), ",")),
 				)
 				s.ExpectCommit()
 			},
@@ -132,7 +137,7 @@ func TestStdPersistent_Get(t *testing.T) {
 			name: "not found",
 			mock: func(s sqlmock.Sqlmock) {
 				s.ExpectBegin()
-				query(s).WillReturnRows(sqlmock.NewRows([]string{"name", "keywords"}))
+				query(s).WillReturnRows(newRows())
 				s.ExpectRollback()
 			},
 			err: ErrNotFound,
@@ -163,5 +168,65 @@ func TestStdPersistent_Get(t *testing.T) {
 }
 
 func TestStdPersistent_List(t *testing.T) {
-	
+	got := []*api.Watcher{
+		{
+			Name: "foo",
+		},
+		{
+			Name: "bar",
+		},
+	}
+
+	offset, limit := 1, 2
+
+	query := func(s sqlmock.Sqlmock) *sqlmock.ExpectedQuery {
+		return s.ExpectQuery(regexp.QuoteMeta(fmt.Sprintf("SELECT * FROM `watcher` LIMIT %d OFFSET %d", limit, offset)))
+	}
+
+	testcases := []struct {
+		name     string
+		mock     func(sqlmock.Sqlmock)
+		expected []proto.Message
+		err      error
+	}{
+		{
+			name: "ok: empty",
+			mock: func(s sqlmock.Sqlmock) {
+				s.ExpectBegin()
+				query(s).WillReturnRows(newRows())
+				s.ExpectCommit()
+			},
+		},
+		{
+			name: "ok",
+			mock: func(s sqlmock.Sqlmock) {
+				s.ExpectBegin()
+				query(s).WillReturnRows(newRows().AddRow(got[0].GetName(), "").AddRow(got[1].GetName(), ""))
+				s.ExpectCommit()
+			},
+			expected: []proto.Message{got[0], got[1]},
+		},
+		{
+			name: "unexpected error",
+			mock: func(s sqlmock.Sqlmock) {
+				s.ExpectBegin()
+				query(s).WillReturnError(errors.New("unexpected"))
+				s.ExpectRollback()
+			},
+			err: ErrUnknown,
+		},
+	}
+
+	for _, testcase := range testcases {
+		t.Run(testcase.name, func(t *testing.T) {
+			sp := newStdPersistent(t, testcase.mock)
+			actual, err := sp.List(offset, limit)
+			if err := prototest.EqualSlice(testcase.expected, actual); err != nil {
+				t.Error(err)
+			}
+			if !errors.Is(err, testcase.err) {
+				t.Errorf("expected %v but actual %v", testcase.err, err)
+			}
+		})
+	}
 }

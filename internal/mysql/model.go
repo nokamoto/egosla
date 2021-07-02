@@ -22,7 +22,7 @@ func (*WatcherModel) Typ() interface{} {
 }
 
 func (*WatcherModel) SliceTyp() interface{} {
-	return []watcher{}
+	return &[]watcher{}
 }
 
 func (*WatcherModel) Convert(m proto.Message) (interface{}, error) {
@@ -43,12 +43,12 @@ func (*WatcherModel) Revert(m interface{}) (proto.Message, error) {
 }
 
 func (*WatcherModel) RevertSlice(m interface{}) ([]proto.Message, error) {
-	vs, ok := m.([]watcher)
+	vs, ok := m.(*[]watcher)
 	if !ok {
 		return nil, fmt.Errorf("%s is not watcher slice", m)
 	}
 	var ms []proto.Message
-	for _, v := range vs {
+	for _, v := range *vs {
 		ms = append(ms, v.Value())
 	}
 	return ms, nil

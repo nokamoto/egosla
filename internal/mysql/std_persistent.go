@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"fmt"
+	"log"
 
 	"google.golang.org/protobuf/proto"
 )
@@ -36,6 +37,7 @@ func (s *StdPersistent) List(offset, limit int) ([]proto.Message, error) {
 	if err := s.std.list(offset, limit, res); err != nil {
 		return nil, err
 	}
+	log.Printf("res=%v", res)
 	ms, err := s.model.RevertSlice(res)
 	if err != nil {
 		return nil, fmt.Errorf("[bug] %w: %s", ErrUnknown, err)
