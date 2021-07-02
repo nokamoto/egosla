@@ -24,4 +24,5 @@ type persistentSubscription interface {
 
 type persistent interface {
 	Create(proto.Message) error
+	Get(string) (proto.Message, error)
 }

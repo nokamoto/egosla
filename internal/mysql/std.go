@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -11,7 +12,14 @@ type std struct {
 }
 
 func (s *std) tx(f func(*gorm.DB) error) error {
+	return s.txh("", f)
+}
+
+func (s *std) txh(hint string, f func(*gorm.DB) error) error {
 	err := s.db.Transaction(f)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return fmt.Errorf("%w: %s", ErrNotFound, hint)
+	}
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrUnknown, err)
 	}
@@ -21,5 +29,11 @@ func (s *std) tx(f func(*gorm.DB) error) error {
 func (s *std) create(created interface{}) error {
 	return s.tx(func(d *gorm.DB) error {
 		return d.Create(created).Error
+	})
+}
+
+func (s *std) get(name string, res interface{}) error {
+	return s.txh(name, func(d *gorm.DB) error {
+		return d.Where("name = ?", name).Take(res).Error
 	})
 }
