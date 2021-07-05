@@ -35,7 +35,7 @@ func (s *std) create(validate func() error, created proto.Message) error {
 }
 
 func (s *std) get(validate func() error, req getRequest) (proto.Message, error) {
-	l := s.logger.With(zap.String("method", "get"), zap.Any("name", req.GetName()))
+	l := s.logger.With(zap.String("method", "get"), zap.String("name", req.GetName()))
 	l.Debug("get")
 
 	if err := validate(); err != nil {
@@ -54,6 +54,36 @@ func (s *std) get(validate func() error, req getRequest) (proto.Message, error) 
 	}
 
 	return res, nil
+}
+
+func (s *std) list(req listRequest) ([]proto.Message, string, error) {
+	l := s.logger.With(zap.String("method", "list"), zap.String("token", req.GetPageToken()), zap.Int32("size", req.GetPageSize()))
+	l.Debug("list")
+
+	offset, err := fromPageToken(req.GetPageToken())
+	if err != nil {
+		l.Debug("invalid argument", zap.Error(err))
+		return nil, "", status.Errorf(codes.InvalidArgument, "invalid argument: %s", err)
+	}
+
+	size := int(req.GetPageSize())
+	if size <= 0 {
+		size = defaultPageSize
+	}
+
+	got, err := s.persistent.List(offset, size+1)
+	if err != nil {
+		l.Error("unavailable", zap.Error(err))
+		return nil, "", status.Errorf(codes.Unavailable, "unavailable")
+	}
+
+	var nextPageToken string
+	if len(got) == size+1 {
+		nextPageToken = fromPageOffset(offset + size)
+		got = got[:len(got)-1]
+	}
+
+	return got, nextPageToken, nil
 }
 
 type WatcherV2 struct {
@@ -90,4 +120,24 @@ func (w *WatcherV2) GetWatcher(ctx context.Context, req *api.GetWatcherRequest) 
 	}
 
 	return v, nil
+}
+
+func (w *WatcherV2) ListWatcher(ctx context.Context, req *api.ListWatcherRequest) (*api.ListWatcherResponse, error) {
+	xs, token, err := w.std.list(req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.ListWatcherResponse{
+		NextPageToken: token,
+	}
+	for _, x := range xs {
+		v, ok := x.(*api.Watcher)
+		if !ok {
+			w.std.logger.Error("[bug] unknown value", zap.Any("value", v))
+			return nil, status.Error(codes.Internal, "internal error occurred")
+		}
+		res.Watchers = append(res.Watchers, v)
+	}
+	return res, nil
 }
