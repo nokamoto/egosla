@@ -2,6 +2,7 @@ package prototest
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 
 	"github.com/google/go-cmp/cmp"
@@ -16,6 +17,18 @@ func Equal(x, y proto.Message) error {
 	}
 	if diff := cmp.Diff(x, y, protocmp.Transform()); len(diff) != 0 {
 		return errors.New(diff)
+	}
+	return nil
+}
+
+func EqualSlice(x, y []proto.Message) error {
+	if len(x) != len(y) {
+		return fmt.Errorf("len(%v) != len(%v)", x, y)
+	}
+	for i, z := range x {
+		if err := Equal(z, y[i]); err != nil {
+			return err
+		}
 	}
 	return nil
 }

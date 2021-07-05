@@ -7,14 +7,12 @@ import (
 )
 
 type StdPersistent struct {
-	std     *std
-	convert func(proto.Message) (interface{}, error)
-	typ     func() interface{}
-	revert  func(interface{}) (proto.Message, error)
+	std   *std
+	model model
 }
 
 func (s *StdPersistent) Create(created proto.Message) error {
-	v, err := s.convert(created)
+	v, err := s.model.Convert(created)
 	if err != nil {
 		return fmt.Errorf("[bug] %w: %s", ErrUnknown, err)
 	}
@@ -22,13 +20,25 @@ func (s *StdPersistent) Create(created proto.Message) error {
 }
 
 func (s *StdPersistent) Get(name string) (proto.Message, error) {
-	res := s.typ()
+	res := s.model.Typ()
 	if err := s.std.get(name, res); err != nil {
 		return nil, err
 	}
-	v, err := s.revert(res)
+	v, err := s.model.Revert(res)
 	if err != nil {
 		return nil, fmt.Errorf("[bug] %w: %s", ErrUnknown, err)
 	}
 	return v, nil
+}
+
+func (s *StdPersistent) List(offset, limit int) ([]proto.Message, error) {
+	res := s.model.SliceTyp()
+	if err := s.std.list(offset, limit, res); err != nil {
+		return nil, err
+	}
+	ms, err := s.model.RevertSlice(res)
+	if err != nil {
+		return nil, fmt.Errorf("[bug] %w: %s", ErrUnknown, err)
+	}
+	return ms, nil
 }
