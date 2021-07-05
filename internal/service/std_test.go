@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap/zaptest"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 func newTestWatcherV2(t *testing.T, mock func(*Mockpersistent, *MocknameGenerator)) *WatcherV2 {
@@ -132,6 +133,79 @@ func TestWatcherV2_Get(t *testing.T) {
 		t.Run(testcase.name, func(t *testing.T) {
 			w := newTestWatcherV2(t, testcase.mock)
 			res, err := w.GetWatcher(context.TODO(), testcase.req)
+			if err := prototest.Equal(res, testcase.res); err != nil {
+				t.Error(err)
+			}
+			if code := status.Code(err); code != testcase.code {
+				t.Errorf("expected %v but actual %v", testcase.code, code)
+			}
+		})
+	}
+}
+
+func TestWatcherV2_List(t *testing.T) {
+	requested := &api.ListWatcherRequest{
+		PageSize: 1,
+	}
+
+	w1 := &api.Watcher{
+		Name: "foo",
+	}
+
+	w2 := &api.Watcher{
+		Name: "bar",
+	}
+
+	testcases := []struct {
+		name string
+		mock func(*Mockpersistent, *MocknameGenerator)
+		req  *api.ListWatcherRequest
+		res  *api.ListWatcherResponse
+		code codes.Code
+	}{
+		{
+			name: "ok: empty",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().List(0, 1+1).Return(nil, nil)
+			},
+			req: requested,
+			res: &api.ListWatcherResponse{},
+		},
+		{
+			name: "ok: <= size",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().List(0, 1+1).Return([]proto.Message{w1}, nil)
+			},
+			req: requested,
+			res: &api.ListWatcherResponse{
+				Watchers: []*api.Watcher{w1},
+			},
+		},
+		{
+			name: "ok: > size",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().List(0, 1+1).Return([]proto.Message{w1, w2}, nil)
+			},
+			req: requested,
+			res: &api.ListWatcherResponse{
+				NextPageToken: "1",
+				Watchers:      []*api.Watcher{w1},
+			},
+		},
+		{
+			name: "unexpected error",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().List(0, 1+1).Return(nil, errors.New("unexpected"))
+			},
+			req:  requested,
+			code: codes.Unavailable,
+		},
+	}
+
+	for _, testcase := range testcases {
+		t.Run(testcase.name, func(t *testing.T) {
+			w := newTestWatcherV2(t, testcase.mock)
+			res, err := w.ListWatcher(context.TODO(), testcase.req)
 			if err := prototest.Equal(res, testcase.res); err != nil {
 				t.Error(err)
 			}
