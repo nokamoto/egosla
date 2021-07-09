@@ -3,9 +3,11 @@ package mysql
 import (
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/prototest"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type modelTestSet struct {
@@ -14,6 +16,7 @@ type modelTestSet struct {
 	nonZeroValue proto.Message
 	mysqlValues  interface{}
 	protoValues  []proto.Message
+	mask         map[string]string
 }
 
 func testModel(t *testing.T, set modelTestSet) {
@@ -75,6 +78,24 @@ func testModel(t *testing.T, set modelTestSet) {
 			t.Fatal(err)
 		}
 	})
+
+	t.Run("FieldMask should map from mask key to mask value", func(t *testing.T) {
+		for key, value := range set.mask {
+			expected := []string{value}
+			m, _ := set.m.Revert(set.m.Typ())
+			fieldMask, err := fieldmaskpb.New(m, key)
+			if err != nil {
+				t.Fatal(err)
+			}
+			actual, err := set.m.FieldMask(fieldMask)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff := cmp.Diff(expected, actual); len(diff) != 0 {
+				t.Fatal(diff)
+			}
+		}
+	})
 }
 
 func TestWatcherModel(t *testing.T) {
@@ -97,6 +118,9 @@ func TestWatcherModel(t *testing.T) {
 			&api.Watcher{
 				Name: "bar",
 			},
+		},
+		mask: map[string]string{
+			"keywords": "keywords",
 		},
 	})
 }

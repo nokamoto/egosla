@@ -3,6 +3,7 @@ package mysql
 import (
 	"fmt"
 
+	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -41,4 +42,24 @@ func (s *StdPersistent) List(offset, limit int) ([]proto.Message, error) {
 		return nil, fmt.Errorf("[bug] %w: %s", ErrUnknown, err)
 	}
 	return ms, nil
+}
+
+func (s *StdPersistent) Update(name string, updateMask *field_mask.FieldMask, update proto.Message) (proto.Message, error) {
+	v, err := s.model.Convert(update)
+	if err != nil {
+		return nil, fmt.Errorf("[bug] %w: %s", ErrUnknown, err)
+	}
+	fields, err := s.model.FieldMask(updateMask)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrInvalidArgument, err)
+	}
+	res := s.model.Typ()
+	if err := s.std.update(name, fields, v, res); err != nil {
+		return nil, err
+	}
+	updated, err := s.model.Revert(res)
+	if err != nil {
+		return nil, fmt.Errorf("[bug] %w: %s", ErrUnknown, err)
+	}
+	return updated, nil
 }
