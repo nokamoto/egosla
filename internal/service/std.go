@@ -7,6 +7,7 @@ import (
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/mysql"
 	"go.uber.org/zap"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -86,10 +87,50 @@ func (s *std) list(req listRequest) ([]proto.Message, string, error) {
 	return got, nextPageToken, nil
 }
 
+type updateRequest interface {
+	GetName() string
+	GetUpdateMask() *field_mask.FieldMask
+}
+
+func (s *std) update(validate func() error, req updateRequest, value proto.Message) (proto.Message, error) {
+	l := s.logger.With(zap.String("method", "update"), zap.String("name", req.GetName()))
+	l.Debug("update")
+
+	if err := validate(); err != nil {
+		l.Debug("invalid argument", zap.Error(err))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	res, err := s.persistent.Update(req.GetName(), req.GetUpdateMask(), value)
+	if errors.Is(err, mysql.ErrInvalidArgument) {
+		l.Debug("invalid argument", zap.Error(err))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	if errors.Is(err, mysql.ErrNotFound) {
+		l.Debug("not found", zap.Error(err))
+		return nil, status.Errorf(codes.NotFound, "%s not found", req.GetName())
+	}
+	if err != nil {
+		l.Error("unknown", zap.Error(err))
+		return nil, status.Error(codes.Unavailable, "unavailable")
+	}
+
+	return res, nil
+}
+
 type WatcherV2 struct {
 	api.UnimplementedWatcherServiceServer
 	std    *std
 	naming nameGenerator
+}
+
+func (w *WatcherV2) revert(v proto.Message) (*api.Watcher, error) {
+	res, ok := v.(*api.Watcher)
+	if !ok {
+		w.std.logger.Error("[bug] unknown value", zap.Any("value", v))
+		return nil, status.Error(codes.Internal, "internal error occurred")
+	}
+	return res, nil
 }
 
 func (w *WatcherV2) CreateWatcher(ctx context.Context, req *api.CreateWatcherRequest) (*api.Watcher, error) {
@@ -113,13 +154,7 @@ func (w *WatcherV2) GetWatcher(ctx context.Context, req *api.GetWatcherRequest) 
 		return nil, err
 	}
 
-	v, ok := res.(*api.Watcher)
-	if !ok {
-		w.std.logger.Error("[bug] unknown value", zap.Any("value", v))
-		return nil, status.Error(codes.Internal, "internal error occurred")
-	}
-
-	return v, nil
+	return w.revert(res)
 }
 
 func (w *WatcherV2) ListWatcher(ctx context.Context, req *api.ListWatcherRequest) (*api.ListWatcherResponse, error) {
@@ -132,12 +167,25 @@ func (w *WatcherV2) ListWatcher(ctx context.Context, req *api.ListWatcherRequest
 		NextPageToken: token,
 	}
 	for _, x := range xs {
-		v, ok := x.(*api.Watcher)
-		if !ok {
-			w.std.logger.Error("[bug] unknown value", zap.Any("value", v))
-			return nil, status.Error(codes.Internal, "internal error occurred")
+		v, err := w.revert(x)
+		if err != nil {
+			return nil, err
 		}
 		res.Watchers = append(res.Watchers, v)
 	}
 	return res, nil
+}
+
+func (w *WatcherV2) UpdateWatcher(ctx context.Context, req *api.UpdateWatcherRequest) (*api.Watcher, error) {
+	res, err := w.std.update(
+		func() error {
+			return nil
+		},
+		req,
+		req.GetWatcher(),
+	)
+	if err != nil {
+		return nil, err
+	}
+	return w.revert(res)
 }
