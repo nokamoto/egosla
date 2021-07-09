@@ -1,9 +1,11 @@
 package mysql
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/nokamoto/egosla/api"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -13,6 +15,7 @@ type model interface {
 	Convert(proto.Message) (interface{}, error)
 	Revert(interface{}) (proto.Message, error)
 	RevertSlice(interface{}) ([]proto.Message, error)
+	FieldMask(*field_mask.FieldMask) ([]string, error)
 }
 
 type WatcherModel struct{}
@@ -52,4 +55,21 @@ func (*WatcherModel) RevertSlice(m interface{}) ([]proto.Message, error) {
 		ms = append(ms, v.Value())
 	}
 	return ms, nil
+}
+
+func (*WatcherModel) FieldMask(updateMask *field_mask.FieldMask) ([]string, error) {
+	updateMask.Normalize()
+	var fields []string
+	for _, path := range updateMask.GetPaths() {
+		switch path {
+		case "keywords":
+			fields = append(fields, "keywords")
+		default:
+			return nil, fmt.Errorf("%s field not allowed", path)
+		}
+	}
+	if len(fields) == 0 {
+		return nil, errors.New("no update")
+	}
+	return fields, nil
 }

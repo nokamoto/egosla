@@ -10,11 +10,12 @@ import (
 	"github.com/nokamoto/egosla/internal/mysql"
 	"github.com/nokamoto/egosla/internal/prototest"
 	"go.uber.org/zap"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/proto"
 )
 
-func _newTestWatcherV2(f func(*WatcherV2, proto.Message) (proto.Message, error)) stdCall {
+func newTestWatcherV2(f func(*WatcherV2, proto.Message) (proto.Message, error)) stdCall {
 	return func(l *zap.Logger, p persistent, ng nameGenerator, req proto.Message) (proto.Message, error) {
 		return f(&WatcherV2{
 			std: &std{
@@ -61,7 +62,7 @@ func TestWatcherV2_Create(t *testing.T) {
 
 	testStd(
 		t,
-		_newTestWatcherV2(func(w *WatcherV2, m proto.Message) (proto.Message, error) {
+		newTestWatcherV2(func(w *WatcherV2, m proto.Message) (proto.Message, error) {
 			return w.CreateWatcher(context.TODO(), m.(*api.CreateWatcherRequest))
 		}),
 		testcases,
@@ -107,14 +108,14 @@ func TestWatcherV2_Get(t *testing.T) {
 
 	testStd(
 		t,
-		_newTestWatcherV2(func(w *WatcherV2, m proto.Message) (proto.Message, error) {
+		newTestWatcherV2(func(w *WatcherV2, m proto.Message) (proto.Message, error) {
 			return w.GetWatcher(context.TODO(), m.(*api.GetWatcherRequest))
 		}),
 		testcases,
 	)
 }
 
-func TestWatcherV2_List2(t *testing.T) {
+func TestWatcherV2_List(t *testing.T) {
 	req := &api.ListWatcherRequest{
 		PageSize: 1,
 	}
@@ -171,8 +172,76 @@ func TestWatcherV2_List2(t *testing.T) {
 
 	testStd(
 		t,
-		_newTestWatcherV2(func(w *WatcherV2, m proto.Message) (proto.Message, error) {
+		newTestWatcherV2(func(w *WatcherV2, m proto.Message) (proto.Message, error) {
 			return w.ListWatcher(context.TODO(), m.(*api.ListWatcherRequest))
+		}),
+		testcases,
+	)
+}
+
+func TestWatcherV2_Update(t *testing.T) {
+	req := &api.UpdateWatcherRequest{
+		Name: "foo",
+		UpdateMask: &field_mask.FieldMask{
+			Paths: []string{"keywords"},
+		},
+		Watcher: &api.Watcher{
+			Keywords: []string{"bar"},
+		},
+	}
+
+	res := &api.Watcher{
+		Name:     "foo",
+		Keywords: []string{"bar"},
+	}
+
+	testcases := []stdTestCase{
+		{
+			name: "ok",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().
+					Update(req.GetName(), prototest.Match(req.GetUpdateMask()), prototest.Match(req.GetWatcher())).
+					Return(res, nil)
+			},
+			req: req,
+			res: res,
+		},
+		{
+			name: "invalid argument",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().
+					Update(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil, mysql.ErrInvalidArgument)
+			},
+			req:  req,
+			code: codes.InvalidArgument,
+		},
+		{
+			name: "not found",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().
+					Update(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil, mysql.ErrNotFound)
+			},
+			req:  req,
+			code: codes.NotFound,
+		},
+		{
+			name: "unexpected error",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().
+					Update(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil, errors.New("unexpected"))
+			},
+			req:  req,
+			code: codes.Unavailable,
+		},
+	}
+
+	testStd(
+		t,
+		newTestWatcherV2(func(w *WatcherV2, m proto.Message) (proto.Message, error) {
+			return w.UpdateWatcher(context.TODO(), m.(*api.UpdateWatcherRequest))
 		}),
 		testcases,
 	)

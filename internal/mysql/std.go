@@ -43,3 +43,12 @@ func (s *std) list(offset, limit int, res interface{}) error {
 		return d.Offset(offset).Limit(limit).Find(res).Error
 	})
 }
+
+func (s *std) update(name string, fields []string, updates interface{}, res interface{}) error {
+	return s.txh(name, func(d *gorm.DB) error {
+		if err := d.Model(updates).Where("name = ?", name).Select(fields).Updates(updates).Error; err != nil {
+			return err
+		}
+		return d.Where("name = ?", name).Take(res).Error
+	})
+}
