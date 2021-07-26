@@ -52,3 +52,9 @@ func (s *std) update(name string, fields []string, updates interface{}, res inte
 		return d.Where("name = ?", name).Take(res).Error
 	})
 }
+
+func (s *std) delete(name string, typ interface{}) error {
+	return s.txh(name, func(d *gorm.DB) error {
+		return d.Where("name = ?", name).Delete(typ).Error
+	})
+}

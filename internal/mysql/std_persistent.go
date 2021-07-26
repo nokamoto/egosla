@@ -63,3 +63,7 @@ func (s *StdPersistent) Update(name string, updateMask *field_mask.FieldMask, up
 	}
 	return updated, nil
 }
+
+func (s *StdPersistent) Delete(name string) error {
+	return s.std.delete(name, s.model.Typ())
+}

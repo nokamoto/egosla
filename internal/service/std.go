@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/mysql"
 	"go.uber.org/zap"
@@ -118,6 +119,23 @@ func (s *std) update(validate func() error, req updateRequest, value proto.Messa
 	return res, nil
 }
 
+func (s *std) delete(validate func() error, req deleteRequest) (*empty.Empty, error) {
+	l := s.logger.With(zap.String("method", "delete"), zap.String("name", req.GetName()))
+	l.Debug("delete")
+
+	if err := validate(); err != nil {
+		l.Debug("invalid argument", zap.Error(err))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	if err := s.persistent.Delete(req.GetName()); err != nil {
+		l.Error("unknown", zap.Error(err))
+		return nil, status.Error(codes.Unavailable, "unavailable")
+	}
+
+	return &empty.Empty{}, nil
+}
+
 type WatcherV2 struct {
 	api.UnimplementedWatcherServiceServer
 	std    *std
@@ -188,4 +206,13 @@ func (w *WatcherV2) UpdateWatcher(ctx context.Context, req *api.UpdateWatcherReq
 		return nil, err
 	}
 	return w.revert(res)
+}
+
+func (w *WatcherV2) DeleteWatcher(ctx context.Context, req *api.DeleteWatcherRequest) (*empty.Empty, error) {
+	return w.std.delete(
+		func() error {
+			return nil
+		},
+		req,
+	)
 }

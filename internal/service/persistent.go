@@ -27,4 +27,5 @@ type persistent interface {
 	Get(string) (proto.Message, error)
 	List(int, int) ([]proto.Message, error)
 	Update(string, *field_mask.FieldMask, proto.Message) (proto.Message, error)
+	Delete(string) error
 }

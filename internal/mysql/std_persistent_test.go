@@ -323,3 +323,43 @@ func TestStdPersistent_Update(t *testing.T) {
 		})
 	}
 }
+
+func TestStdPersistent_Delete(t *testing.T) {
+	name := "foo"
+
+	query := func(s sqlmock.Sqlmock) *sqlmock.ExpectedExec {
+		return s.ExpectExec(regexp.QuoteMeta("DELETE FROM `watcher` WHERE name = ?")).WithArgs(name)
+	}
+
+	testcases := []struct {
+		name string
+		mock func(sqlmock.Sqlmock)
+		err  error
+	}{
+		{
+			name: "ok",
+			mock: func(s sqlmock.Sqlmock) {
+				s.ExpectBegin()
+				query(s).WillReturnResult(sqlmock.NewResult(0, 1))
+				s.ExpectCommit()
+			},
+		},
+		{
+			name: "unexpected error",
+			mock: func(s sqlmock.Sqlmock) {
+				s.ExpectBegin()
+				query(s).WillReturnError(errors.New("unexpected"))
+				s.ExpectRollback()
+			},
+			err: ErrUnknown,
+		},
+	}
+	for _, testcase := range testcases {
+		t.Run(testcase.name, func(t *testing.T) {
+			sp := newStdPersistent(t, testcase.mock)
+			if err := sp.Delete(name); !errors.Is(err, testcase.err) {
+				t.Errorf("expected %v but actual %v", testcase.err, err)
+			}
+		})
+	}
+}
