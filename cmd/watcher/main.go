@@ -14,7 +14,10 @@ func main() {
 	cmd.GrpcServer(func(s *grpc.Server, db *gorm.DB, logger *zap.Logger) error {
 		api.RegisterWatcherServiceServer(
 			s,
-			service.NewWatcher(mysql.NewPersistentWatcher(db), logger),
+			service.NewWatcher(
+				mysql.NewStdPersistent(db, &mysql.WatcherModel{}),
+				logger,
+			),
 		)
 		return nil
 	})

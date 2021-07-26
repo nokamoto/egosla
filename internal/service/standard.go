@@ -28,11 +28,6 @@ func createMethod(logger *zap.Logger, validate func() error, create func() error
 	return nil
 }
 
-type listRequest interface {
-	GetPageToken() string
-	GetPageSize() int32
-}
-
 func listMethod(logger *zap.Logger, req listRequest, list func(int, int) (int, error)) (string, error) {
 	logger.Debug("receive")
 
@@ -63,10 +58,6 @@ func listMethod(logger *zap.Logger, req listRequest, list func(int, int) (int, e
 
 type deletePersistent interface {
 	Delete(string) error
-}
-
-type deleteRequest interface {
-	GetName() string
 }
 
 func deleteMethod(logger *zap.Logger, p deletePersistent, req deleteRequest, validate func(string) error) (*empty.Empty, error) {
