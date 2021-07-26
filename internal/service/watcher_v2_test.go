@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/mysql"
 	"github.com/nokamoto/egosla/internal/prototest"
@@ -242,6 +243,38 @@ func TestWatcherV2_Update(t *testing.T) {
 		t,
 		newTestWatcherV2(func(w *WatcherV2, m proto.Message) (proto.Message, error) {
 			return w.UpdateWatcher(context.TODO(), m.(*api.UpdateWatcherRequest))
+		}),
+		testcases,
+	)
+}
+
+func TestWatcherV2_Delete(t *testing.T) {
+	req := &api.DeleteWatcherRequest{
+		Name: "foo",
+	}
+	res := &empty.Empty{}
+	testcases := []stdTestCase{
+		{
+			name: "ok",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().Delete(req.GetName()).Return(nil)
+			},
+			req: req,
+			res: res,
+		},
+		{
+			name: "unexpected error",
+			mock: func(m *Mockpersistent, mg *MocknameGenerator) {
+				m.EXPECT().Delete(req.GetName()).Return(errors.New("unexpected"))
+			},
+			req:  req,
+			code: codes.Unavailable,
+		},
+	}
+	testStd(
+		t,
+		newTestWatcherV2(func(w *WatcherV2, m proto.Message) (proto.Message, error) {
+			return w.DeleteWatcher(context.TODO(), m.(*api.DeleteWatcherRequest))
 		}),
 		testcases,
 	)
