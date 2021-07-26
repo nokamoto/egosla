@@ -5,11 +5,21 @@ import (
 
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/proto"
+	"gorm.io/gorm"
 )
 
 type StdPersistent struct {
 	std   *std
 	model model
+}
+
+func NewStdPersistent(db *gorm.DB, model model) *StdPersistent {
+	return &StdPersistent{
+		std: &std{
+			db: db,
+		},
+		model: model,
+	}
 }
 
 func (s *StdPersistent) Create(created proto.Message) error {

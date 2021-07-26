@@ -7,14 +7,6 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type persistentWatcher interface {
-	Create(*api.Watcher) error
-	List(offset, limit int) ([]*api.Watcher, error)
-	Delete(name string) error
-	Update(*api.Watcher, *field_mask.FieldMask) (*api.Watcher, error)
-	Get(name string) (*api.Watcher, error)
-}
-
 type persistentSubscription interface {
 	Create(*api.Subscription) error
 	List(offset, limit int) ([]*api.Subscription, error)
