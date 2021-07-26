@@ -59,6 +59,7 @@ func (s *StdPersistent) Update(name string, updateMask *field_mask.FieldMask, up
 	if err != nil {
 		return nil, fmt.Errorf("[bug] %w: %s", ErrUnknown, err)
 	}
+	updateMask.Normalize()
 	fields, err := s.model.FieldMask(updateMask)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrInvalidArgument, err)

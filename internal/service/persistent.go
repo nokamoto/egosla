@@ -2,17 +2,9 @@
 package service
 
 import (
-	"github.com/nokamoto/egosla/api"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/proto"
 )
-
-type persistentSubscription interface {
-	Create(*api.Subscription) error
-	List(offset, limit int) ([]*api.Subscription, error)
-	Delete(name string) error
-	Get(name string) (*api.Subscription, error)
-}
 
 type persistent interface {
 	Create(proto.Message) error

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/nokamoto/egosla/api"
 	"github.com/nokamoto/egosla/internal/prototest"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -95,32 +94,5 @@ func testModel(t *testing.T, set modelTestSet) {
 				t.Fatal(diff)
 			}
 		}
-	})
-}
-
-func TestWatcherModel(t *testing.T) {
-	testModel(t, modelTestSet{
-		m:            &WatcherModel{},
-		typValue:     &api.Watcher{},
-		nonZeroValue: &api.Watcher{Name: "foo"},
-		mysqlValues: &[]watcher{
-			{
-				Name: "foo",
-			},
-			{
-				Name: "bar",
-			},
-		},
-		protoValues: []proto.Message{
-			&api.Watcher{
-				Name: "foo",
-			},
-			&api.Watcher{
-				Name: "bar",
-			},
-		},
-		mask: map[string]string{
-			"keywords": "keywords",
-		},
 	})
 }

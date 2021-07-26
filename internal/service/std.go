@@ -34,6 +34,10 @@ func (s *std) create(validate func() error, created proto.Message) error {
 	return nil
 }
 
+type getRequest interface {
+	GetName() string
+}
+
 func (s *std) get(validate func() error, req getRequest) (proto.Message, error) {
 	l := s.logger.With(zap.String("method", "get"), zap.String("name", req.GetName()))
 	l.Debug("get")
