@@ -8,8 +8,8 @@ tasks:
 - init: mysqladmin --wait --count 3 ping
   command: make subscription
 - command: func-e run -c deployments/envoy.yaml
-- init: cd web && yarn
-  command: yarn start
+- init: cd /workspace/egosla/web && yarn
+  command: cd /workspace/egosla/web && yarn start
 
 vscode:
   extensions:
