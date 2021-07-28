@@ -6,97 +6,105 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/nokamoto/egosla/api"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	proto "google.golang.org/protobuf/proto"
 )
 
 // Subscription implements api.SubscriptionServiceServer.
 type Subscription struct {
 	api.UnimplementedSubscriptionServiceServer
-	p      persistentSubscription
-	n      nameGenerator
-	logger *zap.Logger
+	std    *std
+	naming nameGenerator
 }
 
 // NewSubscription creates a new Subscription.
-func NewSubscription(p persistentSubscription, logger *zap.Logger) *Subscription {
+func NewSubscription(p persistent, logger *zap.Logger) *Subscription {
 	return &Subscription{
-		n:      newSubscriptionNameGenerator(),
-		p:      p,
-		logger: logger.With(zap.String("service", "SubscriptionService")),
+		std: &std{
+			logger:     logger,
+			persistent: p,
+		},
+		naming: newSubscriptionNameGenerator(),
 	}
+}
+
+func (s *Subscription) revert(v proto.Message) (*api.Subscription, error) {
+	res, ok := v.(*api.Subscription)
+	if !ok {
+		s.std.logger.Error("[bug] unknown value", zap.Any("value", v))
+		return nil, status.Error(codes.Internal, "internal error occurred")
+	}
+	return res, nil
 }
 
 func (s *Subscription) CreateSubscription(ctx context.Context, req *api.CreateSubscriptionRequest) (*api.Subscription, error) {
 	created := &api.Subscription{
-		Name:    s.n.newName(),
+		Name:    s.naming.newName(),
 		Watcher: req.GetSubscription().GetWatcher(),
 	}
-
-	err := createMethod(
-		s.logger.With(zap.Any("req", req), zap.String("method", "CreateSubscription"), zap.Any("created", created)),
+	if err := s.std.create(
 		func() error {
 			return nil
 		},
-		func() error {
-			return s.p.Create(created)
-		},
-	)
-	if err != nil {
+		created,
+	); err != nil {
 		return nil, err
 	}
-
 	return created, nil
 }
 
-func (s *Subscription) ListSubscription(ctx context.Context, req *api.ListSubscriptionRequest) (*api.ListSubscriptionResponse, error) {
-	var res api.ListSubscriptionResponse
-	nextPageToken, err := listMethod(
-		s.logger.With(zap.Any("req", req), zap.String("method", "ListSubscription")),
-		req,
-		func(offset, limit int) (int, error) {
-			v, err := s.p.List(offset, limit)
-			res.Subscriptions = v
-			return len(v), err
+func (s *Subscription) GetSubscription(ctx context.Context, req *api.GetSubscriptionRequest) (*api.Subscription, error) {
+	res, err := s.std.get(
+		func() error {
+			return nil
 		},
+		req,
 	)
 	if err != nil {
 		return nil, err
 	}
+	return s.revert(res)
+}
 
-	res.NextPageToken = nextPageToken
-	if len(nextPageToken) != 0 {
-		res.Subscriptions = res.Subscriptions[:len(res.Subscriptions)-1]
+func (s *Subscription) ListSubscription(ctx context.Context, req *api.ListSubscriptionRequest) (*api.ListSubscriptionResponse, error) {
+	xs, token, err := s.std.list(req)
+	if err != nil {
+		return nil, err
 	}
 
-	return &res, nil
+	res := &api.ListSubscriptionResponse{
+		NextPageToken: token,
+	}
+	for _, x := range xs {
+		v, err := s.revert(x)
+		if err != nil {
+			return nil, err
+		}
+		res.Subscriptions = append(res.Subscriptions, v)
+	}
+	return res, nil
+}
+
+func (s *Subscription) UpdateSubscription(ctx context.Context, req *api.UpdateSubscriptionRequest) (*api.Subscription, error) {
+	res, err := s.std.update(
+		func() error {
+			return nil
+		},
+		req,
+		req.GetSubscription(),
+	)
+	if err != nil {
+		return nil, err
+	}
+	return s.revert(res)
 }
 
 func (s *Subscription) DeleteSubscription(ctx context.Context, req *api.DeleteSubscriptionRequest) (*empty.Empty, error) {
-	return deleteMethod(
-		s.logger.With(zap.Any("req", req), zap.String("method", "DeleteSubscription")),
-		s.p,
-		req,
-		func(_ string) error {
+	return s.std.delete(
+		func() error {
 			return nil
 		},
-	)
-}
-
-func (s *Subscription) GetSubscription(ctx context.Context, req *api.GetSubscriptionRequest) (*api.Subscription, error) {
-	var res *api.Subscription
-	err := getMethod(
-		s.logger.With(zap.Any("req", req), zap.String("method", "GetSubscription")),
 		req,
-		func(name string) error {
-			return nil
-		},
-		func(name string) error {
-			v, err := s.p.Get(name)
-			res = v
-			return err
-		},
 	)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
 }
