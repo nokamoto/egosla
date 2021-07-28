@@ -7,7 +7,7 @@ tasks:
   command: make watcher
 - init: mysqladmin --wait --count 3 ping
   command: make subscription
-- command: getenvoy run standard:1.18.2 -- --config-path deployments/envoy.yaml 
+- command: func-e run -c deployments/envoy.yaml
 - init: cd web && yarn
   command: cd web && yarn start
 
