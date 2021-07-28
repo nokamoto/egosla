@@ -9,7 +9,7 @@ tasks:
   command: make subscription
 - command: func-e run -c deployments/envoy.yaml
 - init: cd web && yarn
-  command: cd web && yarn start
+  command: yarn start
 
 vscode:
   extensions:
