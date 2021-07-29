@@ -27,6 +27,7 @@ ports:
   onOpen: ignore
 - port: 8080
   onOpen: ignore
+  visibility: public
 - port: 9901
   onOpen: ignore
 - port: 9000
