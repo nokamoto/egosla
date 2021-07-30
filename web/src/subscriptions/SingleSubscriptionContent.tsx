@@ -2,9 +2,9 @@ import React from "react";
 import Paper from "@material-ui/core/Paper";
 import { withStyles, WithStyles } from "@material-ui/core/styles";
 import contentStyles from "src/standard/contentStyles";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import useSubscription from "./useSubscription";
-import { TextField } from "@material-ui/core";
+import { Button, TextField } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import useWatcherOptions from "./useWatcherOptions";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -13,9 +13,10 @@ interface contentProps extends WithStyles<typeof contentStyles> {}
 
 function SingleSubscriptionContent(props: contentProps) {
   const { classes } = props;
+  const history = useHistory();
 
   const { id } = useParams<{ id: string }>();
-  const [subscription] = useSubscription(id);
+  const [subscription, setWatcher, update] = useSubscription(id);
 
   const [isopen, options, loading, open, close, inputValue, setInputValue] =
     useWatcherOptions(subscription);
@@ -45,7 +46,10 @@ function SingleSubscriptionContent(props: contentProps) {
               onOpen={open}
               onClose={close}
               inputValue={inputValue}
-              onInputChange={setInputValue}
+              onInputChange={(e, v) => {
+                setWatcher(v);
+                setInputValue(e, v);
+              }}
               getOptionSelected={(option, value) =>
                 option.getName() === value.getName()
               }
@@ -73,6 +77,28 @@ function SingleSubscriptionContent(props: contentProps) {
                 />
               )}
             />
+          </div>
+          <div>
+            <div className={classes.buttons}>
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  history.push("/subscriptions");
+                }}
+                data-testid="back"
+              >
+                Back
+              </Button>
+              <Button
+                className={classes.button}
+                onClick={update}
+                color="primary"
+                variant="contained"
+                data-testid="update"
+              >
+                Update
+              </Button>
+            </div>
           </div>
         </div>
       )}
